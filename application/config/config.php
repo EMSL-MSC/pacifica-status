@@ -1,4 +1,18 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
+/**
+ * CI Auto Loader
+ *
+ * PHP Version 5
+ *
+ * @category Configuration
+ * @package  CoreConfig
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ */
+if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
 
 date_default_timezone_set('America/Los_Angeles');
 
@@ -17,9 +31,10 @@ date_default_timezone_set('America/Los_Angeles');
 |
 */
 $protocol = isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? "https" : "http";
-$rooted = isset($_SERVER["CI_ROOTED"]) && $_SERVER["CI_ROOTED"] == true ? true : false;
+$env_rooted = $_SERVER["CI_ROOTED"];
+$rooted = isset($env_rooted) && $env_rooted == true ? true : false;
 $basedir = $rooted ? '' : '/myemsl/status';
-$config['base_url']	= "{$protocol}://".$_SERVER["SERVER_NAME"].$basedir;
+$config['base_url'] = "{$protocol}://".$_SERVER["SERVER_NAME"].$basedir;
 $config['base_dir'] = $basedir;
 $config['local_resources_folder'] = "application/resources";
 
@@ -52,7 +67,7 @@ $config['index_page'] = $rooted ? '' : 'index.php';
 | 'ORIG_PATH_INFO'	Uses the ORIG_PATH_INFO
 |
 */
-$config['uri_protocol']	= 'AUTO';
+$config['uri_protocol'] = 'AUTO';
 
 /*
 |--------------------------------------------------------------------------
@@ -77,7 +92,7 @@ $config['url_suffix'] = '';
 | than english.
 |
 */
-$config['language']	= 'english';
+$config['language'] = 'english';
 
 /*
 |--------------------------------------------------------------------------
@@ -99,7 +114,7 @@ $config['charset'] = 'UTF-8';
 | setting this variable to TRUE (boolean).  See the user guide for details.
 |
 */
-$config['enable_hooks'] = FALSE;
+$config['enable_hooks'] = false;
 
 
 /*
@@ -162,11 +177,11 @@ $config['permitted_uri_chars'] = 'a-z 0-9~%.:_\-';
 | use segment based URLs.
 |
 */
-$config['allow_get_array']		= TRUE;
-$config['enable_query_strings'] = FALSE;
-$config['controller_trigger']	= 'c';
-$config['function_trigger']		= 'm';
-$config['directory_trigger']	= 'd'; // experimental not currently in use
+$config['allow_get_array'] = true;
+$config['enable_query_strings'] = false;
+$config['controller_trigger'] = 'c';
+$config['function_trigger'] = 'm';
+$config['directory_trigger'] = 'd'; // experimental not currently in use
 
 /*
 |--------------------------------------------------------------------------
@@ -266,27 +281,30 @@ $config['encryption_key'] = '';
 |--------------------------------------------------------------------------
 |
 | 'sess_cookie_name'		= the name you want for the cookie
-| 'sess_expiration'			= the number of SECONDS you want the session to last.
-|   by default sessions last 7200 seconds (two hours).  Set to zero for no expiration.
+| 'sess_expiration'		= the number of SECONDS you want the session to last.
+|   by default sessions last 7200 seconds (two hours).  Set to zero for no
+|   expiration.
 | 'sess_expire_on_close'	= Whether to cause the session to expire automatically
 |   when the browser window is closed
 | 'sess_encrypt_cookie'		= Whether to encrypt the cookie
 | 'sess_use_database'		= Whether to save the session data to a database
-| 'sess_table_name'			= The name of the session database table
-| 'sess_match_ip'			= Whether to match the user's IP address when reading the session data
-| 'sess_match_useragent'	= Whether to match the User Agent when reading the session data
+| 'sess_table_name'		= The name of the session database table
+| 'sess_match_ip'		= Whether to match the user's IP address when reading the session
+|   data
+| 'sess_match_useragent'	= Whether to match the User Agent when reading the session
+|   data
 | 'sess_time_to_update'		= how many seconds between CI refreshing Session Information
 |
 */
-$config['sess_cookie_name']		= 'ci_session';
-$config['sess_expiration']		= 7200;
-$config['sess_expire_on_close']	= FALSE;
-$config['sess_encrypt_cookie']	= FALSE;
-$config['sess_use_database']	= FALSE;
-$config['sess_table_name']		= 'ci_sessions';
-$config['sess_match_ip']		= FALSE;
-$config['sess_match_useragent']	= TRUE;
-$config['sess_time_to_update']	= 300;
+$config['sess_cookie_name'] = 'ci_session';
+$config['sess_expiration'] = 7200;
+$config['sess_expire_on_close'] = false;
+$config['sess_encrypt_cookie'] = false;
+$config['sess_use_database'] = false;
+$config['sess_table_name'] = 'ci_sessions';
+$config['sess_match_ip'] = false;
+$config['sess_match_useragent'] = true;
+$config['sess_time_to_update'] = 300;
 
 /*
 |--------------------------------------------------------------------------
@@ -299,10 +317,10 @@ $config['sess_time_to_update']	= 300;
 | 'cookie_secure' =  Cookies will only be set if a secure HTTPS connection exists.
 |
 */
-$config['cookie_prefix']	= "";
-$config['cookie_domain']	= "";
-$config['cookie_path']		= "/";
-$config['cookie_secure']	= FALSE;
+$config['cookie_prefix'] = "";
+$config['cookie_domain'] = "";
+$config['cookie_path'] = "/";
+$config['cookie_secure'] = false;
 
 /*
 |--------------------------------------------------------------------------
@@ -313,7 +331,7 @@ $config['cookie_secure']	= FALSE;
 | COOKIE data is encountered
 |
 */
-$config['global_xss_filtering'] = FALSE;
+$config['global_xss_filtering'] = false;
 
 /*
 |--------------------------------------------------------------------------
@@ -327,7 +345,7 @@ $config['global_xss_filtering'] = FALSE;
 | 'csrf_cookie_name' = The cookie name
 | 'csrf_expire' = The number in seconds the token should expire.
 */
-$config['csrf_protection'] = FALSE;
+$config['csrf_protection'] = false;
 $config['csrf_token_name'] = 'csrf_test_name';
 $config['csrf_cookie_name'] = 'csrf_cookie_name';
 $config['csrf_expire'] = 7200;
@@ -349,7 +367,7 @@ $config['csrf_expire'] = 7200;
 | by the output class.  Do not 'echo' any values with compression enabled.
 |
 */
-$config['compress_output'] = FALSE;
+$config['compress_output'] = false;
 
 /*
 |--------------------------------------------------------------------------
@@ -375,7 +393,7 @@ $config['time_reference'] = 'local';
 | in your view files.  Options are TRUE or FALSE (boolean)
 |
 */
-$config['rewrite_short_tags'] = FALSE;
+$config['rewrite_short_tags'] = false;
 
 
 /*
