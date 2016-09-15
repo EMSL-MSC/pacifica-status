@@ -24,15 +24,26 @@ require_once 'Baseline_controller.php';
  */
 class Ajax extends Baseline_controller
 {
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         parent::__construct();
         $this->load->model('status_model', 'status');
         $this->load->model('myemsl_model', 'myemsl');
-        $this->load->helper(array('inflector', 'item', 'url', 'opwhse_search', 'form', 'network', 'myemsl'));
+        $this->load->helper(
+            array(
+                'inflector', 'item', 'url', 'opwhse_search',
+                'form', 'network', 'myemsl'
+            )
+        );
         $this->load->library(array('table'));
     }
 
+    /**
+     * Get Proposals By Name
+     */
     public function get_proposals_by_name($terms = false){
         $prop_list = $this->eus->get_proposals_by_name($terms, $this->user_id, false);
         $results = array(
