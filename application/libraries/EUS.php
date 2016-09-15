@@ -23,7 +23,7 @@ class EUS
 
         if (!$this->CI->load->database('eus_for_myemsl')) {
             $this->CI->load->database('eus_for_myemsl');
-            $db_config = array(		
+            $db_config = array(
                 'hostname' => 'localhost',
                 'username' => 'eus_access',
                 'password' => 'changeme',
@@ -34,8 +34,8 @@ class EUS
                 'db_debug' => true,
                 'cache_on' => false,
                 'cachedir' => '',
-            );		
-            $this->CI->load->database($db_config);		
+            );
+            $this->CI->load->database($db_config);
         }
     }
 
