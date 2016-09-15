@@ -1,4 +1,18 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
+/**
+ * CI Auto Loader
+ *
+ * PHP Version 5
+ *
+ * @category Configuration
+ * @package  CoreConstants
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ */
+if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -27,14 +41,16 @@ define('DIR_WRITE_MODE', 0777);
 |
 */
 
-define('FOPEN_READ',							'rb');
-define('FOPEN_READ_WRITE',						'r+b');
-define('FOPEN_WRITE_CREATE_DESTRUCTIVE',		'wb'); // truncates existing file data, use with care
-define('FOPEN_READ_WRITE_CREATE_DESTRUCTIVE',	'w+b'); // truncates existing file data, use with care
-define('FOPEN_WRITE_CREATE',					'ab');
-define('FOPEN_READ_WRITE_CREATE',				'a+b');
-define('FOPEN_WRITE_CREATE_STRICT',				'xb');
-define('FOPEN_READ_WRITE_CREATE_STRICT',		'x+b');
+define('FOPEN_READ', 'rb');
+define('FOPEN_READ_WRITE', 'r+b');
+// truncates existing file data, use with care
+define('FOPEN_WRITE_CREATE_DESTRUCTIVE', 'wb');
+// truncates existing file data, use with care
+define('FOPEN_READ_WRITE_CREATE_DESTRUCTIVE', 'w+b');
+define('FOPEN_WRITE_CREATE', 'ab');
+define('FOPEN_READ_WRITE_CREATE', 'a+b');
+define('FOPEN_WRITE_CREATE_STRICT', 'xb');
+define('FOPEN_READ_WRITE_CREATE_STRICT', 'x+b');
 
 
 /* End of file constants.php */
