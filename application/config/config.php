@@ -1,6 +1,6 @@
 <?php
 /**
- * CI Auto Loader
+ * CI Default Configuration
  *
  * PHP Version 5
  *

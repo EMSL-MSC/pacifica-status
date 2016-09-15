@@ -1,6 +1,6 @@
 <?php
 /**
- * CI Auto Loader
+ * CI Default Mime Types
  *
  * PHP Version 5
  *

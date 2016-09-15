@@ -1,6 +1,6 @@
 <?php
 /**
- * CI Auto Loader
+ * CI Default Profiler
  *
  * PHP Version 5
  *

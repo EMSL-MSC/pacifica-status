@@ -1,6 +1,6 @@
 <?php
 /**
- * CI Auto Loader
+ * CI Default Routes
  *
  * PHP Version 5
  *

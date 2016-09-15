@@ -1,6 +1,6 @@
 <?php
 /**
- * CI Auto Loader
+ * CI Development Pacifica
  *
  * PHP Version 5
  *

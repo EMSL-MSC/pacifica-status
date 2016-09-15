@@ -1,7 +1,27 @@
 <?php
+/**
+ * Controllers Ajax
+ *
+ * PHP Version 5
+ *
+ * @category Controllers
+ * @package  Ajax
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ */
 
 require_once 'Baseline_controller.php';
 
+/**
+ * Ajax Class
+ *
+ * @category Class
+ * @package  Ajax
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ */
 class Ajax extends Baseline_controller
 {
     public function __construct()

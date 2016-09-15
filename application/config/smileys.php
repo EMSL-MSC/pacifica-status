@@ -1,6 +1,6 @@
 <?php
 /**
- * CI Auto Loader
+ * CI Default Smileys
  *
  * PHP Version 5
  *

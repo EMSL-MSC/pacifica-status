@@ -1,6 +1,6 @@
 <?php
 /**
- * CI Auto Loader
+ * CI Default DocTypes
  *
  * PHP Version 5
  *
