@@ -1,4 +1,18 @@
-<?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php
+/**
+ * CI Auto Loader
+ *
+ * PHP Version 5
+ *
+ * @category Configuration
+ * @package  CoreDatabase
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ */
+if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
 /*
 | -------------------------------------------------------------------
 | DATABASE CONNECTIVITY SETTINGS
@@ -26,13 +40,14 @@
 |	['cachedir'] The path to the folder where cache files should be stored
 |	['char_set'] The character set used in communicating with the database
 |	['dbcollat'] The character collation used in communicating with the database
-|				 NOTE: For MySQL and MySQLi databases, this setting is only used
-| 				 as a backup if your server is running PHP < 5.2.3 or MySQL < 5.0.7
-|				 (and in table creation queries made with DB Forge).
-| 				 There is an incompatibility in PHP with mysql_real_escape_string() which
-| 				 can make your site vulnerable to SQL injection if you are using a
-| 				 multi-byte character set and are running versions lower than these.
-| 				 Sites using Latin-1 or UTF-8 database character set and collation are unaffected.
+|		 NOTE: For MySQL and MySQLi databases, this setting is only used
+| 		 as a backup if your server is running PHP < 5.2.3 or MySQL < 5.0.7
+|		 (and in table creation queries made with DB Forge).
+| 		 There is an incompatibility in PHP with mysql_real_escape_string() which
+| 		 can make your site vulnerable to SQL injection if you are using a
+| 		 multi-byte character set and are running versions lower than these.
+| 		 Sites using Latin-1 or UTF-8 database character set and collation are
+|		 unaffected.
 |	['swap_pre'] A default table prefix that should be swapped with the dbprefix
 |	['autoinit'] Whether or not to automatically initialize the database.
 |	['stricton'] TRUE/FALSE - forces 'Strict Mode' connections
@@ -47,9 +62,9 @@
 
 $active_group = 'default';
 // $active_record = TRUE;
-$query_builder = TRUE;
+$query_builder = true;
 
-$myemsl_array = parse_ini_file("/etc/myemsl/general.ini", TRUE);
+$myemsl_array = parse_ini_file("/etc/myemsl/general.ini", true);
 
 $db['default'] = array(
   'hostname' => $myemsl_array['metadata']['host'],
@@ -58,9 +73,9 @@ $db['default'] = array(
   'database' => $myemsl_array['metadata']['database'],
   'dbdriver' => "postgre",
   'dbprefix' => "myemsl.",
-  'pconnect' => TRUE,
-  'db_debug' => TRUE,
-  'cache_on' => FALSE,
+  'pconnect' => true,
+  'db_debug' => true,
+  'cache_on' => true,
   'cachedir' => ""
 );
 
