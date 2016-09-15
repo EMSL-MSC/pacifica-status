@@ -1,4 +1,16 @@
-<?php defined('BASEPATH') OR exit('No direct script access allowed');
+<?php
+/**
+ * CI Auto Loader
+ *
+ * PHP Version 5
+ *
+ * @category Configuration
+ * @package  Default_Migration
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ */
+defined('BASEPATH') OR exit('No direct script access allowed');
 /*
 |--------------------------------------------------------------------------
 | Enable/Disable Migrations
@@ -8,7 +20,7 @@
 | whenever you intend to do a schema migration.
 |
 */
-$config['migration_enabled'] = FALSE;
+$config['migration_enabled'] = false;
 
 
 /*
