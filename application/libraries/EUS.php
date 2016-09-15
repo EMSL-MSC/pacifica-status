@@ -21,7 +21,22 @@ class EUS
         define('PROPOSAL_MEMBERS', 'proposal_members');
         define('USERS_TABLE', 'users');
 
-        $this->CI->load->database('eus_for_myemsl');
+        if (!$this->CI->load->database('eus_for_myemsl')) {
+            $this->CI->load->database('eus_for_myemsl');
+            $db_config = array(		
+                'hostname' => 'localhost',
+                'username' => 'eus_access',
+                'password' => 'changeme',
+                'database' => 'EUS',
+                'dbdriver' => 'mysqli',
+                'dbprefix' => '',
+                'pconnect' => true,
+                'db_debug' => true,
+                'cache_on' => false,
+                'cachedir' => '',
+            );		
+            $this->CI->load->database($db_config);		
+        }
     }
 
 
