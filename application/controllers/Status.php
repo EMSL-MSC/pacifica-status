@@ -1,16 +1,35 @@
 <?php
-
+/**
+ * Controllers Status
+ *
+ * PHP Version 5
+ *
+ * @category Controllers
+ * @package  Cart
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ */
 require_once 'Baseline_controller.php';
 
+/**
+ * Status controller class
+ */
 class Status extends Baseline_controller
 {
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         parent::__construct();
         $this->load->model('status_model', 'status');
         $this->load->model('Myemsl_model', 'myemsl');
         $this->load->model('Cart_model', 'cart');
-        $this->load->helper(array('inflector', 'item', 'url', 'opwhse_search', 'form', 'network'));
+        $this->load->helper(array(
+            'inflector', 'item', 'url',
+            'opwhse_search', 'form', 'network'
+        ));
         $this->load->library(array('table'));
         $this->status_list = array(
           0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
@@ -21,11 +40,20 @@ class Status extends Baseline_controller
         $this->last_update_time = get_last_update(APPPATH);
     }
 
+    /**
+     * Primary index redirect method.
+     */
     public function index()
     {
         redirect('status/overview');
     }
 
+    /**
+     * View to lookup status on various types.
+     * 
+     * @param type $lookup_type
+     * @param type $id
+     */
     public function view($lookup_type, $id = -1)
     {
         $valid_lookup_types = array(
@@ -40,16 +68,23 @@ class Status extends Baseline_controller
             //not a valid lookup type, so try as job first
             $this->page_data['lookup_type_desc'] = 'Lookup Type';
             $this->page_data['lookup_type'] = $lookup_type;
-            $this->page_data['error_message'] = "'{$lookup_type}' is not a valid lookup type. Try 't' (for transactions) or 'j' (for jobs)";
+            $this->page_data['error_message'] = "'{$lookup_type}' is not a valid ".
+                "lookup type. Try 't' (for transactions) or 'j' (for jobs)";
             $this->load->view('status_error_page.html', $this->page_data);
             // redirect(base_url()."index.php/status/view/{$lookup_type}/{$id}");
         }
 
-        $lookup_type_description = array_key_exists($lookup_type, $lookup_type_descriptions) ? $lookup_type_descriptions[$lookup_type] : 'job';
+        if(array_key_exists($lookup_type, $lookup_type_descriptions)) {
+            $lookup_type_description = $lookup_type_descriptions[$lookup_type];
+        } else {
+            $lookup_type_description = 'job';
+        }
         if (!is_numeric($id) || $id < 0) {
             //that doesn't look like a real id
             //send to error page saying so
-            $this->page_data['error_message'] = 'No '.ucwords($lookup_type_description)." with the identifier {$id} could be found in the system";
+            $err_msg = 'No '.ucwords($lookup_type_description)." with the ".
+                    "{$id} could be found in the system";
+            $this->page_data['error_message'] = $err_msg;
             $this->page_data['lookup_type_desc'] = $lookup_type_description;
             $this->page_data['lookup_type'] = $lookup_type;
             $this->load->view('status_error_page.html', $this->page_data);
@@ -86,42 +121,66 @@ class Status extends Baseline_controller
             } else {
                 $job_status_info = $this->status->get_formatted_object_for_job($id);
                 if (empty($job_status_info)) {
-                    $this->page_data['message'] = "No {$lookup_type_description} with an identifier of {$id} was found";
+                    $err_msg = "No {$lookup_type_description} with an identifier ".
+                            "of {$id} was found";
+                    $this->page_data['message'] = $err_msg; 
                     $this->page_data['script_uris'] = array();
                 }
                 $this->page_data['transaction_data'] = $job_status_info;
             }
         } else {
-            $this->page_data['transaction_sizes'] = $this->status->get_total_size_for_transactions(array($id));
+            $this->page_data['transaction_sizes'] = 
+                    $this->status->get_total_size_for_transactions(array($id));
             $inst_id = $this->status->get_instrument_for_id('t', $id);
             $transaction_list = array();
             $transaction_list[] = $id;
 
             $transaction_info = $this->status->get_formatted_object_for_transactions($transaction_list);
             if (empty($transaction_info)) {
-                $this->page_data['message'] = "No {$lookup_type_description} with an identifier of {$id} was found";
+                $err_msg = "No {$lookup_type_description} with an identifier of ".
+                        "{$id} was found";
+                $this->page_data['message'] =  $err_msg;
                 $this->page_data['script_uris'] = array();
             }
             $this->page_data['transaction_data'] = $transaction_info;
         }
 
-        $this->page_data['cart_data'] = array('carts' => $this->cart->get_active_carts($this->user_id, false));
+        $this->page_data['cart_data'] = array(
+            'carts' => $this->cart->get_active_carts($this->user_id, FALSE)
+        );
 
         $this->page_data['request_type'] = $lookup_type;
-        $this->page_data['enable_breadcrumbs'] = true;
+        $this->page_data['enable_breadcrumbs'] = TRUE;
         $this->page_data['js'] = "var initial_inst_id = '{$inst_id}';
                             var lookup_type = '{$lookup_type}';
                             var email_address = '{$this->email}';
                             ";
-        $this->page_data['show_instrument_data'] = true;
+        $this->page_data['show_instrument_data'] = TRUE;
         $this->load->view('single_item_view', $this->page_data);
     }
 
-    public function overview($proposal_id = false, $instrument_id = false, $time_period = false)
+    /**
+     * Primary index page shows overview of status for that user.
+     * 
+     * @param type $proposal_id
+     * @param type $instrument_id
+     * @param type $time_period
+     */
+    public function overview(
+            $proposal_id = FALSE,
+            $instrument_id = FALSE,
+            $time_period = FALSE
+    )
     {
-        $time_period = $this->input->cookie('myemsl_status_last_timeframe_selector') ? $this->input->cookie('myemsl_status_last_timeframe_selector') : $time_period;
-        $instrument_id = $this->input->cookie('myemsl_status_last_instrument_selector') ? $this->input->cookie('myemsl_status_last_instrument_selector') : $instrument_id;
-        $proposal_id = $this->input->cookie('myemsl_status_last_proposal_selector') ? $this->input->cookie('myemsl_status_last_proposal_selector') : $proposal_id;
+        if($this->input->cookie('myemsl_status_last_timeframe_selector')) {
+            $time_period = $this->input->cookie('myemsl_status_last_timeframe_selector');
+        }
+        if($this->input->cookie('myemsl_status_last_instrument_selector')) {
+            $instrument_id = $this->input->cookie('myemsl_status_last_instrument_selector');
+        }
+        if($this->input->cookie('myemsl_status_last_proposal_selector')) {
+            $proposal_id = $this->input->cookie('myemsl_status_last_proposal_selector');
+        }
         if (!$this->input->is_ajax_request()) {
             $view_name = 'emsl_mgmt_view';
             $this->page_data['page_header'] = 'MyEMSL Status Reporting';
@@ -233,11 +292,14 @@ class Status extends Baseline_controller
                 'message' => 'No data uploaded for this instrument',
             );
         }
-        $this->page_data['cart_data'] = array('carts' => $this->cart->get_active_carts($this->user_id, false));
-        $this->page_data['enable_breadcrumbs'] = false;
+        $this->page_data['cart_data'] = array(
+            'carts' => $this->cart->get_active_carts($this->user_id, FALSE)
+        );
+        $this->page_data['enable_breadcrumbs'] = FALSE;
         $this->page_data['status_list'] = $this->status_list;
         $this->page_data['transaction_data'] = $results['transaction_list'];
-        if (array_key_exists('transactions', $results['transaction_list']) && !empty($results['transaction_list']['transactions'])) {
+        if (array_key_exists('transactions', $results['transaction_list']) &&
+            !empty($results['transaction_list']['transactions'])) {
             $this->page_data['transaction_sizes'] = $this->status->get_total_size_for_transactions(array_keys($results['transaction_list']['transactions']));
         } else {
             $this->page_data['transaction_sizes'] = array();
@@ -248,7 +310,12 @@ class Status extends Baseline_controller
         $this->load->view($view_name, $this->page_data);
     }
 
-    public function get_files_by_transaction($transaction_id = false)
+    /**
+     * Get files for a specific transaction ID
+     * 
+     * @param type $transaction_id
+     */
+    public function get_files_by_transaction($transaction_id = FALSE)
     {
         if (!isset($transaction_id) || !$transaction_id) {
             $output_array = array();
@@ -259,6 +326,14 @@ class Status extends Baseline_controller
         transmit_array_with_json_header($output_array);
     }
 
+    /**
+     * Get the most current transactions
+     * 
+     * @param type $instrument_id
+     * @param type $proposal_id
+     * @param type $latest_id
+     * @return type
+     */
     public function get_latest_transactions($instrument_id = '', $proposal_id = '', $latest_id = '')
     {
         $group_list = $this->status->get_instrument_group_list();
@@ -286,6 +361,12 @@ class Status extends Baseline_controller
         }
     }
 
+    /**
+     * Get the status of a particular job
+     * 
+     * @param type $lookup_type
+     * @param type $id
+     */
     public function get_status($lookup_type, $id = 0)
     {
         //lookup by (j)ob or (t)ransaction
@@ -331,6 +412,10 @@ class Status extends Baseline_controller
         }
     }
 
+    /**
+     * Get Lazy Load Folder
+     * @return type
+     */
     public function get_lazy_load_folder()
     {
         if (!$this->input->post('parent')) {
@@ -343,10 +428,15 @@ class Status extends Baseline_controller
         transmit_array_with_json_header($output_array);
     }
 
+    /**
+     * Get the job status for a particular job ID
+     * 
+     * @param type $job_id
+     */
     public function job_status($job_id = -1)
     {
         $HTTP_RAW_POST_DATA = file_get_contents('php://input');
-        $values = json_decode($HTTP_RAW_POST_DATA, true);
+        $values = json_decode($HTTP_RAW_POST_DATA, TRUE);
         if (!$values && $job_id > 0) {
             //must not have a list of values, so just check the one
             $values = array($job_id);
@@ -360,6 +450,10 @@ class Status extends Baseline_controller
         }
     }
 
+    /**
+     * Get instrument list for a proposal ID
+     * @param type $proposal_id
+     */
     public function get_instrument_list($proposal_id)
     {
         // $instruments = $this->eus->get_instruments_for_proposal($proposal_id);
@@ -380,6 +474,11 @@ class Status extends Baseline_controller
         format_array_for_select2(array('items' => $instruments));
     }
 
+    /**
+     * Get instrument info for a specific instrument ID
+     * 
+     * @param type $eus_instrument_id
+     */
     public function get_instrument_info($eus_instrument_id = 0)
     {
         $results = array();
@@ -388,5 +487,4 @@ class Status extends Baseline_controller
         }
         transmit_array_with_json_header($results);
     }
-
 }
