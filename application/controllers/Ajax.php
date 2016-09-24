@@ -44,19 +44,26 @@ class Ajax extends Baseline_controller
     /**
      * Get Proposals By Name
      * 
-     * @param type $terms
+     * @param type $terms string of space separated search terms.
+     * @return type NULL
      */
-    public function get_proposals_by_name($terms = false){
-        $prop_list = $this->eus->get_proposals_by_name($terms, $this->user_id, false);
+    public function get_proposals_by_name($terms = FALSE)
+    {
+        $prop_list = $this->eus->get_proposals_by_name(
+                $terms, $this->user_id, FALSE
+        );
         $results = array(
             'total_count' => sizeof($prop_list),
-            'incomplete_results' => false,
+            'incomplete_results' => FALSE,
             'items' => array()
         );
         $max_text_len = 110;
         foreach($prop_list as $item){
             $textLength = strlen($item['title']);
-            $result = substr_replace($item['title'], '...', $max_text_len/2, $textLength-$max_text_len);
+            $result = substr_replace($item['title'], '...',
+                    $max_text_len/2,
+                    $textLength-$max_text_len
+            );
 
             $item['text'] = "<span title='{$item['title']}'>{$result}</span>";
             $results['items'][] = $item;
@@ -69,17 +76,26 @@ class Ajax extends Baseline_controller
      * 
      * @param type $proposal_id
      * @param type $terms
-     * @return type
+     * @return type NULL
      */
-    public function get_instruments_for_proposal($proposal_id = false, $terms = false){
+    public function get_instruments_for_proposal(
+            $proposal_id = FALSE, $terms = FALSE
+    )
+    {
         if(!$proposal_id){
-            $this->output->set_status_header(404, "Proposal ID {$proposal_id} was not found");
+            $this->output->set_status_header(404, 
+                    "Proposal ID {$proposal_id} was not found");
             return;
         }
         $full_user_info = $this->myemsl->get_user_info();
         $instruments = array();
         $inst_list = $full_user_info['instruments'];
-        $instruments_available = array_key_exists($proposal_id,$full_user_info['proposals']) ? $full_user_info['proposals'][$proposal_id]['instruments'] : array();
+        if(array_key_exists($proposal_id, $full_user_info['proposals'])) {
+            $instruments_available = 
+                    $full_user_info['proposals'][$proposal_id]['instruments'];
+        } else {
+            $instruments_available = array();
+        }
         $total_count = sizeof($instruments_available) + 1;
         asort($instruments_available);
         $instruments[] = array(
