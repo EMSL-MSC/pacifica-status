@@ -62,9 +62,9 @@ if (!defined('BASEPATH')) {
 
 $active_group = 'default';
 // $active_record = TRUE;
-$query_builder = true;
+$query_builder = TRUE;
 
-$myemsl_array = parse_ini_file("/etc/myemsl/general.ini", true);
+$myemsl_array = parse_ini_file("/etc/myemsl/general.ini", TRUE);
 
 $db['default'] = array(
   'hostname' => $myemsl_array['metadata']['host'],
@@ -73,9 +73,9 @@ $db['default'] = array(
   'database' => $myemsl_array['metadata']['database'],
   'dbdriver' => "postgre",
   'dbprefix' => "myemsl.",
-  'pconnect' => true,
-  'db_debug' => true,
-  'cache_on' => true,
+  'pconnect' => TRUE,
+  'db_debug' => TRUE,
+  'cache_on' => TRUE,
   'cachedir' => ""
 );
 

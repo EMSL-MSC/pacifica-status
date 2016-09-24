@@ -20,7 +20,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | whenever you intend to do a schema migration.
 |
 */
-$config['migration_enabled'] = false;
+$config['migration_enabled'] = FALSE;
 
 
 /*
