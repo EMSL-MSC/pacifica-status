@@ -43,6 +43,8 @@ class Ajax extends Baseline_controller
 
     /**
      * Get Proposals By Name
+     * 
+     * @param type $terms
      */
     public function get_proposals_by_name($terms = false){
         $prop_list = $this->eus->get_proposals_by_name($terms, $this->user_id, false);
@@ -61,7 +63,14 @@ class Ajax extends Baseline_controller
         }
         send_json_array($results);
     }
-
+    
+    /**
+     * Get Instruments for Proposal
+     * 
+     * @param type $proposal_id
+     * @param type $terms
+     * @return type
+     */
     public function get_instruments_for_proposal($proposal_id = false, $terms = false){
         if(!$proposal_id){
             $this->output->set_status_header(404, "Proposal ID {$proposal_id} was not found");
@@ -101,6 +110,11 @@ class Ajax extends Baseline_controller
         send_json_array($results);
     }
 
+    /**
+     * Get Instrument List from proposal ID
+     * 
+     * @param type $proposal_id
+     */
     public function get_instrument_list($proposal_id)
     {
         // $instruments = $this->eus->get_instruments_for_proposal($proposal_id);
@@ -120,7 +134,4 @@ class Ajax extends Baseline_controller
 
         format_array_for_select2(array('items' => $instruments));
     }
-
-
-
 }
