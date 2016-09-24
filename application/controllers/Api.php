@@ -14,6 +14,12 @@ require_once 'Baseline_controller.php';
 
 /**
  * API Class
+ * 
+ * @category Class
+ * @package  API
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
 class API extends Baseline_controller
 {
