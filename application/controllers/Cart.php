@@ -36,9 +36,11 @@ class Cart extends Baseline_controller
     /**
      * Get a cart authentication token.
      * 
-     * @param type $item_id
+     * @param int $item_id single itemid to get a cart for.
+     * 
+     * @return void
      */
-    public function get_cart_token($item_id = false)
+    public function get_cart_token($item_id = FALSE)
     {
         $HTTP_RAW_POST_DATA = file_get_contents('php://input');
         $values = json_decode($HTTP_RAW_POST_DATA, TRUE);
@@ -53,7 +55,9 @@ class Cart extends Baseline_controller
     /**
      * List the active carts
      * 
-     * @param type $optional_message
+     * @param string $optional_message optional message to send to user.
+     * 
+     * @return void
      */
     public function listing($optional_message = '')
     {
@@ -65,7 +69,9 @@ class Cart extends Baseline_controller
     /**
      * Delete a cart based on ID
      * 
-     * @param type $cart_id
+     * @param int $cart_id cart ID to delete
+     * 
+     * @return void
      */
     public function delete($cart_id)
     {
@@ -75,6 +81,8 @@ class Cart extends Baseline_controller
 
     /**
      * Test cart token method.
+     * 
+     * @return void
      */
     public function test_generate_cart_token()
     {
@@ -84,6 +92,8 @@ class Cart extends Baseline_controller
 
     /**
      * Test cart listing method
+     * 
+     * @return void
      */
     public function test_get_cart_list()
     {

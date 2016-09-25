@@ -178,7 +178,7 @@ class API extends Baseline_controller
      * @param string $filter space separated list of fiters to apply to the
      *                       group names.
      * 
-     * @return type NULL
+     * @return void
      */
     public function test_get_available_group_types($filter = '')
     {
@@ -193,7 +193,7 @@ class API extends Baseline_controller
      * 
      * @param int $item_id integer ID for the item to pull metadata.
      * 
-     * @return type NULL
+     * @return void
      */
     public function test_iteminfo($item_id)
     {

@@ -13,6 +13,12 @@
 
 /**
  * Baseline controller class
+ * 
+ * @category Class
+ * @package  Baseline
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
 class Baseline_controller extends CI_Controller
 {
@@ -24,7 +30,7 @@ class Baseline_controller extends CI_Controller
         date_default_timezone_set('America/Los_Angeles');
         parent::__construct();
         $this->load->helper(array('user', 'url', 'html', 'myemsl', 'file_info'));
-        $this->output->enable_profiler(false);
+        $this->output->enable_profiler(FALSE);
         $this->benchmark->mark('get_user_start');
         $this->user_id = get_user();
         $this->benchmark->mark('get_user_end');
@@ -34,7 +40,7 @@ class Baseline_controller extends CI_Controller
 
         $this->benchmark->mark('get_user_details_start');
         $user_info = get_user_details_myemsl($this->user_id);
-        if($user_info['first_name'] != null) {
+        if($user_info['first_name'] != NULL) {
             $this->username = $user_info['first_name'];
         } else {
             'Anonymous Stranger';

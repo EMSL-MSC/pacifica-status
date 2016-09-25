@@ -32,10 +32,12 @@ class Status extends Baseline_controller
         $this->load->model('status_model', 'status');
         $this->load->model('Myemsl_model', 'myemsl');
         $this->load->model('Cart_model', 'cart');
-        $this->load->helper(array(
+        $this->load->helper(
+            array(
             'inflector', 'item', 'url',
             'opwhse_search', 'form', 'network'
-        ));
+            )
+        );
         $this->load->library(array('table'));
         $this->status_list = array(
           0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
@@ -48,6 +50,8 @@ class Status extends Baseline_controller
 
     /**
      * Primary index redirect method.
+     * 
+     * @return void
      */
     public function index()
     {
@@ -57,8 +61,10 @@ class Status extends Baseline_controller
     /**
      * View to lookup status on various types.
      * 
-     * @param type $lookup_type
-     * @param type $id
+     * @param string $lookup_type string of the lookup type (job or trans)
+     * @param type   $id          the ID of the lookup_type
+     * 
+     * @return void
      */
     public function view($lookup_type, $id = -1)
     {
@@ -66,8 +72,8 @@ class Status extends Baseline_controller
           'j' => 'j', 'job' => 'j', 't' => 't', 'transaction' => 't',
         );
         $lookup_type_descriptions = array('j' => 'job', 't' => 'transaction');
-        $this->page_data['load_prototype'] = false;
-        $this->page_data['load_jquery'] = true;
+        $this->page_data['load_prototype'] = FALSE;
+        $this->page_data['load_jquery'] = TRUE;
         $this->page_data['status_list'] = $this->status_list;
         $inst_id = -1;
         if (!array_key_exists($lookup_type, $valid_lookup_types)) {
@@ -135,13 +141,16 @@ class Status extends Baseline_controller
                 $this->page_data['transaction_data'] = $job_status_info;
             }
         } else {
-            $this->page_data['transaction_sizes'] = 
-                    $this->status->get_total_size_for_transactions(array($id));
+            $this->page_data['transaction_sizes']
+                = $this->status->get_total_size_for_transactions(array($id));
             $inst_id = $this->status->get_instrument_for_id('t', $id);
             $transaction_list = array();
             $transaction_list[] = $id;
 
-            $transaction_info = $this->status->get_formatted_object_for_transactions($transaction_list);
+            $transaction_info
+                = $this->status->get_formatted_object_for_transactions(
+                    $transaction_list
+                );
             if (empty($transaction_info)) {
                 $err_msg = "No {$lookup_type_description} with an identifier of ".
                         "{$id} was found";
@@ -168,24 +177,29 @@ class Status extends Baseline_controller
     /**
      * Primary index page shows overview of status for that user.
      * 
-     * @param type $proposal_id
-     * @param type $instrument_id
-     * @param type $time_period
+     * @param string $proposal_id   id of the proposal to display
+     * @param string $instrument_id id of the instrument to display
+     * @param string $time_period   time period the status should be displayed
+     * 
+     * @return void
      */
     public function overview(
-            $proposal_id = FALSE,
-            $instrument_id = FALSE,
-            $time_period = FALSE
+        $proposal_id = FALSE,
+        $instrument_id = FALSE,
+        $time_period = FALSE
     )
     {
         if($this->input->cookie('myemsl_status_last_timeframe_selector')) {
-            $time_period = $this->input->cookie('myemsl_status_last_timeframe_selector');
+            $time_period
+                = $this->input->cookie('myemsl_status_last_timeframe_selector');
         }
         if($this->input->cookie('myemsl_status_last_instrument_selector')) {
-            $instrument_id = $this->input->cookie('myemsl_status_last_instrument_selector');
+            $instrument_id
+                = $this->input->cookie('myemsl_status_last_instrument_selector');
         }
         if($this->input->cookie('myemsl_status_last_proposal_selector')) {
-            $proposal_id = $this->input->cookie('myemsl_status_last_proposal_selector');
+            $proposal_id
+                = $this->input->cookie('myemsl_status_last_proposal_selector');
         }
         if (!$this->input->is_ajax_request()) {
             $view_name = 'emsl_mgmt_view';
@@ -233,9 +247,9 @@ class Status extends Baseline_controller
 
             $this->page_data['proposal_list'] = $proposal_list;
 
-            $this->page_data['load_prototype'] = false;
-            $this->page_data['load_jquery'] = true;
-            $this->page_data['selected_proposal'] = isset($proposal_id) ? $proposal_id : false;
+            $this->page_data['load_prototype'] = FALSE;
+            $this->page_data['load_jquery'] = TRUE;
+            $this->page_data['selected_proposal'] = $proposal_id;
             $this->page_data['time_period'] = $time_period;
             $this->page_data['instrument_id'] = $instrument_id;
             $this->page_data['js'] = $js;
@@ -245,10 +259,16 @@ class Status extends Baseline_controller
 
         if (isset($instrument_id) && isset($time_period) && $time_period > 0) {
             // $inst_lookup_id = $instrument_id >= 0 ? $instrument_id : "";
-            $group_lookup_list = $this->status->get_instrument_group_list($instrument_id);
-            if ($instrument_id > 0 && array_key_exists($instrument_id, $group_lookup_list['by_inst_id'])) {
+            $group_lookup_list
+                = $this->status->get_instrument_group_list($instrument_id);
+            if ($instrument_id > 0
+                && array_key_exists(
+                    $instrument_id,
+                    $group_lookup_list['by_inst_id']
+                )
+            ) {
                 $results = $this->status->get_transactions_for_group(
-                array_keys($group_lookup_list['by_inst_id'][$instrument_id]),
+                    array_keys($group_lookup_list['by_inst_id'][$instrument_id]),
                     $time_period,
                     $proposal_id
                 );
@@ -258,18 +278,38 @@ class Status extends Baseline_controller
 
                 $results = array(
                     'transaction_list' => array(),
-                    'time_period_empty' => false,
+                    'time_period_empty' => FALSE,
                     'message' => '',
                 );
-                foreach ($group_lookup_list['by_inst_id'] as $inst_id => $group_id_list) {
-                    $transaction_list = $this->status->get_transactions_for_group(array_keys($group_id_list), $time_period, $proposal_id);
+                foreach (
+                    $group_lookup_list['by_inst_id'] as $inst_id => $group_id_list
+                ) {
+                    $transaction_list
+                        = $this->status->get_transactions_for_group(
+                            array_keys($group_id_list),
+                            $time_period,
+                            $proposal_id
+                        );
                     if (!empty($transaction_list['transaction_list'])) {
-                        foreach ($transaction_list['transaction_list']['transactions'] as $group_id => $group_info) {
-                            if (!array_key_exists('transactions', $results['transaction_list'])) {
-                                $results['transaction_list']['transactions'] = array();
+                        foreach (
+                            $transaction_list['transaction_list']['transactions']
+                            as $group_id => $group_info
+                        ) {
+                            if(
+                                !array_key_exists(
+                                    'transactions',
+                                    $results['transaction_list']
+                                )
+                            ) {
+                                $results['transaction_list']
+                                    ['transactions'] = array();
                             }
-                            if (!array_key_exists($group_id, $results['transaction_list']['transactions'])) {
-                                $results['transaction_list']['transactions'][$group_id] = $group_info;
+                            if (!array_key_exists(
+                                $group_id, 
+                                $results['transaction_list']['transactions'])
+                            ) {
+                                $results['transaction_list']
+                                    ['transactions'][$group_id] = $group_info;
                             }
                         }
                     }
@@ -287,14 +327,14 @@ class Status extends Baseline_controller
             } else {
                 $results = array(
                     'transaction_list' => array(),
-                    'time_period_empty' => true,
+                    'time_period_empty' => TRUE,
                     'message' => 'No data uploaded for this instrument',
                 );
             }
         } else {
             $results = array(
                 'transaction_list' => array(),
-                'time_period_empty' => true,
+                'time_period_empty' => TRUE,
                 'message' => 'No data uploaded for this instrument',
             );
         }
@@ -304,8 +344,9 @@ class Status extends Baseline_controller
         $this->page_data['enable_breadcrumbs'] = FALSE;
         $this->page_data['status_list'] = $this->status_list;
         $this->page_data['transaction_data'] = $results['transaction_list'];
-        if (array_key_exists('transactions', $results['transaction_list']) &&
-            !empty($results['transaction_list']['transactions'])) {
+        if (array_key_exists('transactions', $results['transaction_list']) 
+            && !empty($results['transaction_list']['transactions'])
+        ) {
             $this->page_data['transaction_sizes'] = $this->status->get_total_size_for_transactions(array_keys($results['transaction_list']['transactions']));
         } else {
             $this->page_data['transaction_sizes'] = array();
@@ -335,9 +376,9 @@ class Status extends Baseline_controller
     /**
      * Get the most current transactions
      * 
-     * @param type $instrument_id
-     * @param type $proposal_id
-     * @param type $latest_id
+     * @param  type $instrument_id
+     * @param  type $proposal_id
+     * @param  type $latest_id
      * @return type
      */
     public function get_latest_transactions($instrument_id = '', $proposal_id = '', $latest_id = '')
@@ -376,12 +417,12 @@ class Status extends Baseline_controller
     public function get_status($lookup_type, $id = 0)
     {
         //lookup by (j)ob or (t)ransaction
-    //check for list of transactions in post
-    if ($this->input->post('item_list')) {
-        $item_list = $this->input->post('item_list');
-    } elseif ($id > 0) {
-        $item_list = array($id => $id);
-    }
+        //check for list of transactions in post
+        if ($this->input->post('item_list')) {
+            $item_list = $this->input->post('item_list');
+        } elseif ($id > 0) {
+            $item_list = array($id => $id);
+        }
         $item_keys = array_keys($item_list);
         sort($item_keys);
         $last_id = array_pop($item_keys);
@@ -400,7 +441,7 @@ class Status extends Baseline_controller
                     'status_list' => $this->status_list,
                     'transaction_id' => $item_info[$latest_step]['trans_id'],
                 );
-                $item_text = trim($this->load->view('status_breadcrumb_insert_view.html', $status_info_temp, true));
+                $item_text = trim($this->load->view('status_breadcrumb_insert_view.html', $status_info_temp, TRUE));
                 if ($item_list[$item_id] != sha1($item_text)) {
                     $status_info[$item_id] = array(
                         'bar_text' => $item_text,
@@ -420,6 +461,7 @@ class Status extends Baseline_controller
 
     /**
      * Get Lazy Load Folder
+     *
      * @return type
      */
     public function get_lazy_load_folder()
@@ -449,7 +491,7 @@ class Status extends Baseline_controller
         }
         $results = $this->status->get_job_status($values, $this->status_list);
         // send_json_array($results);
-        if($results){
+        if($results) {
             transmit_array_with_json_header($results);
         }else{
             send_json_array(array());
@@ -458,6 +500,7 @@ class Status extends Baseline_controller
 
     /**
      * Get instrument list for a proposal ID
+     *
      * @param type $proposal_id
      */
     public function get_instrument_list($proposal_id)
@@ -465,7 +508,7 @@ class Status extends Baseline_controller
         // $instruments = $this->eus->get_instruments_for_proposal($proposal_id);
         $full_user_info = $this->myemsl->get_user_info();
         $instruments = array();
-        if($this->is_emsl_staff){
+        if($this->is_emsl_staff) {
             $instruments = $this->eus->get_instruments_for_proposal($proposal_id);
         }else{
             $instruments_available = $full_user_info['proposals'][$proposal_id]['instruments'];

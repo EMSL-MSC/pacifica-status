@@ -46,7 +46,7 @@ class Ajax extends Baseline_controller
      * 
      * @param string $terms space separated search terms.
      * 
-     * @return type NULL
+     * @return void
      */
     public function get_proposals_by_name($terms = FALSE)
     {
@@ -81,7 +81,7 @@ class Ajax extends Baseline_controller
      * @param string $terms       space separated list of search terms against 
      *                            instruments metadata
      * 
-     * @return type NULL
+     * @return void
      */
     public function get_instruments_for_proposal(
         $proposal_id = FALSE, $terms = FALSE
@@ -140,7 +140,7 @@ class Ajax extends Baseline_controller
      * 
      * @param string $proposal_id unique proposal ID
      * 
-     * @return type NULL
+     * @return void
      */
     public function get_instrument_list($proposal_id)
     {
