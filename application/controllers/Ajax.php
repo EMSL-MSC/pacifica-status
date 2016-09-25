@@ -44,13 +44,14 @@ class Ajax extends Baseline_controller
     /**
      * Get Proposals By Name
      * 
-     * @param type $terms string of space separated search terms.
+     * @param string $terms space separated search terms.
+     * 
      * @return type NULL
      */
     public function get_proposals_by_name($terms = FALSE)
     {
         $prop_list = $this->eus->get_proposals_by_name(
-                $terms, $this->user_id, FALSE
+            $terms, $this->user_id, FALSE
         );
         $results = array(
             'total_count' => sizeof($prop_list),
@@ -60,9 +61,11 @@ class Ajax extends Baseline_controller
         $max_text_len = 110;
         foreach($prop_list as $item){
             $textLength = strlen($item['title']);
-            $result = substr_replace($item['title'], '...',
-                    $max_text_len/2,
-                    $textLength-$max_text_len
+            $result = substr_replace(
+                $item['title'],
+                '...',
+                $max_text_len/2,
+                $textLength-$max_text_len
             );
 
             $item['text'] = "<span title='{$item['title']}'>{$result}</span>";
@@ -74,25 +77,28 @@ class Ajax extends Baseline_controller
     /**
      * Get Instruments for Proposal
      * 
-     * @param type $proposal_id
-     * @param type $terms
+     * @param string $proposal_id proposal ID string
+     * @param string $terms       space separated list of search terms against 
+     *                            instruments metadata
+     * 
      * @return type NULL
      */
     public function get_instruments_for_proposal(
-            $proposal_id = FALSE, $terms = FALSE
+        $proposal_id = FALSE, $terms = FALSE
     )
     {
-        if(!$proposal_id){
-            $this->output->set_status_header(404, 
-                    "Proposal ID {$proposal_id} was not found");
+        if(!$proposal_id) {
+            $this->output->set_status_header(
+                404, "Proposal ID {$proposal_id} was not found"
+            );
             return;
         }
         $full_user_info = $this->myemsl->get_user_info();
         $instruments = array();
         $inst_list = $full_user_info['instruments'];
         if(array_key_exists($proposal_id, $full_user_info['proposals'])) {
-            $instruments_available = 
-                    $full_user_info['proposals'][$proposal_id]['instruments'];
+            $instruments_available
+                = $full_user_info['proposals'][$proposal_id]['instruments'];
         } else {
             $instruments_available = array();
         }
@@ -100,7 +106,7 @@ class Ajax extends Baseline_controller
         asort($instruments_available);
         $instruments[] = array(
             'id' => 0,
-            'text' => null
+            'text' => NULL
         );
         $instruments[] = array(
             'id' => -1,
@@ -111,15 +117,18 @@ class Ajax extends Baseline_controller
         foreach ($instruments_available as $inst_id) {
             $instruments[] = array(
                 'id' => $inst_id,
-                'text' => "Instrument {$inst_id}: {$full_user_info['instruments'][$inst_id]['eus_display_name']}",
-                'name' => $full_user_info['instruments'][$inst_id]['eus_display_name'],
+                'text' => "Instrument {$inst_id}: ".
+                    $full_user_info['instruments'][$inst_id]['eus_display_name'],
+                'name' => 
+                    $full_user_info['instruments'][$inst_id]['eus_display_name'],
                 'active' => $inst_list[$inst_id]['active_sw']
             );
         }
-        // $instruments[-1] = "All Available Instruments for Proposal {$proposal_id}";
+        //$instruments[-1] = "All Available Instruments for ".
+        //    "Proposal {$proposal_id}";
         $results = array(
             'total_count' => $total_count,
-            'incomplete_results' => false,
+            'incomplete_results' => FALSE,
             'items' => $instruments
         );
 
@@ -129,19 +138,23 @@ class Ajax extends Baseline_controller
     /**
      * Get Instrument List from proposal ID
      * 
-     * @param type $proposal_id
+     * @param string $proposal_id unique proposal ID
+     * 
+     * @return type NULL
      */
     public function get_instrument_list($proposal_id)
     {
         // $instruments = $this->eus->get_instruments_for_proposal($proposal_id);
         $full_user_info = $this->myemsl->get_user_info();
         $instruments = array();
-        if($this->is_emsl_staff){
+        if($this->is_emsl_staff) {
             $instruments = $this->eus->get_instruments_for_proposal($proposal_id);
         }else{
-            $instruments_available = $full_user_info['proposals'][$proposal_id]['instruments'];
+            $instruments_available
+                = $full_user_info['proposals'][$proposal_id]['instruments'];
             foreach ($instruments_available as $inst_id) {
-                $instruments[$inst_id] = "Instrument {$inst_id}: {$full_user_info['instruments'][$inst_id]['eus_display_name']}";
+                $instruments[$inst_id] = "Instrument {$inst_id}: ".
+                    $full_user_info['instruments'][$inst_id]['eus_display_name'];
             }
         }
         $instruments[-1] = "All Available Instruments for Proposal {$proposal_id}";
