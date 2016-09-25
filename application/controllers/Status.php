@@ -295,18 +295,18 @@ class Status extends Baseline_controller
                             $transaction_list['transaction_list']['transactions']
                             as $group_id => $group_info
                         ) {
-                            if(
-                                !array_key_exists(
-                                    'transactions',
-                                    $results['transaction_list']
-                                )
+                            if(!array_key_exists(
+                                'transactions',
+                                $results['transaction_list']
+                            )
                             ) {
                                 $results['transaction_list']
                                     ['transactions'] = array();
                             }
                             if (!array_key_exists(
                                 $group_id, 
-                                $results['transaction_list']['transactions'])
+                                $results['transaction_list']['transactions']
+                            )
                             ) {
                                 $results['transaction_list']
                                     ['transactions'][$group_id] = $group_info;
@@ -314,12 +314,23 @@ class Status extends Baseline_controller
                         }
                     }
                     if (!empty($transaction_list['transaction_list']['times'])) {
-                        foreach ($transaction_list['transaction_list']['times'] as $ts => $tx_id) {
-                            if (!array_key_exists('times', $results['transaction_list'])) {
+                        foreach (
+                            $transaction_list['transaction_list']['times']
+                            as $ts => $tx_id) {
+                            if(!array_key_exists(
+                                'times',
+                                $results['transaction_list']
+                            )
+                            ) {
                                 $results['transaction_list']['times'] = array();
                             }
-                            if (!array_key_exists($ts, $results['transaction_list']['times'])) {
-                                $results['transaction_list']['times'][$ts] = $tx_id;
+                            if(!array_key_exists(
+                                $ts,
+                                $results['transaction_list']['times']
+                            )
+                            ) {
+                                $results['transaction_list']['times']
+                                    [$ts] = $tx_id;
                             }
                         }
                     }
@@ -347,7 +358,10 @@ class Status extends Baseline_controller
         if (array_key_exists('transactions', $results['transaction_list']) 
             && !empty($results['transaction_list']['transactions'])
         ) {
-            $this->page_data['transaction_sizes'] = $this->status->get_total_size_for_transactions(array_keys($results['transaction_list']['transactions']));
+            $this->page_data['transaction_sizes']
+                = $this->status->get_total_size_for_transactions(
+                    array_keys($results['transaction_list']['transactions'])
+                );
         } else {
             $this->page_data['transaction_sizes'] = array();
         }
@@ -360,7 +374,9 @@ class Status extends Baseline_controller
     /**
      * Get files for a specific transaction ID
      * 
-     * @param type $transaction_id
+     * @param string $transaction_id transaction id to get files from
+     * 
+     * @return void
      */
     public function get_files_by_transaction($transaction_id = FALSE)
     {
@@ -376,23 +392,34 @@ class Status extends Baseline_controller
     /**
      * Get the most current transactions
      * 
-     * @param  type $instrument_id
-     * @param  type $proposal_id
-     * @param  type $latest_id
-     * @return type
+     * @param string $instrument_id instrument ID for the transactions
+     * @param string $proposal_id   proposal ID for the transactions
+     * @param string $latest_id     specific latest ID of transaction
+     * 
+     * @return void
      */
-    public function get_latest_transactions($instrument_id = '', $proposal_id = '', $latest_id = '')
+    public function get_latest_transactions(
+        $instrument_id = '',
+        $proposal_id = '',
+        $latest_id = ''
+    )
     {
         $group_list = $this->status->get_instrument_group_list();
         $new_transactions = array();
         if (array_key_exists($instrument_id, $group_list['by_inst_id'])) {
-            $new_transactions = $this->status->get_latest_transactions(array_keys($group_list['by_inst_id'][$instrument_id]), $proposal_id, $latest_id);
+            $new_transactions = $this->status->get_latest_transactions(
+                array_keys($group_list['by_inst_id'][$instrument_id]),
+                $proposal_id,
+                $latest_id
+            );
         }
         if (empty($new_transactions)) {
             echo '';
             return;
         }
-        $results = $this->status->get_formatted_object_for_transactions($new_transactions);
+        $results = $this->status->get_formatted_object_for_transactions(
+            $new_transactions
+        );
         $group_list = $this->status->get_groups_for_transaction($new_transactions);
         foreach ($group_list['groups'] as $tx_id => $group_info) {
             $results['transactions'][$tx_id]['groups'] = $group_info;
@@ -411,8 +438,10 @@ class Status extends Baseline_controller
     /**
      * Get the status of a particular job
      * 
-     * @param type $lookup_type
-     * @param type $id
+     * @param string $lookup_type either job or transaction
+     * @param int    $id          ID of lookup_type
+     * 
+     * @return void
      */
     public function get_status($lookup_type, $id = 0)
     {
@@ -429,7 +458,10 @@ class Status extends Baseline_controller
 
         $status_info = array();
 
-        $status_obj = $this->status->get_status_for_transaction($lookup_type, array_keys($item_list));
+        $status_obj = $this->status->get_status_for_transaction(
+            $lookup_type,
+            array_keys($item_list)
+        );
         if (!empty($status_obj)) {
             foreach ($status_obj as $item_id => $item_info) {
                 $sortable = $item_info;
@@ -441,7 +473,13 @@ class Status extends Baseline_controller
                     'status_list' => $this->status_list,
                     'transaction_id' => $item_info[$latest_step]['trans_id'],
                 );
-                $item_text = trim($this->load->view('status_breadcrumb_insert_view.html', $status_info_temp, TRUE));
+                $item_text = trim(
+                    $this->load->view(
+                        'status_breadcrumb_insert_view.html',
+                        $status_info_temp,
+                        TRUE
+                    )
+                );
                 if ($item_list[$item_id] != sha1($item_text)) {
                     $status_info[$item_id] = array(
                         'bar_text' => $item_text,
@@ -454,7 +492,10 @@ class Status extends Baseline_controller
             if ($this->input->is_ajax_request()) {
                 transmit_array_with_json_header($status_info);
             } elseif (sizeof($status_info) == 1) {
-                $this->load->view('status_breadcrumb_insert_view.html', $status_info[$id]);
+                $this->load->view(
+                    'status_breadcrumb_insert_view.html',
+                    $status_info[$id]
+                );
             }
         }
     }
@@ -462,7 +503,7 @@ class Status extends Baseline_controller
     /**
      * Get Lazy Load Folder
      *
-     * @return type
+     * @return void
      */
     public function get_lazy_load_folder()
     {
@@ -479,7 +520,9 @@ class Status extends Baseline_controller
     /**
      * Get the job status for a particular job ID
      * 
-     * @param type $job_id
+     * @param int $job_id job ID integer 
+     * 
+     * @return void
      */
     public function job_status($job_id = -1)
     {
@@ -501,7 +544,9 @@ class Status extends Baseline_controller
     /**
      * Get instrument list for a proposal ID
      *
-     * @param type $proposal_id
+     * @param string $proposal_id proposal ID
+     * 
+     * @return void
      */
     public function get_instrument_list($proposal_id)
     {
@@ -511,9 +556,11 @@ class Status extends Baseline_controller
         if($this->is_emsl_staff) {
             $instruments = $this->eus->get_instruments_for_proposal($proposal_id);
         }else{
-            $instruments_available = $full_user_info['proposals'][$proposal_id]['instruments'];
+            $instruments_available
+                = $full_user_info['proposals'][$proposal_id]['instruments'];
             foreach ($instruments_available as $inst_id) {
-                $instruments[$inst_id] = "Instrument {$inst_id}: {$full_user_info['instruments'][$inst_id]['eus_display_name']}";
+                $instruments[$inst_id] = "Instrument {$inst_id}: ".
+                    $full_user_info['instruments'][$inst_id]['eus_display_name'];
             }
         }
         $instruments[-1] = "All Available Instruments for Proposal {$proposal_id}";
@@ -526,13 +573,15 @@ class Status extends Baseline_controller
     /**
      * Get instrument info for a specific instrument ID
      * 
-     * @param type $eus_instrument_id
+     * @param int $instrument_id instrument ID to lookup
+     * 
+     * @return void
      */
-    public function get_instrument_info($eus_instrument_id = 0)
+    public function get_instrument_info($instrument_id = 0)
     {
         $results = array();
-        if ($eus_instrument_id) {
-            $results = $this->eus->get_instrument_name($eus_instrument_id);
+        if ($instrument_id) {
+            $results = $this->eus->get_instrument_name($instrument_id);
         }
         transmit_array_with_json_header($results);
     }
