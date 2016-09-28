@@ -23,7 +23,7 @@ require_once 'Baseline_controller.php';
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
 class Ajax extends Baseline_controller
-{
+
     /**
      * Constructor
      */
