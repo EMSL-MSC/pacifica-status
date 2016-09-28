@@ -23,7 +23,7 @@ require_once 'Baseline_controller.php';
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
 class Ajax extends Baseline_controller
-{
+
     /**
      * Constructor
      */
@@ -43,9 +43,9 @@ class Ajax extends Baseline_controller
 
     /**
      * Get Proposals By Name
-     * 
+     *
      * @param string $terms space separated search terms.
-     * 
+     *
      * @return void
      */
     public function get_proposals_by_name($terms = FALSE)
@@ -73,14 +73,14 @@ class Ajax extends Baseline_controller
         }
         send_json_array($results);
     }
-    
+
     /**
      * Get Instruments for Proposal
-     * 
+     *
      * @param string $proposal_id proposal ID string
-     * @param string $terms       space separated list of search terms against 
+     * @param string $terms       space separated list of search terms against
      *                            instruments metadata
-     * 
+     *
      * @return void
      */
     public function get_instruments_for_proposal(
@@ -134,9 +134,9 @@ class Ajax extends Baseline_controller
 
     /**
      * Get Instrument List from proposal ID
-     * 
+     *
      * @param string $proposal_id unique proposal ID
-     * 
+     *
      * @return void
      */
     public function get_instrument_list($proposal_id)
