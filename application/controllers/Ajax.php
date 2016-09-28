@@ -117,15 +117,12 @@ class Ajax extends Baseline_controller
         foreach ($instruments_available as $inst_id) {
             $instruments[] = array(
                 'id' => $inst_id,
-                'text' => "Instrument {$inst_id}: ".
-                    $full_user_info['instruments'][$inst_id]['eus_display_name'],
-                'name' => 
-                    $full_user_info['instruments'][$inst_id]['eus_display_name'],
+                'text' => "Instrument {$inst_id}: {$full_user_info['instruments'][$inst_id]['eus_display_name']}",
+                'name' => $full_user_info['instruments'][$inst_id]['eus_display_name'],
                 'active' => $inst_list[$inst_id]['active_sw']
             );
         }
-        //$instruments[-1] = "All Available Instruments for ".
-        //    "Proposal {$proposal_id}";
+        // $instruments[-1] = "All Available Instruments for Proposal {$proposal_id}";
         $results = array(
             'total_count' => $total_count,
             'incomplete_results' => FALSE,

@@ -1,21 +1,21 @@
 <?php
 /**
- * CI Default Pacifica
+ * CI Default Pacifica Config
  *
  * PHP Version 5
  *
  * @category Configuration
  * @package  Default_Pacifica
- * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @author   Ken Auberry <Kenneth.Auberry@pnnl.gov>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
 
-$config['jquery_script'] = "jquery-1.11.2.js";
+defined('BASEPATH') OR exit('No direct script access allowed');
 
+$config['application_config_file_path'] = '/etc/myemsl/';
+
+$config['template'] = 'emsl';
 $config['site_color'] = 'orange';
 
 

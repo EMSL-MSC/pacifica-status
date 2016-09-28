@@ -6,13 +6,13 @@
  *
  * @category Configuration
  * @package  Default_Hooks
- * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @author   Ken Auberry <Kenneth.Auberry@pnnl.gov>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
+
+defined('BASEPATH') OR exit('No direct script access allowed');
+
 /*
 | -------------------------------------------------------------------------
 | Hooks
@@ -23,8 +23,3 @@ if (!defined('BASEPATH')) {
 |	http://codeigniter.com/user_guide/general/hooks.html
 |
 */
-
-
-
-/* End of file hooks.php */
-/* Location: ./application/config/hooks.php */
