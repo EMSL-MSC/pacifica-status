@@ -30,7 +30,7 @@ class Status_model extends CI_Model
 
     public function get_instrument_group_list($inst_id_filter = '')
     {
-        $DB_myemsl = $this->load->database('default', true);
+        $DB_myemsl = $this->load->database('default', TRUE);
 
         $DB_myemsl->select(array('group_id', 'name', 'type'));
         $where_clause = "(type = 'omics.dms.instrument_id' or type ilike 'instrument.%') and name not in ('foo')";
@@ -58,7 +58,7 @@ class Status_model extends CI_Model
 
     public function get_proposal_group_list($proposal_id = '')
     {
-        $DB_myemsl = $this->load->database('default', true);
+        $DB_myemsl = $this->load->database('default', TRUE);
 
         $DB_myemsl->select(array('group_id', 'name', 'type'));
         if (!empty($proposal_id)) {
@@ -78,13 +78,13 @@ class Status_model extends CI_Model
             }
         }
         $results = array('by_group' => $results_by_group);
-    // var_dump($results);
-    return $results;
+        // var_dump($results);
+        return $results;
     }
 
     public function get_files_for_transaction($transaction_id)
     {
-        $DB_myemsl = $this->load->database('default', true);
+        $DB_myemsl = $this->load->database('default', TRUE);
 
         $file_select_array = array(
             'f.item_id',
@@ -128,8 +128,8 @@ class Status_model extends CI_Model
     public function get_latest_transactions($group_id_list, $proposal_id, $last_id)
     {
         //if last_id is -1, grab the last transaction so we can display its date as a pointer
-    $transaction_list = array();
-        $DB_myemsl = $this->load->database('default', true);
+        $transaction_list = array();
+        $DB_myemsl = $this->load->database('default', TRUE);
         $select_array = array(
             'max(f.transaction) as transaction_id',
             'max(gi.group_id) as group_id',
@@ -172,8 +172,8 @@ class Status_model extends CI_Model
     public function get_transactions_for_group($group_id, $num_days_back, $eus_proposal_id)
     {
         $transaction_list = array();
-        $is_empty = false;
-        $DB_myemsl = $this->load->database('default', true);
+        $is_empty = FALSE;
+        $DB_myemsl = $this->load->database('default', TRUE);
         $results = array();
         $message = '';
         $raw_transaction_list = array();
@@ -248,12 +248,12 @@ class Status_model extends CI_Model
                         $transaction_list[] = $row->transaction;
                     }
                 }
-                $is_empty = true;
+                $is_empty = TRUE;
                 $list_size = $trans_query->num_rows();
                 $message = "No uploads were found during this time period.<br />The {$list_size} most recent entries for this instrument are below.";
             }
             $results = $this->get_formatted_object_for_transactions($transaction_list);
-            $group_list = $this->get_groups_for_transaction($transaction_list, false);
+            $group_list = $this->get_groups_for_transaction($transaction_list, FALSE);
             foreach ($group_list['groups'] as $tx_id => $group_info) {
                 $results['transactions'][$tx_id]['groups'] = $group_info;
             }
@@ -267,7 +267,7 @@ class Status_model extends CI_Model
         if (!is_array($transaction_id_list)) {
             $transaction_id_list = explode(',', $transaction_id_list);
         }
-        $DB_myemsl = $this->load->database('default', true);
+        $DB_myemsl = $this->load->database('default', TRUE);
         $select_array = array('transaction as id', 'sum(size) as total_size');
         $DB_myemsl->select($select_array)->group_by('transaction')->order_by('transaction');
         $results = array();
@@ -286,7 +286,7 @@ class Status_model extends CI_Model
 
     public function get_groups_for_transaction($transaction_id_list)
     {
-        $DB_myemsl = $this->load->database('default', true);
+        $DB_myemsl = $this->load->database('default', TRUE);
 
         $select_array = array(
             'g.group_id as group_id', 'g.name as group_name',
@@ -336,7 +336,7 @@ class Status_model extends CI_Model
                         $job_id => array(
                             $status['state'] => array(
                                 'jobid' => $job_id,
-                                'trans_id' => false,
+                                'trans_id' => FALSE,
                                 'person_id' => $status['person_id'],
                                 'step' => $status['state'],
                                 'message' => $this->status_list[$status['state']],
@@ -393,17 +393,17 @@ class Status_model extends CI_Model
         return $results;
     }
 
-    public function get_job_status($job_id_list, $status_list = false)
+    public function get_job_status($job_id_list, $status_list = FALSE)
     {
-        if(empty($job_id_list)){
-            return false;
+        if(empty($job_id_list)) {
+            return FALSE;
         }
         $status_list = !empty($status_list) ? $status_list : $this->status_list;
-        $DB_myemsl = $this->load->database('default', true);
+        $DB_myemsl = $this->load->database('default', TRUE);
         $select_array = array(
             'jobid', 'min(trans_id) as trans_id', 'max(step) as step', 'max(person_id) as person_id',
         );
-        if(!empty($job_id_list)){
+        if(!empty($job_id_list)) {
             $DB_myemsl->where_in('jobid', $job_id_list);
         }
         $DB_myemsl->select($select_array)->group_by('jobid');
@@ -434,7 +434,7 @@ class Status_model extends CI_Model
         } else {
             $lookup_field = $lookup_types[$lookup_type];
         }
-        $DB_myemsl = $this->load->database('default', true);
+        $DB_myemsl = $this->load->database('default', TRUE);
         $status_list = array();
         $select_array = array(
             'jobid', 'trans_id', 'person_id', 'step', 'message', 'status',
@@ -482,8 +482,8 @@ class Status_model extends CI_Model
             $lookup_field = 'trans_id';
         }
 
-        $DB_myemsl = $this->load->database('default', true);
-        $inst_id = false;
+        $DB_myemsl = $this->load->database('default', TRUE);
+        $inst_id = FALSE;
         $select_array = array(
             'MAX(f.transaction) as transaction_id',
             'MAX(gi.group_id) as instrument_id',
@@ -501,7 +501,7 @@ class Status_model extends CI_Model
 
     public function get_transaction_info($job_id)
     {
-        $DB_myemsl = $this->load->database('default', true);
+        $DB_myemsl = $this->load->database('default', TRUE);
         $current_step = 0;
         $DB_myemsl->trans_start();
         $DB_myemsl->query("set local timezone to '{$this->local_timezone}';");

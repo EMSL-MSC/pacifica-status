@@ -17,12 +17,12 @@ class User_operations_model extends CI_Model
 
     public function refresh_user_info($prn)
     {
-        $DB_info = $this->load->database('default', true);
+        $DB_info = $this->load->database('default', TRUE);
         //grab user info from Ops Whse
         $user_details_array = get_name_and_prn_array_opw('prn', $prn);
         $entries = $user_details_array[$prn];
 
-        $username = $entries['first_name'] != null ? $entries['first_name'] : 'Anonymous Stranger';
+        $username = $entries['first_name'] != NULL ? $entries['first_name'] : 'Anonymous Stranger';
         $fullname = $username.' '.$entries['last_name'];
 
         $values = array(
@@ -31,7 +31,7 @@ class User_operations_model extends CI_Model
             'display_name' => $fullname,
             'email' => $entries['mail'],
             'telephone' => $entries['telephone'],
-            'updated_at' => null,
+            'updated_at' => NULL,
         );
 
         //check for prn in database
@@ -41,17 +41,17 @@ class User_operations_model extends CI_Model
         } else {
             //add user_info to cache
             $values['network_id'] = $prn;
-            $values['created_at'] = null;
+            $values['created_at'] = NULL;
             $DB_info->insert('user_cache', $values);
         }
-        $retval = $DB_info->affected_rows() > 0 ? true : false;
+        $retval = $DB_info->affected_rows() > 0 ? TRUE : FALSE;
 
         return $retval;
     }
 
     public function get_permission_level_info($admin_access_level)
     {
-        $DB_data = $this->load->database('default', true);
+        $DB_data = $this->load->database('default', TRUE);
         $query = $DB_data->get_where('user_privilege_levels', array('privilege_level' => $admin_access_level), 1);
         if ($query && $query->num_rows() > 0) {
             $desc = $query->row()->privilege_name;
@@ -64,7 +64,7 @@ class User_operations_model extends CI_Model
 
     public function get_user_permissions_level($group_list)
     {
-        $DB_info = $this->load->database('ws_info', true);
+        $DB_info = $this->load->database('ws_info', TRUE);
         if (!$group_list || !is_array($group_list)) {
             $group_list = array();
         }
@@ -89,9 +89,9 @@ class User_operations_model extends CI_Model
     public function is_user_in_database($prn)
     {
         //look for user
-        $DB_info = $this->load->database('default', true);
+        $DB_info = $this->load->database('default', TRUE);
         $query = $DB_info->where('network_id', $prn)->from('user_cache');
-        $retval = $DB_info->count_all_results() > 0 ? true : false;
+        $retval = $DB_info->count_all_results() > 0 ? TRUE : FALSE;
 
         return $retval;
     }
@@ -103,14 +103,14 @@ class User_operations_model extends CI_Model
         $term = 24 * 60 * 60; //24 hours
         $diff = $now - $stored_timestamp;
 
-        $response = $diff >= $term ? true : false;
+        $response = $diff >= $term ? TRUE : FALSE;
 
         return $response;
     }
 
     public function get_user_assignment_picklist()
     {
-        $DB_data = $this->load->database('default', true);
+        $DB_data = $this->load->database('default', TRUE);
         $DB_data->order_by('display_name');
         $query = $DB_data->select(array('display_name', 'telephone', 'network_id'))->get_where('user_cache', array('is_staff' => 1));
         $results = array();

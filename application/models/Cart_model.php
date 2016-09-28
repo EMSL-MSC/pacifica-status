@@ -20,9 +20,9 @@ class Cart_model extends CI_Model
         define('CART_URL_BASE', '/myemsl/cart/download/');
     }
 
-    public function get_active_carts($eus_id, $show_expired = true, $new_tx_id = false)
+    public function get_active_carts($eus_id, $show_expired = TRUE, $new_tx_id = FALSE)
     {
-        $DB_myemsl = $this->load->database('default', true);
+        $DB_myemsl = $this->load->database('default', TRUE);
         $select_array = array(
             'cart_id', 'submit_time', 'last_mtime as modification_time',
             'last_email as last_email_time', 'state',
@@ -69,7 +69,7 @@ class Cart_model extends CI_Model
                         'formatted_submit' => format_cart_display_time_element($submit_time),
                         'formatted_modified' => format_cart_display_time_element($modified_time),
                         'formatted_email' => format_cart_display_time_element($email_time),
-                        'generation_time' => friendlyElapsedTime($submit_time, $email_time, false),
+                        'generation_time' => friendlyElapsedTime($submit_time, $email_time, FALSE),
                     ),
                 );
                 $cart_items_query = $DB_myemsl->select('item_id')->get_where(ITEMS_TABLE, array('cart_id' => $cart_id));
@@ -129,8 +129,8 @@ class Cart_model extends CI_Model
 
     public function delete_dead_cart($cart_id)
     {
-        $DB_myemsl = $this->load->database('default', true);
-        $success_info = array('success' => false, 'message' => '');
+        $DB_myemsl = $this->load->database('default', TRUE);
+        $success_info = array('success' => FALSE, 'message' => '');
         //make sure that this cart even exists.....
         $get_query = $DB_myemsl->get_where(CART_TABLE, array('cart_id' => $cart_id, 'state !=' => 'expired'), 1);
         if ($get_query && $get_query->num_rows() > 0) {
@@ -146,7 +146,7 @@ class Cart_model extends CI_Model
                     $new_data = array('state' => 'expired', 'last_mtime' => $now_time->format('Y-m-d H:i:s'));
                     $delete_query = $DB_myemsl->where('cart_id', $cart_id)->where('person_id', $this->user_id)->update(CART_TABLE, $new_data);
                     if ($DB_myemsl->affected_rows() > 0) {
-                        $success_info['success'] = true;
+                        $success_info['success'] = TRUE;
                         $success_info['message'] = "Cart #{$cart_id} (Submitted by User {$cart_info->person_id} on {$cart_create_time->format('d M Y g:ia')}) was successfully expired";
                     } else {
                         $success_info['message'] = "Cart #{$cart_id} could not be deleted because an error occurred";

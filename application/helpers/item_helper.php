@@ -34,13 +34,14 @@
   // }
 // }
 
-function build_folder_structure(&$dirs, $path_array, $item_info) {
+function build_folder_structure(&$dirs, $path_array, $item_info) 
+{
     if (count($path_array) > 1) {
         if (!isset($dirs['folders'][$path_array[0]])) {
             $dirs['folders'][$path_array[0]] = array();
         }
 
-        build_folder_structure($dirs['folders'][$path_array[0]], array_splice($path_array, 1),$item_info);
+        build_folder_structure($dirs['folders'][$path_array[0]], array_splice($path_array, 1), $item_info);
     } else {
         $size_string = format_bytes($item_info['size']);
         $m_time = new DateTime($item_info['modified_time']);
@@ -54,57 +55,61 @@ function build_folder_structure(&$dirs, $path_array, $item_info) {
 }
 
 
-function format_folder_object_json($folder_obj,$folder_name){
-  $output = array();
+function format_folder_object_json($folder_obj,$folder_name)
+{
+    $output = array();
 
-  if(array_key_exists('folders', $folder_obj)){
-    foreach($folder_obj['folders'] as $folder_entry => $folder_tree){
-      $folder_output = array('title' => $folder_entry, 'folder' => true);
-      $children = format_folder_object_json($folder_tree, $folder_entry);
-      if(!empty($children)){
-        foreach($children as $child){
-          $folder_output['children'][] = $child;
+    if(array_key_exists('folders', $folder_obj)) {
+        foreach($folder_obj['folders'] as $folder_entry => $folder_tree){
+            $folder_output = array('title' => $folder_entry, 'folder' => TRUE);
+            $children = format_folder_object_json($folder_tree, $folder_entry);
+            if(!empty($children)) {
+                foreach($children as $child){
+                    $folder_output['children'][] = $child;
+                }
+            }
+            $output[] = $folder_output;
         }
-      }
-      $output[] = $folder_output;
     }
-  }
-  if(array_key_exists('files', $folder_obj)){
-    foreach($folder_obj['files'] as $item_id => $file_entry){
-      $output[] = array('title' => $file_entry, 'key' => "ft_item_{$item_id}");
+    if(array_key_exists('files', $folder_obj)) {
+        foreach($folder_obj['files'] as $item_id => $file_entry){
+            $output[] = array('title' => $file_entry, 'key' => "ft_item_{$item_id}");
+        }
     }
-  }
-  return $output;
+    return $output;
 }
 
 
-function format_folder_object_html($folder_obj, &$output_structure){
-  foreach(array_keys($folder_obj) as $folder_entry){
-    $output_structure .= "<li class='folder'>{$folder_entry}<ul>";
-    if(array_key_exists('folders', $folder_obj[$folder_entry])){
-      $f_obj = $folder_obj[$folder_entry]['folders'];
-      format_folder_object_html($f_obj, $output_structure);
+function format_folder_object_html($folder_obj, &$output_structure)
+{
+    foreach(array_keys($folder_obj) as $folder_entry){
+        $output_structure .= "<li class='folder'>{$folder_entry}<ul>";
+        if(array_key_exists('folders', $folder_obj[$folder_entry])) {
+            $f_obj = $folder_obj[$folder_entry]['folders'];
+            format_folder_object_html($f_obj, $output_structure);
+        }
+        if(array_key_exists('files', $folder_obj[$folder_entry])) {
+            $file_obj = $folder_obj[$folder_entry]['files'];
+            format_file_object_html($file_obj, $output_structure);
+        }
+        $output_structure .= "</ul></li>";
     }
-    if(array_key_exists('files',$folder_obj[$folder_entry])){
-      $file_obj = $folder_obj[$folder_entry]['files'];
-      format_file_object_html($file_obj, $output_structure);
-    }
-    $output_structure .= "</ul></li>";
-  }
 }
 
-function format_file_object_html($file_obj, &$output_structure){
-  foreach($file_obj as $file_entry){
-    $output_structure .= "<li>{$file_entry}</li>";
-  }
+function format_file_object_html($file_obj, &$output_structure)
+{
+    foreach($file_obj as $file_entry){
+        $output_structure .= "<li>{$file_entry}</li>";
+    }
 }
 
-function format_bytes($bytes) {
-   if ($bytes < 1024) return $bytes.' B';
-   elseif ($bytes < 1048576) return round($bytes / 1024, 0).' KB';
-   elseif ($bytes < 1073741824) return round($bytes / 1048576, 1).' MB';
-   elseif ($bytes < 1099511627776) return round($bytes / 1073741824, 2).' GB';
-   else return round($bytes / 1099511627776, 2).' TB';
+function format_bytes($bytes) 
+{
+    if ($bytes < 1024) return $bytes.' B';
+    elseif ($bytes < 1048576) return round($bytes / 1024, 0).' KB';
+    elseif ($bytes < 1073741824) return round($bytes / 1048576, 1).' MB';
+    elseif ($bytes < 1099511627776) return round($bytes / 1073741824, 2).' GB';
+    else return round($bytes / 1099511627776, 2).' TB';
 }
 
 ?>

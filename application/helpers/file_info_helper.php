@@ -8,17 +8,18 @@
    // else return round($bytes / 1099511627776, 2).' TB';
 // }
 
-function quarter_to_range($quarter_num){
-  $last_q = $quarter_num - 1;
-  $this_q = $quarter_num;
+function quarter_to_range($quarter_num)
+{
+    $last_q = $quarter_num - 1;
+    $this_q = $quarter_num;
   
-  $first_month_num = $last_q * 3 + 1;
-  $last_month_num = $this_q * 3;
+    $first_month_num = $last_q * 3 + 1;
+    $last_month_num = $this_q * 3;
   
-  $first_month = date("M", mktime(0,0,0, $first_month_num, 1, 2012));
-  $last_month = date("M", mktime(0,0,0, $last_month_num, 1, 2012));
+    $first_month = date("M", mktime(0, 0, 0, $first_month_num, 1, 2012));
+    $last_month = date("M", mktime(0, 0, 0, $last_month_num, 1, 2012));
   
-  return "{$first_month}&ndash;{$last_month}";
+    return "{$first_month}&ndash;{$last_month}";
  
 }
 
@@ -33,10 +34,11 @@ function quarter_to_range($quarter_num){
  *
  *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function is_file_on_tape($path){
-  $on_tape = check_disk_stage($path,TRUE);
-  $on_tape = $on_tape == 0 ? true : false;
-  return $on_tape;
+function is_file_on_tape($path)
+{
+    $on_tape = check_disk_stage($path, TRUE);
+    $on_tape = $on_tape == 0 ? TRUE : FALSE;
+    return $on_tape;
 }
 
 /**
@@ -52,24 +54,25 @@ function is_file_on_tape($path){
  *
  *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function check_disk_stage($path, $numeric = false){
-  //fake it out until I get real support
-  if($numeric){
-    return 0;
-  }else{
-    return "on_tape";
-  }
-  $attr = exec("which attr");
-  $status_attribute_name = "disk_stage_status";
-  $attr_cmd = "{$attr} -g \"{$status_attribute_name}\" \"{$path}\"";
-  $status_bit = exec($attr_cmd);
-  $status_bit = intval($status_bit);
+function check_disk_stage($path, $numeric = FALSE)
+{
+    //fake it out until I get real support
+    if($numeric) {
+        return 0;
+    }else{
+        return "on_tape";
+    }
+    $attr = exec("which attr");
+    $status_attribute_name = "disk_stage_status";
+    $attr_cmd = "{$attr} -g \"{$status_attribute_name}\" \"{$path}\"";
+    $status_bit = exec($attr_cmd);
+    $status_bit = intval($status_bit);
 
-  $status = $status_bit == 0 ? "on_tape" : "on_disk";
+    $status = $status_bit == 0 ? "on_tape" : "on_disk";
   
-  $status_bit = $numeric ? $status_bit : $status;
+    $status_bit = $numeric ? $status_bit : $status;
   
-  return $status_bit;
+    return $status_bit;
 }
 
 /**
@@ -79,28 +82,28 @@ function check_disk_stage($path, $numeric = false){
  *
  *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function get_last_update(){
-  if ( func_num_args() < 1 ) return 0;
-  $dirs = func_get_args();
-  $files = array();
-  foreach ( $dirs as $dir )
-  {
-    // $directory = new RecursiveDirectoryIterator($dir);
-    $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir),RecursiveIteratorIterator::LEAVES_ONLY);
-    $files = array_keys(iterator_to_array($objects,TRUE));
-  }
-  $maxtimestamp = 0;
-  $maxfilename = "";
-  foreach ( $files as $file )
-  {
-    $timestamp = filemtime($file);
-    if ( $timestamp > $maxtimestamp )
+function get_last_update()
+{
+    if (func_num_args() < 1 ) return 0;
+    $dirs = func_get_args();
+    $files = array();
+    foreach ( $dirs as $dir )
     {
-      $maxtimestamp = $timestamp;
-      $maxfilename = $file; 
+        // $directory = new RecursiveDirectoryIterator($dir);
+        $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir), RecursiveIteratorIterator::LEAVES_ONLY);
+        $files = array_keys(iterator_to_array($objects, TRUE));
     }
-  }
-  $d = new DateTime();
-  $d->setTimestamp($maxtimestamp);
-  return $d;
+    $maxtimestamp = 0;
+    $maxfilename = "";
+    foreach ( $files as $file )
+    {
+        $timestamp = filemtime($file);
+        if ($timestamp > $maxtimestamp ) {
+            $maxtimestamp = $timestamp;
+            $maxfilename = $file; 
+        }
+    }
+    $d = new DateTime();
+    $d->setTimestamp($maxtimestamp);
+    return $d;
 }
