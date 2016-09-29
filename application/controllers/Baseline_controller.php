@@ -1,19 +1,29 @@
 <?php
 /**
- * Controllers Baseline
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-Reporting module provides an interface for
+ *  concerned and interested parties to view the current
+ *  contribution status of any and all instruments in the
+ *  system. The reporting interface can be customized and
+ *  filtered streamline the report to fit any level of user,
+ *  from managers through instrument operators.
  *
  * PHP Version 5
  *
- * @category Controllers
- * @package  Baseline
- * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
- * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ * @package Pacifica-upload-status
+ * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
 
 /**
  * Baseline controller class
- * 
+ *
  * @category Class
  * @package  Baseline
  * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>

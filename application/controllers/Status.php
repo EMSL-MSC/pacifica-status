@@ -1,22 +1,37 @@
 <?php
 /**
- * Controllers Status
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-Reporting module provides an interface for
+ *  concerned and interested parties to view the current
+ *  contribution status of any and all instruments in the
+ *  system. The reporting interface can be customized and
+ *  filtered streamline the report to fit any level of user,
+ *  from managers through instrument operators.
  *
  * PHP Version 5
  *
- * @category Controllers
- * @package  Cart
- * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
- * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ * @package Pacifica-upload-status
+ * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
 require_once 'Baseline_controller.php';
 
 /**
- * Status controller class
- * 
+ * Status is a CI Controller class that extends Baseline_controller
+ *
+ * The *Status* class is the main entry point into the status
+ * website. It provides overview pages that summarize a filtered
+ * set of all uploads, as well as a single-transaction view
+ * that shows the status of a specified upload transaction
+ *
  * @category Class
- * @package  Status
+ * @package  Pacifica-upload-status
  * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
@@ -25,6 +40,9 @@ class Status extends Baseline_controller
 {
     /**
      * Constructor
+     *
+     * Defines the base set of scripts/CSS files for every
+     * page load
      */
     public function __construct()
     {
@@ -46,11 +64,30 @@ class Status extends Baseline_controller
         $this->valid_search_term_types = array();
 
         $this->last_update_time = get_last_update(APPPATH);
+
+        $this->page_data['script_uris'] = array(
+            '/resources/scripts/spinner/spin.min.js',
+            '/resources/scripts/fancytree/jquery.fancytree-all.js',
+            '/resources/scripts/jquery-crypt/jquery.crypt.js',
+            '/resources/scripts/myemsl_file_download.js',
+            '/project_resources/scripts/status_common.js',
+            '/resources/scripts/select2-4/dist/js/select2.js',
+            '/resources/scripts/moment.min.js'
+        );
+        $this->page_data['css_uris'] = array(
+            '/resources/scripts/fancytree/skin-lion/ui.fancytree.min.css',
+            '/resources/stylesheets/status.css',
+            '/resources/stylesheets/status_style.css',
+            '/resources/scripts/select2-4/dist/css/select2.css',
+            '/resources/stylesheets/file_directory_styling.css',
+            '/resources/stylesheets/bread_crumbs.css',
+        );
+
     }
 
     /**
      * Primary index redirect method.
-     * 
+     *
      * @return void
      */
     public function index()
@@ -59,11 +96,12 @@ class Status extends Baseline_controller
     }
 
     /**
-     * View to lookup status on various types.
-     * 
+     * Provides a page that shows detailed information for a
+     * specific upload transaction.
+     *
      * @param string $lookup_type string of the lookup type (job or trans)
      * @param type   $id          the ID of the lookup_type
-     * 
+     *
      * @return void
      */
     public function view($lookup_type, $id = -1)
@@ -104,25 +142,15 @@ class Status extends Baseline_controller
 
         $this->page_data['page_header'] = 'Upload Report';
         $this->page_data['title'] = 'Upload Report';
-        $this->page_data['css_uris'] = array(
-            '/resources/scripts/fancytree/skin-lion/ui.fancytree.min.css',
-            '/resources/scripts/select2-4/dist/css/select2.css',
-            '/resources/stylesheets/status.css',
-            '/resources/stylesheets/status_style.css',
-            '/resources/stylesheets/file_directory_styling.css',
-            '/resources/stylesheets/bread_crumbs.css',
-        );
-        $this->page_data['script_uris'] = array(
-            '/resources/scripts/spinner/spin.min.js',
-            '/resources/scripts/fancytree/jquery.fancytree-all.js',
-            '/resources/scripts/jquery-dateFormat/jquery-dateFormat.min.js',
-            '/resources/scripts/jquery-crypt/jquery.crypt.js',
-            '/resources/scripts/select2-4/dist/js/select2.js',
-            '/resources/scripts/myemsl_file_download.js',
-            '/project_resources/scripts/status_common.js',
-            '/resources/scripts/moment.min.js',
-            '/resources/scripts/single_item_view.js',
-        );
+
+        $this->page_data['script_uris'] =
+            array_merge(
+                $this->page_data['script_uris'], array(
+                '/resources/scripts/single_item_view.js',
+                '/resources/scripts/jquery-dateFormat/jquery-dateFormat.min.js'
+                )
+            );
+
 
         if ($lookup_type == 'j' || $lookup_type == 'job') {
             //lookup transaction_id from job
@@ -135,7 +163,7 @@ class Status extends Baseline_controller
                 if (empty($job_status_info)) {
                     $err_msg = "No {$lookup_type_description} with an identifier ".
                             "of {$id} was found";
-                    $this->page_data['message'] = $err_msg; 
+                    $this->page_data['message'] = $err_msg;
                     $this->page_data['script_uris'] = array();
                 }
                 $this->page_data['transaction_data'] = $job_status_info;
@@ -176,11 +204,11 @@ class Status extends Baseline_controller
 
     /**
      * Primary index page shows overview of status for that user.
-     * 
+     *
      * @param string $proposal_id   id of the proposal to display
      * @param string $instrument_id id of the instrument to display
      * @param string $time_period   time period the status should be displayed
-     * 
+     *
      * @return void
      */
     public function overview(
@@ -206,25 +234,19 @@ class Status extends Baseline_controller
             $this->page_data['page_header'] = 'MyEMSL Status Reporting';
             $this->page_data['title'] = 'Overview';
             $this->page_data['informational_message'] = '';
-            $this->page_data['css_uris'] = array(
-                '/resources/scripts/fancytree/skin-lion/ui.fancytree.css',
-                '/resources/stylesheets/status.css',
-                '/resources/stylesheets/status_style.css',
-                '/project_resources/stylesheets/selector.css',
-                '/resources/scripts/select2-4/dist/css/select2.css',
-                '/resources/stylesheets/file_directory_styling.css',
-                '/resources/stylesheets/bread_crumbs.css',
-            );
-            $this->page_data['script_uris'] = array(
-                '/resources/scripts/spinner/spin.min.js',
-                '/resources/scripts/fancytree/jquery.fancytree-all.js',
-                '/resources/scripts/jquery-crypt/jquery.crypt.js',
-                '/project_resources/scripts/myemsl_file_download.js',
-                '/project_resources/scripts/status_common.js',
-                '/project_resources/scripts/emsl_mgmt_view.js',
-                '/resources/scripts/select2-4/dist/js/select2.js',
-                '/resources/scripts/moment.min.js',
-            );
+            $this->page_data['css_uris'] =
+                array_merge(
+                    $this->page_data['css_uris'], array(
+                    '/project_resources/stylesheets/selector.css'
+                    )
+                );
+            $this->page_data['script_uris'] =
+                array_merge(
+                    $this->page_data['script_uris'], array(
+                    '/resources/scripts/emsl_mgmt_view.js'
+                    )
+                );
+
             $this->benchmark->mark('get_user_info_from_ws_start');
             $full_user_info = $this->myemsl->get_user_info();
             $this->benchmark->mark('get_user_info_from_ws_end');
@@ -304,7 +326,7 @@ class Status extends Baseline_controller
                                     ['transactions'] = array();
                             }
                             if (!array_key_exists(
-                                $group_id, 
+                                $group_id,
                                 $results['transaction_list']['transactions']
                             )
                             ) {
@@ -355,7 +377,7 @@ class Status extends Baseline_controller
         $this->page_data['enable_breadcrumbs'] = FALSE;
         $this->page_data['status_list'] = $this->status_list;
         $this->page_data['transaction_data'] = $results['transaction_list'];
-        if (array_key_exists('transactions', $results['transaction_list']) 
+        if (array_key_exists('transactions', $results['transaction_list'])
             && !empty($results['transaction_list']['transactions'])
         ) {
             $this->page_data['transaction_sizes']
@@ -373,9 +395,9 @@ class Status extends Baseline_controller
 
     /**
      * Get files for a specific transaction ID
-     * 
+     *
      * @param string $transaction_id transaction id to get files from
-     * 
+     *
      * @return void
      */
     public function get_files_by_transaction($transaction_id = FALSE)
@@ -391,11 +413,11 @@ class Status extends Baseline_controller
 
     /**
      * Get the most current transactions
-     * 
+     *
      * @param string $instrument_id instrument ID for the transactions
      * @param string $proposal_id   proposal ID for the transactions
      * @param string $latest_id     specific latest ID of transaction
-     * 
+     *
      * @return void
      */
     public function get_latest_transactions(
@@ -437,10 +459,10 @@ class Status extends Baseline_controller
 
     /**
      * Get the status of a particular job
-     * 
+     *
      * @param string $lookup_type either job or transaction
      * @param int    $id          ID of lookup_type
-     * 
+     *
      * @return void
      */
     public function get_status($lookup_type, $id = 0)
@@ -519,9 +541,9 @@ class Status extends Baseline_controller
 
     /**
      * Get the job status for a particular job ID
-     * 
-     * @param int $job_id job ID integer 
-     * 
+     *
+     * @param int $job_id job ID integer
+     *
      * @return void
      */
     public function job_status($job_id = -1)
@@ -545,7 +567,7 @@ class Status extends Baseline_controller
      * Get instrument list for a proposal ID
      *
      * @param string $proposal_id proposal ID
-     * 
+     *
      * @return void
      */
     public function get_instrument_list($proposal_id)
@@ -572,9 +594,9 @@ class Status extends Baseline_controller
 
     /**
      * Get instrument info for a specific instrument ID
-     * 
+     *
      * @param int $instrument_id instrument ID to lookup
-     * 
+     *
      * @return void
      */
     public function get_instrument_info($instrument_id = 0)

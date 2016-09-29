@@ -1,22 +1,32 @@
 <?php
 /**
- * Controllers Status
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-Reporting module provides an interface for
+ *  concerned and interested parties to view the current
+ *  contribution status of any and all instruments in the
+ *  system. The reporting interface can be customized and
+ *  filtered streamline the report to fit any level of user,
+ *  from managers through instrument operators.
  *
  * PHP Version 5
  *
- * @category Controllers
- * @package  Test
- * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
- * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ * @package Pacifica-upload-status
+ * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
 require_once 'Baseline_controller.php';
 
 /**
- * Test Baseline controller class
- * 
+ * Test is a CI controller class that extends Baseline_controller
+ *
  * @category Class
- * @package  Test
+ * @package  Pacifica-upload-status
  * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
@@ -46,7 +56,7 @@ class Test extends Baseline_controller
 
     /**
      * Test redirect method to the real class.
-     * 
+     *
      * @return void
      */
     public function index()
@@ -56,9 +66,9 @@ class Test extends Baseline_controller
 
     /**
      * Test Get Job Status
-     * 
+     *
      * @param int $job_id job ID
-     * 
+     *
      * @return void
      */
     public function test_get_status($job_id)
@@ -68,9 +78,9 @@ class Test extends Baseline_controller
 
     /**
      * Get Instrument List
-     * 
+     *
      * @param string $instrument_id instrument ID
-     * 
+     *
      * @return void
      */
     public function test_get_instrument_list($instrument_id = '')
@@ -80,9 +90,9 @@ class Test extends Baseline_controller
 
     /**
      * Test Get Groups by Proposal ID
-     * 
+     *
      * @param string $proposal_id proposal ID
-     * 
+     *
      * @return void
      */
     public function test_get_groups_for_proposal($proposal_id)
@@ -93,9 +103,9 @@ class Test extends Baseline_controller
 
     /**
      * Test Get Groups for Transaction ID
-     * 
+     *
      * @param int $transaction_id transaction ID
-     * 
+     *
      * @return void
      */
     public function test_get_groups_for_transaction($transaction_id)
@@ -108,9 +118,9 @@ class Test extends Baseline_controller
 
     /**
      * Test Get Transactions for Proposal ID
-     * 
+     *
      * @param string $proposal_id proposal ID
-     * 
+     *
      * @return void
      */
     public function test_get_transactions_for_proposal($proposal_id)
@@ -121,7 +131,7 @@ class Test extends Baseline_controller
 
     /**
      * Test Get User Info json.
-     * 
+     *
      * @return void
      */
     public function test_get_userinfo()
@@ -132,9 +142,9 @@ class Test extends Baseline_controller
 
     /**
      * Test Get Proposals from Instrument ID
-     * 
+     *
      * @param string $instrument_id instrument ID
-     * 
+     *
      * @return void
      */
     public function test_get_proposals_for_instrument($instrument_id)
@@ -147,9 +157,9 @@ class Test extends Baseline_controller
 
     /**
      * Get Instruments for Proposal ID
-     * 
+     *
      * @param string $proposal_id proposal ID
-     * 
+     *
      * @return void
      */
     public function get_instruments_by_proposal($proposal_id)
@@ -163,10 +173,10 @@ class Test extends Baseline_controller
 
     /**
      * Get Proposals by Name with String Filter
-     * 
+     *
      * @param string $filter space separated string of terms to filter proposals
      *                       metadata on.
-     * 
+     *
      * @return void
      */
     public function get_proposals_by_name_eus($filter = 'false')
@@ -180,11 +190,11 @@ class Test extends Baseline_controller
 
     /**
      * Get Instruments for Proposal ID with string filter
-     * 
+     *
      * @param string $proposal_id proposal ID to get instruments from
      * @param string $filter      space separated string of terms to filter
      *                            instruments on by their metadata
-     * 
+     *
      * @return void
      */
     public function get_instruments_by_proposal_eus($proposal_id,$filter = FALSE)

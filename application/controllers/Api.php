@@ -1,22 +1,36 @@
 <?php
 /**
- * Controllers API
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-Reporting module provides an interface for
+ *  concerned and interested parties to view the current
+ *  contribution status of any and all instruments in the
+ *  system. The reporting interface can be customized and
+ *  filtered streamline the report to fit any level of user,
+ *  from managers through instrument operators.
  *
  * PHP Version 5
  *
- * @category Controllers
- * @package  API
- * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
- * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ * @package Pacifica-upload-status
+ * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
 require_once 'Baseline_controller.php';
 
 /**
- * API Class
- * 
+ * API is a CI controller class that extends Baseline_controller
+ *
+ * The *API* class provides an interface to the low-level
+ * MyEMSL cart, status and iteminfo web API's through
+ * server-to-server HTTP calls
+ *
  * @category Class
- * @package  API
+ * @package  Pacifica-upload-status
  * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
@@ -41,7 +55,7 @@ class API extends Baseline_controller
         $this->load->library(array('table'));
         $this->status_list = array(
             0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
-            3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived',
+            3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived'
         );
     }
 
@@ -74,7 +88,7 @@ class API extends Baseline_controller
             }
         } else {
             /*looks like a POST, parse the body and rock on*/
-            if(array_key_exists('search_operator', $values) 
+            if(array_key_exists('search_operator', $values)
                 && !empty($values['search_operator'])
             ) {
                 $search_operator = $values['search_operator'];
@@ -129,7 +143,7 @@ class API extends Baseline_controller
      *
      * @param integer $job_id The current in-progress job_id for the specified
      *                        upload job.
-     * 
+     *
      * @return void
      */
     public function status($job_id)
@@ -174,10 +188,10 @@ class API extends Baseline_controller
 
     /**
      * Test get available groups types
-     * 
+     *
      * @param string $filter space separated list of fiters to apply to the
      *                       group names.
-     * 
+     *
      * @return void
      */
     public function test_get_available_group_types($filter = '')
@@ -190,9 +204,9 @@ class API extends Baseline_controller
 
     /**
      * Test iteminfo page
-     * 
+     *
      * @param int $item_id integer ID for the item to pull metadata.
-     * 
+     *
      * @return void
      */
     public function test_iteminfo($item_id)

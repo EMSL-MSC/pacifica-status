@@ -1,26 +1,38 @@
 <?php
 /**
- * Controllers Ajax
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-Reporting module provides an interface for
+ *  concerned and interested parties to view the current
+ *  contribution status of any and all instruments in the
+ *  system. The reporting interface can be customized and
+ *  filtered streamline the report to fit any level of user,
+ *  from managers through instrument operators.
  *
  * PHP Version 5
  *
- * @category Controllers
- * @package  Ajax
- * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
- * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ * @package Pacifica-upload-status
+ * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
-
 require_once 'Baseline_controller.php';
 
 /**
  * Ajax Class
  *
  * @category Class
- * @package  Ajax
+ * @package  Pacifica-upload-status
  * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ *
+ * @uses Status_model
+ * @uses Myemsl_model
  */
 class Ajax extends Baseline_controller
 {
@@ -42,7 +54,11 @@ class Ajax extends Baseline_controller
     }
 
     /**
-     * Get Proposals By Name
+     * Given a list of search terms, generates a list
+     * of HTML-formatted <span> entities, each containing a
+     * shortened version of the proposal title in the
+     * body and the full length version in the *title*
+     * element. Sends to browser as a JSON block.
      *
      * @param string $terms space separated search terms.
      *
@@ -75,7 +91,10 @@ class Ajax extends Baseline_controller
     }
 
     /**
-     * Get Instruments for Proposal
+     * Retrieves the full set of instruments that are
+     * associated with a given proposal, and formats
+     * it to be compatible with the Select2 JSON array
+     * loading interface.
      *
      * @param string $proposal_id proposal ID string
      * @param string $terms       space separated list of search terms against
@@ -133,7 +152,9 @@ class Ajax extends Baseline_controller
     }
 
     /**
-     * Get Instrument List from proposal ID
+     * Retrives the list of available instruments for
+     * a given proposal ID, formatting the results
+     * as a SELECT object for Select2
      *
      * @param string $proposal_id unique proposal ID
      *

@@ -1,22 +1,37 @@
 <?php
 /**
- * Controllers Cart
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-Reporting module provides an interface for
+ *  concerned and interested parties to view the current
+ *  contribution status of any and all instruments in the
+ *  system. The reporting interface can be customized and
+ *  filtered streamline the report to fit any level of user,
+ *  from managers through instrument operators.
  *
  * PHP Version 5
  *
- * @category Controllers
- * @package  Cart
- * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
- * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ * @package Pacifica-upload-status
+ * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
+
 require_once 'Baseline_controller.php';
 
 /**
- * Cart controller class
- * 
+ * Cart is a CI Controller class that extends Baseline_controller
+ *
+ * The *Cart* class interacts with the MyEMSL Cart web API to
+ * allow download of archived data, as well as generating proper
+ * cart_token entities to allow for multi-file download specifications.
+ *
  * @category Class
- * @package  Cart
+ * @package  Pacifica-upload-status
  * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
@@ -34,10 +49,15 @@ class Cart extends Baseline_controller
     }
 
     /**
-     * Get a cart authentication token.
-     * 
+     * Generates an appropriately formatted token to convince
+     * the cart engine to send a bunch of item ID's at once,
+     * rather than specifying each item as a separate (slow)
+     * web request roundtrip. Single item ID's can be specified
+     * in the GET params, and multiple ID's can be POSTed as
+     * a block of JSON.
+     *
      * @param int $item_id single itemid to get a cart for.
-     * 
+     *
      * @return void
      */
     public function get_cart_token($item_id = FALSE)
@@ -53,10 +73,11 @@ class Cart extends Baseline_controller
     }
 
     /**
-     * List the active carts
-     * 
+     * Retrieve a listing of the user's currently active
+     * cart entities, formatted as an HTML table view
+     *
      * @param string $optional_message optional message to send to user.
-     * 
+     *
      * @return void
      */
     public function listing($optional_message = '')
@@ -68,9 +89,9 @@ class Cart extends Baseline_controller
 
     /**
      * Delete a cart based on ID
-     * 
+     *
      * @param int $cart_id cart ID to delete
-     * 
+     *
      * @return void
      */
     public function delete($cart_id)
@@ -79,20 +100,10 @@ class Cart extends Baseline_controller
         $this->listing($success_info['message']);
     }
 
-    /**
-     * Test cart token method.
-     * 
-     * @return void
-     */
-    public function test_generate_cart_token()
-    {
-        $item_list = array(105655);
-        echo $this->get_cart_token(105655);
-    }
 
     /**
      * Test cart listing method
-     * 
+     *
      * @return void
      */
     public function test_get_cart_list()
