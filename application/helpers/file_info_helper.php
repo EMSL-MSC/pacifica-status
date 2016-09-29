@@ -1,26 +1,53 @@
-<?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
-  
-// function format_bytes($bytes) {
-   // if ($bytes < 1024) return $bytes.' B';
-   // elseif ($bytes < 1048576) return round($bytes / 1024, 2).' KB';
-   // elseif ($bytes < 1073741824) return round($bytes / 1048576, 2).' MB';
-   // elseif ($bytes < 1099511627776) return round($bytes / 1073741824, 2).' GB';
-   // else return round($bytes / 1099511627776, 2).' TB';
-// }
+<?php
+/**
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-upload-status module provides an interface to
+ *  the ingester status reporting backend, allowing users to view
+ *  the current state of any uploads they may have performed, as
+ *  well as enabling the download and retrieval of that data.
+ *
+ *  This file contains a number of common functions related to
+ *  file info and handling.
+ *
+ * PHP version 5.5
+ *
+ * @package Pacifica-upload-status
+ *
+ * @author  Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @license BSD https://opensource.org/licenses/BSD-3-Clause
+ *
+ * @link http://github.com/EMSL-MSC/Pacifica-reporting
+ */
 
+  if (!defined('BASEPATH')) exit('No direct script access allowed');
+
+/**
+ *  Converts a numeric year quarter into starting/ending month
+ *
+ *  @param string $quarter_num numeric quarter of the year to use (1-4)
+ *
+ *  @return string (first_month)-(last_month) i.e. Jan-Mar
+ *
+ *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
 function quarter_to_range($quarter_num)
 {
     $last_q = $quarter_num - 1;
     $this_q = $quarter_num;
-  
+
     $first_month_num = $last_q * 3 + 1;
     $last_month_num = $this_q * 3;
-  
+
     $first_month = date("M", mktime(0, 0, 0, $first_month_num, 1, 2012));
     $last_month = date("M", mktime(0, 0, 0, $last_month_num, 1, 2012));
-  
+
     return "{$first_month}&ndash;{$last_month}";
- 
+
 }
 
 /**
@@ -69,9 +96,9 @@ function check_disk_stage($path, $numeric = FALSE)
     $status_bit = intval($status_bit);
 
     $status = $status_bit == 0 ? "on_tape" : "on_disk";
-  
+
     $status_bit = $numeric ? $status_bit : $status;
-  
+
     return $status_bit;
 }
 
@@ -100,7 +127,7 @@ function get_last_update()
         $timestamp = filemtime($file);
         if ($timestamp > $maxtimestamp ) {
             $maxtimestamp = $timestamp;
-            $maxfilename = $file; 
+            $maxfilename = $file;
         }
     }
     $d = new DateTime();

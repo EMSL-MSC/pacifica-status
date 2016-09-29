@@ -6,19 +6,17 @@
  * for the curation and storage of raw and processed scientific
  * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
  *
- *  The Pacifica-Reporting module provides an interface for
- *  concerned and interested parties to view the current
- *  contribution status of any and all instruments in the
- *  system. The reporting interface can be customized and
- *  filtered streamline the report to fit any level of user,
- *  from managers through instrument operators.
+ *  The Pacifica-upload-status module provides an interface to
+ *  the ingester status reporting backend, allowing users to view
+ *  the current state of any uploads they may have performed, as
+ *  well as enabling the download and retrieval of that data.
  *
  * PHP Version 5
  *
- * @package Pacifica-upload-status
- * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
- * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link    http://github.com/EMSL-MSC/pacifica-upload-status
+ * @package  Pacifica-upload-status
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
 require_once 'Baseline_controller.php';
 
@@ -26,7 +24,7 @@ require_once 'Baseline_controller.php';
  * API is a CI controller class that extends Baseline_controller
  *
  * The *API* class provides an interface to the low-level
- * MyEMSL cart, status and iteminfo web API's through
+ * MyEMSL status and iteminfo web API's through
  * server-to-server HTTP calls
  *
  * @category Class
@@ -34,6 +32,9 @@ require_once 'Baseline_controller.php';
  * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ *
+ * @uses Status_model
+ * @uses API_model
  */
 class API extends Baseline_controller
 {
@@ -43,9 +44,8 @@ class API extends Baseline_controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('status_model', 'status');
-        $this->load->model('API_model', 'api');
-        $this->load->model('Cart_model', 'cart');
+        $this->load->model('Status_model', 'status');
+        $this->load->model('Api_model', 'api');
         $this->load->helper(
             array(
                 'inflector', 'item', 'url', 'opwhse_search',

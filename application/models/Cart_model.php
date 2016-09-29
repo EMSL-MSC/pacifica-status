@@ -1,13 +1,45 @@
 <?php
+/**
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-upload-status module provides an interface to
+ *  the ingester status reporting backend, allowing users to view
+ *  the current state of any uploads they may have performed, as
+ *  well as enabling the download and retrieval of that data.
+ *
+ * PHP Version 5
+ *
+ * @package Pacifica-upload-status
+ * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
+ */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                             */
-/*     Cart Model                                                              */
-/*                                                                             */
-/*                                                                             */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/**
+ *  Cart Model
+ *
+ *  The **Cart_model** class interacts with the metadata database
+ *  to get lists of active carts for a given user, and to provide
+ *  a means to remove carts that have outlived their usefulness.
+ *
+ * @category CI_Model
+ * @package  Pacifica-upload-status
+ * @author   Ken Auberry <kenneth.auberry@pnnl.gov>
+ *
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
+ */
 class Cart_model extends CI_Model
 {
+    /**
+     *  Class constructor
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function __construct()
     {
         parent::__construct();
@@ -20,7 +52,19 @@ class Cart_model extends CI_Model
         define('CART_URL_BASE', '/myemsl/cart/download/');
     }
 
-    public function get_active_carts($eus_id, $show_expired = TRUE, $new_tx_id = FALSE)
+    /**
+     *  Retrieves the list of carts that are currently owned by/
+     *  assigned to a given user. Can be filtered to hide carts
+     *  that have already expired
+     *
+     *  @param integer $eus_id       The user_id of the cart owner
+     *  @param boolean $show_expired should we show expired entries?
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function get_active_carts($eus_id, $show_expired = TRUE)
     {
         $DB_myemsl = $this->load->database('default', TRUE);
         $select_array = array(
@@ -127,6 +171,17 @@ class Cart_model extends CI_Model
         return $cart_list;
     }
 
+    /**
+     *  Performs the steps required to process the removal/expiration
+     *  of a cart entity from the database
+     *
+     *  @param integer $cart_id The identifier of the cart entity to expire/delete to expire/delete
+     *                                 to expire/delete
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function delete_dead_cart($cart_id)
     {
         $DB_myemsl = $this->load->database('default', TRUE);

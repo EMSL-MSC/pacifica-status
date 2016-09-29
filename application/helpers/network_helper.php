@@ -1,34 +1,47 @@
-<?php  if (!defined('BASEPATH')) exit('No direct script access allowed');
+<?php
+/**
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-upload-status module provides an interface to
+ *  the ingester status reporting backend, allowing users to view
+ *  the current state of any uploads they may have performed, as
+ *  well as enabling the download and retrieval of that data.
+ *
+ *
+ *  This file contains a number of common functions related to
+ *  file info and handling.
+ *
+ * PHP version 5.5
+ *
+ * @package Pacifica-upload-status
+ *
+ * @author  Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @license BSD https://opensource.org/licenses/BSD-3-Clause
+ *
+ * @link http://github.com/EMSL-MSC/Pacifica-reporting
+ */
+if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-function verify_macaddr_format($macaddr)
-{
-    //echo "mac address => ".$macaddr;
-    $pattern = '/^([[:xdigit:]]{2})[-:]?([[:xdigit:]]{2})[-:]?([[:xdigit:]]{2})[-:]?([[:xdigit:]]{2})[-:]?([[:xdigit:]]{2})[-:]?([[:xdigit:]]{2})$/i';
 
-    $matches = array();
-    $v_macaddr = '';
-    $match_results = preg_match($pattern, $macaddr, $matches);
-    if($match_results || $match_results > 0) {
-        for($i=1;$i<7;$i++){
-            if(strLen($v_macaddr)>0) $v_macaddr .= ':';
-            $v_macaddr .= $matches[$i];
-        }
-    }else{
-        $v_macaddr = FALSE;
-    }
-    return strtolower($v_macaddr);
-}
-
-function verify_ip_address_format($ip)
-{
-    $long_ip = ip2long($ip);
-    if(!$long_ip) {return FALSE;
-    }
-    $v_ip = long2ip($long_ip);
-    return $v_ip;
-}
-
-function transmit_array_with_json_header($response, $statusMessage = '', $operationSuccessful = TRUE) 
+/**
+ *  Takes a given array object and formats it as
+ *  standard JSON with appropriate status headers
+ *  and X-JSON messages
+ *
+ *  @param array   $response            the array to be transmitted
+ *  @param string  $statusMessage       optional status message
+ *  @param boolean $operationSuccessful Was the calling
+ *                                      operation successful?
+ *
+ *  @return void (sends directly to browser)
+ *
+ *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
+function transmit_array_with_json_header($response, $statusMessage = '', $operationSuccessful = TRUE)
 {
     header("Content-type: text/json");
     $headerArray = array();
@@ -45,6 +58,16 @@ function transmit_array_with_json_header($response, $statusMessage = '', $operat
     }
 }
 
+/**
+ *  Similar to transmit_array_with_json_header above,
+ *  but with different headers returned
+ *
+ *  @param array $response_array array to be processed
+ *
+ *  @return void (sends directly to browser)
+ *
+ *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
 function send_json_array($response_array)
 {
     $CI =& get_instance();
@@ -61,6 +84,17 @@ function send_json_array($response_array)
 }
 
 
+/**
+ *  Formats an array object into the proper format
+ *  to be parsed by the Select2 Jquery library for
+ *  generating dropdown menu objects
+ *
+ *  @param array $response array to be formatted
+ *
+ *  @return void (sends directly to browser)
+ *
+ *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
 function format_array_for_select2($response)
 {
     header("Content-type: text/json");
@@ -81,15 +115,22 @@ function format_array_for_select2($response)
 
 }
 
-
-function shorten_string($text, $maxchars)
-{
-    if(strlen($text) > $maxchars) {
-        $text = substr_replace($text, '...', $maxchars/2, strlen($text)-$maxchars);
-    }
-    return $text;
-}
-
+/**
+ *  Takes a string that is too long and chops
+ *  some content out of the middle to provide
+ *  better display formatting
+ *
+ *  @param string  $string     string to be shortened
+ *  @param integer $limit      maximum string length allowed
+ *  @param string  $break      preferred character at which
+ *                             to split the original string
+ *  @param string  $pad        string to use for replacing the
+ *                             deleted text
+ *
+ *  @return string shortened string
+ *
+ *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
 function truncate_text($string, $limit, $break=" ", $pad="...")
 {
     // return with no change if string is shorter than $limit

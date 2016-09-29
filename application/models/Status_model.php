@@ -1,13 +1,43 @@
 <?php
+/**
+ * Pacifica
+ *
+ * Pacifica is an open-source data management framework designed
+ * for the curation and storage of raw and processed scientific
+ * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
+ *
+ *  The Pacifica-upload-status module provides an interface to
+ *  the ingester status reporting backend, allowing users to view
+ *  the current state of any uploads they may have performed, as
+ *  well as enabling the download and retrieval of that data.
+ *
+ * PHP Version 5
+ *
+ * @package Pacifica-upload-status
+ * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
+ */
 
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
-/*                                                                             */
-/*     Status Model                                                            */
-/*                                                                             */
-/*                                                                             */
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
+/**
+ * Status Model
+ *
+ * The **Status_model** performs most of the heavy lifting for the status site.
+ *
+ * @category CI_Model
+ * @package  Pacifica-upload-status
+ * @author   Ken Auberry <kenneth.auberry@pnnl.gov>
+ *
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
+ */
 class Status_model extends CI_Model
 {
+    /**
+     *  Class constructor
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function __construct()
     {
         parent::__construct();
@@ -19,24 +49,51 @@ class Status_model extends CI_Model
         );
     }
 
+    /**
+     *  Return a set of status items for a list of instruments over a given
+     *  range of times.
+     *
+     *  @param array  $instrument_list The list of instruments to use in this query this query
+     *                                       this query
+     *  @param string $time_period     a strtotime() parseable relative datetime object specifier datetime object specifier
+     *                                       datetime object specifier
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_status_for_instrument_over_range($instrument_list, $time_period = '1 day')
     {
         $current_time_obj = new DateTime();
-        $current_time_obj->setTime($current_time_obj->getHours(), 0, 0);
-        $start_time = date_modify($current_time_obj, "-{$time_period}");
+        if(strtotime($time_period)) {
+            $current_time_obj->setTime($current_time_obj->getHours(), 0, 0);
+            $start_time = date_modify($current_time_obj, "-{$time_period}");
+        }else{
+            $start_time = $current_time_obj;
+        }
 
         return $this->get_status_for_instrument_before_date($instrument_list, $start_time);
     }
 
+    /**
+     *  Retrieve the list of internal Pacifica groups that refer to
+     *  a given instrument id
+     *
+     *  @param string $inst_id_filter partial instrument id
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_instrument_group_list($inst_id_filter = '')
     {
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
 
-        $DB_myemsl->select(array('group_id', 'name', 'type'));
+        $DB_metadata->select(array('group_id', 'name', 'type'));
         $where_clause = "(type = 'omics.dms.instrument_id' or type ilike 'instrument.%') and name not in ('foo')";
 
-        $DB_myemsl->where($where_clause);
-        $query = $DB_myemsl->order_by('name')->get('groups');
+        $DB_metadata->where($where_clause);
+        $query = $DB_metadata->order_by('name')->get('groups');
         $results_by_group = array();
         $results_by_inst_id = array();
         if ($query && $query->num_rows() > 0) {
@@ -56,20 +113,30 @@ class Status_model extends CI_Model
         return $results;
     }
 
+    /**
+     *  Retrieve the list of internal Pacifica groups that refer to
+     *  a given proposal id
+     *
+     *  @param string $proposal_id partial proposal_id
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_proposal_group_list($proposal_id = '')
     {
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
 
-        $DB_myemsl->select(array('group_id', 'name', 'type'));
+        $DB_metadata->select(array('group_id', 'name', 'type'));
         if (!empty($proposal_id)) {
             $where_clause = "(type = 'proposal') and name not in ('foo') and (group_id = '{$proposal_id}')";
         } else {
             $where_clause = "(type = 'proposal') and name not in ('foo')";
         }
 
-        $DB_myemsl->where($where_clause);
-        $query = $DB_myemsl->order_by('name')->get('groups');
-        echo $DB_myemsl->last_query();
+        $DB_metadata->where($where_clause);
+        $query = $DB_metadata->order_by('name')->get('groups');
+        echo $DB_metadata->last_query();
         $results_by_group = array();
         if ($query && $query->num_rows() > 0) {
             foreach ($query->result() as $row) {
@@ -82,9 +149,19 @@ class Status_model extends CI_Model
         return $results;
     }
 
+    /**
+     *  Return the list of files and their associated metadata
+     *  for a given transaction id
+     *
+     *  @param integer $transaction_id The transaction to pull
+     *
+     *  @return [type]   [description]
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_files_for_transaction($transaction_id)
     {
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
 
         $file_select_array = array(
             'f.item_id',
@@ -97,13 +174,13 @@ class Status_model extends CI_Model
             'f.size',
         );
 
-        $DB_myemsl->trans_start();
-        $DB_myemsl->query("set local timezone to '{$this->local_timezone}';");
-        $DB_myemsl->select($file_select_array)->from('transactions t')->join('files f', 't.transaction = f.transaction');
-        $DB_myemsl->where('f.transaction', $transaction_id);
-        $DB_myemsl->order_by('f.subdir, f.name');
-        $files_query = $DB_myemsl->get();
-        $DB_myemsl->trans_complete();
+        $DB_metadata->trans_start();
+        $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
+        $DB_metadata->select($file_select_array)->from('transactions t')->join('files f', 't.transaction = f.transaction');
+        $DB_metadata->where('f.transaction', $transaction_id);
+        $DB_metadata->order_by('f.subdir, f.name');
+        $files_query = $DB_metadata->get();
+        $DB_metadata->trans_complete();
         $files_list = array();
 
         if ($files_query && $files_query->num_rows() > 0) {
@@ -125,11 +202,23 @@ class Status_model extends CI_Model
         }
     }
 
+    /**
+     *  Retrieve the latest set of transactions for a set of
+     *  filter criteria
+     *
+     *  @param array   $group_id_list group filter list
+     *  @param string  $proposal_id   proposal id to reference
+     *  @param integer $last_id       The most recent transaction id to consider
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_latest_transactions($group_id_list, $proposal_id, $last_id)
     {
         //if last_id is -1, grab the last transaction so we can display its date as a pointer
         $transaction_list = array();
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
         $select_array = array(
             'max(f.transaction) as transaction_id',
             'max(gi.group_id) as group_id',
@@ -138,25 +227,25 @@ class Status_model extends CI_Model
             $group_id_list = array($group_id_list);
         }
 
-        $DB_myemsl->select('group_id')->where('type', 'proposal')->where('name', $proposal_id);
-        $prop_query = $DB_myemsl->get('groups', 1);
+        $DB_metadata->select('group_id')->where('type', 'proposal')->where('name', $proposal_id);
+        $prop_query = $DB_metadata->get('groups', 1);
         $proposal_group_id = $prop_query && $prop_query->num_rows() > 0 ? $prop_query->row()->group_id : -1;
 
         $raw_transaction_list = array();
-        $DB_myemsl->trans_start();
-        $DB_myemsl->query("set local timezone to '{$this->local_timezone}';");
-        $DB_myemsl->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
-        $DB_myemsl->group_by('f.transaction')->order_by('f.transaction desc');
-        $DB_myemsl->where_in('gi.group_id', $group_id_list);
-        $DB_myemsl->where('gi.group_id', $proposal_group_id);
-        $DB_myemsl->order_by('f.transaction desc');
+        $DB_metadata->trans_start();
+        $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
+        $DB_metadata->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
+        $DB_metadata->group_by('f.transaction')->order_by('f.transaction desc');
+        $DB_metadata->where_in('gi.group_id', $group_id_list);
+        $DB_metadata->where('gi.group_id', $proposal_group_id);
+        $DB_metadata->order_by('f.transaction desc');
         if ($last_id > 0) {
-            $DB_myemsl->where_in('gi.group_id', $group_id_list)->where('f.transaction >', $last_id);
+            $DB_metadata->where_in('gi.group_id', $group_id_list)->where('f.transaction >', $last_id);
         } else {
-            $DB_myemsl->limit(1);
+            $DB_metadata->limit(1);
         }
-        $query = $DB_myemsl->get();
-        $DB_myemsl->trans_complete();
+        $query = $DB_metadata->get();
+        $DB_metadata->trans_complete();
         if ($query && $query->num_rows() > 0) {
             //must have some new transactions
             foreach ($query->result() as $row) {
@@ -169,11 +258,22 @@ class Status_model extends CI_Model
         return $raw_transaction_list;
     }
 
+    /**
+     *  [get_transactions_for_group description]
+     *
+     *  @param [type] $group_id        [description]
+     *  @param [type] $num_days_back   [description]
+     *  @param [type] $eus_proposal_id [description]
+     *
+     *  @return [type]   [description]
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_transactions_for_group($group_id, $num_days_back, $eus_proposal_id)
     {
         $transaction_list = array();
         $is_empty = FALSE;
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
         $results = array();
         $message = '';
         $raw_transaction_list = array();
@@ -182,15 +282,15 @@ class Status_model extends CI_Model
 
         if (!empty($eus_proposal_id)) {
             //get proposal group id
-            $DB_myemsl->select('group_id')->where('type', 'proposal')->where('name', $eus_proposal_id);
-            $prop_query = $DB_myemsl->get('groups', 1);
+            $DB_metadata->select('group_id')->where('type', 'proposal')->where('name', $eus_proposal_id);
+            $prop_query = $DB_metadata->get('groups', 1);
             $proposal_group_id = $prop_query && $prop_query->num_rows() > 0 ? $prop_query->row()->group_id : -1;
 
             //go grab the list of eligible tx_id's
-            $DB_myemsl->select('max(f.transaction) as transaction_id');
-            $DB_myemsl->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
-            $DB_myemsl->group_by('f.transaction')->order_by('f.transaction desc');
-            $query = $DB_myemsl->where('gi.group_id', $proposal_group_id)->get();
+            $DB_metadata->select('max(f.transaction) as transaction_id');
+            $DB_metadata->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
+            $DB_metadata->group_by('f.transaction')->order_by('f.transaction desc');
+            $query = $DB_metadata->where('gi.group_id', $proposal_group_id)->get();
             if ($query && $query->num_rows() > 0) {
                 foreach ($query->result() as $row) {
                     $eligible_tx_list[] = $row->transaction_id;
@@ -206,22 +306,22 @@ class Status_model extends CI_Model
             'max(f.transaction) as transaction_id',
             'max(gi.group_id) as group_id',
         );
-        $DB_myemsl->trans_start();
-        $DB_myemsl->query("set local timezone to '{$this->local_timezone}';");
-        $DB_myemsl->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
-        $DB_myemsl->group_by('f.transaction')->order_by('f.transaction desc');
+        $DB_metadata->trans_start();
+        $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
+        $DB_metadata->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
+        $DB_metadata->group_by('f.transaction')->order_by('f.transaction desc');
         if ($group_id && $group_id > 0) {
             if (is_array($group_id)) {
-                $DB_myemsl->where_in('gi.group_id', $group_id);
+                $DB_metadata->where_in('gi.group_id', $group_id);
             } else {
-                $DB_myemsl->where('gi.group_id', $group_id);
+                $DB_metadata->where('gi.group_id', $group_id);
             }
         }
         if (!empty($eligible_tx_list)) {
-            $DB_myemsl->where_in('f.transaction', $eligible_tx_list);
-            $query = $DB_myemsl->get();
+            $DB_metadata->where_in('f.transaction', $eligible_tx_list);
+            $query = $DB_metadata->get();
         }
-        $DB_myemsl->trans_complete();
+        $DB_metadata->trans_complete();
         //filter the transactions for date
         if ($query && $query->num_rows() > 0) {
             foreach ($query->result() as $row) {
@@ -230,19 +330,19 @@ class Status_model extends CI_Model
             $today = new DateTime();
             $earliest_date = clone $today;
             $earliest_date->modify("-{$num_days_back} days");
-            $DB_myemsl->trans_start();
-            $DB_myemsl->query("set local timezone to '{$this->local_timezone}';");
-            $DB_myemsl->select('transaction')->where_in('transaction', $raw_transaction_list)->where("stime AT TIME ZONE 'US/Pacific' >=", $earliest_date->format('Y-m-d'));
-            $trans_query = $DB_myemsl->get('transactions');
-            $DB_myemsl->trans_complete();
+            $DB_metadata->trans_start();
+            $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
+            $DB_metadata->select('transaction')->where_in('transaction', $raw_transaction_list)->where("stime AT TIME ZONE 'US/Pacific' >=", $earliest_date->format('Y-m-d'));
+            $trans_query = $DB_metadata->get('transactions');
+            $DB_metadata->trans_complete();
             if ($trans_query && $trans_query->num_rows() > 0) {
                 foreach ($trans_query->result() as $row) {
                     $transaction_list[] = $row->transaction;
                 }
             }
             if (empty($transaction_list)) {
-                $DB_myemsl->select('transaction')->where_in('transaction', $raw_transaction_list)->order_by('transaction desc')->limit(3);
-                $trans_query = $DB_myemsl->get('transactions');
+                $DB_metadata->select('transaction')->where_in('transaction', $raw_transaction_list)->order_by('transaction desc')->limit(3);
+                $trans_query = $DB_metadata->get('transactions');
                 if ($trans_query && $trans_query->num_rows() > 0) {
                     foreach ($trans_query->result() as $row) {
                         $transaction_list[] = $row->transaction;
@@ -267,13 +367,13 @@ class Status_model extends CI_Model
         if (!is_array($transaction_id_list)) {
             $transaction_id_list = explode(',', $transaction_id_list);
         }
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
         $select_array = array('transaction as id', 'sum(size) as total_size');
-        $DB_myemsl->select($select_array)->group_by('transaction')->order_by('transaction');
+        $DB_metadata->select($select_array)->group_by('transaction')->order_by('transaction');
         $results = array();
 
         if (!empty($transaction_id_list)) {
-            $query = $DB_myemsl->where_in('transaction', $transaction_id_list)->get('files');
+            $query = $DB_metadata->where_in('transaction', $transaction_id_list)->get('files');
             if ($query && $query->num_rows() > 0) {
                 foreach ($query->result() as $row) {
                     $results[$row->id] = $row->total_size;
@@ -286,17 +386,17 @@ class Status_model extends CI_Model
 
     public function get_groups_for_transaction($transaction_id_list)
     {
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
 
         $select_array = array(
             'g.group_id as group_id', 'g.name as group_name',
             'g.type as group_type', 'f.transaction as tx_id',
         );
 
-        $DB_myemsl->select($select_array)->distinct();
-        $DB_myemsl->from('files f')->join('group_items gi', 'gi.item_id = f.item_id');
-        $DB_myemsl->join('groups g', 'g.group_id = gi.group_id')->order_by('g.name');
-        $query = $DB_myemsl->where_in('f.transaction', $transaction_id_list)->get();
+        $DB_metadata->select($select_array)->distinct();
+        $DB_metadata->from('files f')->join('group_items gi', 'gi.item_id = f.item_id');
+        $DB_metadata->join('groups g', 'g.group_id = gi.group_id')->order_by('g.name');
+        $query = $DB_metadata->where_in('f.transaction', $transaction_id_list)->get();
 
         $inst_group_pattern = '/Instrument\.(\d+)/i';
         if ($query && $query->num_rows() > 0) {
@@ -399,15 +499,15 @@ class Status_model extends CI_Model
             return FALSE;
         }
         $status_list = !empty($status_list) ? $status_list : $this->status_list;
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
         $select_array = array(
             'jobid', 'min(trans_id) as trans_id', 'max(step) as step', 'max(person_id) as person_id',
         );
         if(!empty($job_id_list)) {
-            $DB_myemsl->where_in('jobid', $job_id_list);
+            $DB_metadata->where_in('jobid', $job_id_list);
         }
-        $DB_myemsl->select($select_array)->group_by('jobid');
-        $query = $DB_myemsl->get('ingest_state');
+        $DB_metadata->select($select_array)->group_by('jobid');
+        $query = $DB_metadata->get('ingest_state');
         $results = array();
         if ($query && $query->num_rows() > 0) {
             foreach ($query->result() as $row) {
@@ -434,23 +534,23 @@ class Status_model extends CI_Model
         } else {
             $lookup_field = $lookup_types[$lookup_type];
         }
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
         $status_list = array();
         $select_array = array(
             'jobid', 'trans_id', 'person_id', 'step', 'message', 'status',
         );
-        $DB_myemsl->trans_start();
-        $DB_myemsl->query("set local timezone to '{$this->local_timezone}';");
-        $DB_myemsl->select($select_array)->where_in($lookup_field, $id_list);
-        $ingest_query = $DB_myemsl->get('ingest_state');
-        $DB_myemsl->trans_complete();
+        $DB_metadata->trans_start();
+        $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
+        $DB_metadata->select($select_array)->where_in($lookup_field, $id_list);
+        $ingest_query = $DB_metadata->get('ingest_state');
+        $DB_metadata->trans_complete();
         if ($ingest_query && $ingest_query->num_rows() > 0) {
             foreach ($ingest_query->result_array() as $row) {
                 if (intval($row['step']) >= 5 && strtoupper($row['status']) == 'SUCCESS' && $row['trans_id'] != -1) {
                     //need to check for validation progress
-                    $DB_myemsl->select('transaction')->group_by('transaction');
-                    $DB_myemsl->having("every(verified = 't')")->where('transaction', $row['trans_id']);
-                    $validation_query = $DB_myemsl->get('files');
+                    $DB_metadata->select('transaction')->group_by('transaction');
+                    $DB_metadata->having("every(verified = 't')")->where('transaction', $row['trans_id']);
+                    $validation_query = $DB_metadata->get('files');
                     if ($validation_query && $validation_query->num_rows() > 0) {
                         //looks like every file has been validated
                         $row['step'] = 6;
@@ -482,15 +582,15 @@ class Status_model extends CI_Model
             $lookup_field = 'trans_id';
         }
 
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
         $inst_id = FALSE;
         $select_array = array(
             'MAX(f.transaction) as transaction_id',
             'MAX(gi.group_id) as instrument_id',
         );
-        $DB_myemsl->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
-        $DB_myemsl->having('f.transaction', $id)->group_by('f.transaction')->order_by('f.transaction DESC')->limit(1);
-        $query = $DB_myemsl->get();
+        $DB_metadata->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
+        $DB_metadata->having('f.transaction', $id)->group_by('f.transaction')->order_by('f.transaction DESC')->limit(1);
+        $query = $DB_metadata->get();
 
         if ($query && $query->num_rows() > 0) {
             $inst_id = $query->row()->instrument_id;
@@ -501,12 +601,12 @@ class Status_model extends CI_Model
 
     public function get_transaction_info($job_id)
     {
-        $DB_myemsl = $this->load->database('default', TRUE);
+        $DB_metadata = $this->load->database('default', TRUE);
         $current_step = 0;
-        $DB_myemsl->trans_start();
-        $DB_myemsl->query("set local timezone to '{$this->local_timezone}';");
-        $query = $DB_myemsl->select(array('trans_id as transaction_id', 'step'))->get_where('ingest_state', array('jobid' => $job_id), 1);
-        $DB_myemsl->trans_complete();
+        $DB_metadata->trans_start();
+        $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
+        $query = $DB_metadata->select(array('trans_id as transaction_id', 'step'))->get_where('ingest_state', array('jobid' => $job_id), 1);
+        $DB_metadata->trans_complete();
         $transaction_id = -1;
         if ($query && $query->num_rows() > 0) {
             $transaction_id = !empty($query->row()->transaction_id) ? $query->row()->transaction_id : -1;

@@ -6,12 +6,10 @@
  * for the curation and storage of raw and processed scientific
  * data. It is based on the [CodeIgniter web framework](http://codeigniter.com).
  *
- *  The Pacifica-Reporting module provides an interface for
- *  concerned and interested parties to view the current
- *  contribution status of any and all instruments in the
- *  system. The reporting interface can be customized and
- *  filtered streamline the report to fit any level of user,
- *  from managers through instrument operators.
+ *  The Pacifica-upload-status module provides an interface to
+ *  the ingester status reporting backend, allowing users to view
+ *  the current state of any uploads they may have performed, as
+ *  well as enabling the download and retrieval of that data.
  *
  * PHP Version 5
  *
