@@ -125,10 +125,10 @@ function generate_cart_token($item_list,$eus_person_id)
  *  same format as the status XML returned by the
  *  previous MyEMSL backend
  *
- *  @param    [type]   $data   [description]
- *  @param    [type]   $xml_data   [description]
+ *  @param [type] $data     [description]
+ *  @param [type] $xml_data [description]
  *
- *  @return   [type]   [description]
+ *  @return [type]   [description]
  *
  *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */

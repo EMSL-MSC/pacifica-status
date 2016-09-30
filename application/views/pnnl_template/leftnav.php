@@ -1,10 +1,11 @@
+// @codingStandardsIgnoreFile
 <?php 
 $first_used = FALSE;
 $current_page = $current_page_info['uri'];
 ?>
 <div id="leftNav">
     <?php foreach ($categories as $index=>$category): ?>
-    <?php 
+    <?php
     if(!$first_used) {
         $class = " class=\"first\"";
         //$class="";
@@ -16,7 +17,7 @@ $current_page = $current_page_info['uri'];
   <h2<?= $class?>><?= $category['name']?></h2>
   <ul>
     <?php foreach ($category['entries'] as $entry_index=>$entry): ?>
-    <?php 
+    <?php
     if($current_page == $entry['uri']) {
         $entryclass = " class=\"selected\"";
         //$pagetext = "<strong>".$entry['name']."</strong>";

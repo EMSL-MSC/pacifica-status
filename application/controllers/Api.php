@@ -13,10 +13,10 @@
  *
  * PHP Version 5
  *
- * @package  Pacifica-upload-status
- * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
- * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ * @package Pacifica-upload-status
+ * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
 require_once 'Baseline_controller.php';
 

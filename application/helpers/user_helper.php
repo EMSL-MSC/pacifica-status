@@ -46,6 +46,8 @@ function get_user()
  *  Properly formats the user returned in the ['REMOTE_USER']
  *  variable from Apache
  *
+ *  @param integer $user_id The user_id to format
+ *
  *  @return array
  *
  *  @author Ken Auberry <kenneth.auberry@pnnl.gov>

@@ -120,11 +120,11 @@ function format_array_for_select2($response)
  *  some content out of the middle to provide
  *  better display formatting
  *
- *  @param string  $string     string to be shortened
- *  @param integer $limit      maximum string length allowed
- *  @param string  $break      preferred character at which
+ *  @param string  $string string to be shortened
+ *  @param integer $limit  maximum string length allowed
+ *  @param string  $break  preferred character at which to split the original string
  *                             to split the original string
- *  @param string  $pad        string to use for replacing the
+ *  @param string  $pad    string to use for replacing the deleted text
  *                             deleted text
  *
  *  @return string shortened string

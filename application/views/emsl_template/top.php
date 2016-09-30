@@ -1,3 +1,4 @@
+// @codingStandardsIgnoreFile
 <div id="subBanner" style="position:relative;">
   <?php if(empty($banner_file)) : ?>
   <div class="banner_bar_background">
@@ -14,6 +15,6 @@
   </div>
     <?php else: ?>
     <div class='user_login_info'>Signed in as: <?= $logged_in_user ?></div>
-    <img src="<?=$banner_path ?>" <?=$banner_dimensions?> alt="" />    
+    <img src="<?=$banner_path ?>" <?=$banner_dimensions?> alt="" />
     <?php endif; ?>
 </div>

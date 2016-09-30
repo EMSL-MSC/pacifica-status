@@ -259,13 +259,15 @@ class Status_model extends CI_Model
     }
 
     /**
-     *  [get_transactions_for_group description]
+     *  Given an internal Pacifica group id, proposal_id and
+     *  date range specifier, returns the set of associated
+     *  transactions
      *
-     *  @param [type] $group_id        [description]
-     *  @param [type] $num_days_back   [description]
-     *  @param [type] $eus_proposal_id [description]
+     *  @param integer $group_id        The Pacifica internal group_id
+     *  @param integer $num_days_back   strtotime() parseable string
+     *  @param string  $eus_proposal_id filtering proposal id
      *
-     *  @return [type]   [description]
+     *  @return array
      *
      *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
@@ -362,6 +364,17 @@ class Status_model extends CI_Model
         return array('transaction_list' => $results, 'time_period_empty' => $is_empty, 'message' => $message);
     }
 
+    /**
+     *  For a given set of transaction id's, return the total
+     *  size for each transaction
+     *
+     *  @param array $transaction_id_list the list of transactions to interrogate interrogate
+     *                                           interrogate
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_total_size_for_transactions($transaction_id_list)
     {
         if (!is_array($transaction_id_list)) {
@@ -384,6 +397,17 @@ class Status_model extends CI_Model
         return $results;
     }
 
+    /**
+     *  Given a specific set of transaction id's, return the list of
+     *  applicable Pacifica internal group id's, grouped by
+     *  transaction id
+     *
+     *  @param array $transaction_id_list simple list of transaction id's
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_groups_for_transaction($transaction_id_list)
     {
         $DB_metadata = $this->load->database('default', TRUE);
@@ -418,6 +442,17 @@ class Status_model extends CI_Model
         return $return_set;
     }
 
+
+    /**
+     *  Return the current status for a specific job_id,
+     *  formatted properly for conversion to XML
+     *
+     *  @param integer $job_id a single job id to query
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_formatted_object_for_job($job_id)
     {
         $status = $this->get_job_status(array($job_id), $this->status_list);
@@ -454,6 +489,16 @@ class Status_model extends CI_Model
         return $results;
     }
 
+    /**
+     *  Return the current status for a set of transaction id's
+     *  formatted properly for conversion to XML
+     *
+     *  @param array $transaction_list a list of transaction id's to query
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_formatted_object_for_transactions($transaction_list)
     {
         $results = array('transactions' => array(), 'times' => array());
@@ -493,6 +538,17 @@ class Status_model extends CI_Model
         return $results;
     }
 
+    /**
+     *  Get in-progress status updates for a list of job id's
+     *  as they are ingested
+     *
+     *  @param array $job_id_list list of job id's to query
+     *  @param array $status_list list of available ingest statuses
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_job_status($job_id_list, $status_list = FALSE)
     {
         if(empty($job_id_list)) {
@@ -523,6 +579,17 @@ class Status_model extends CI_Model
         return $results;
     }
 
+    /**
+     *  For a given list of job/transaction id's, return a
+     *  list of status entries for each
+     *
+     *  @param string $lookup_type lookup transactions or jobs?
+     *  @param array  $id_list     list of identifiers to use
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_status_for_transaction($lookup_type, $id_list)
     {
         $lookup_types = array(
@@ -565,6 +632,17 @@ class Status_model extends CI_Model
         return $status_list;
     }
 
+    /**
+     *  For a given job/transaction id, return the
+     *  associated instrument
+     *
+     *  @param string $lookup_type lookup transactions or jobs?
+     *  @param array  $id          list of identifiers to use
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_instrument_for_id($lookup_type, $id)
     {
         $lookup_types = array(
@@ -599,6 +677,16 @@ class Status_model extends CI_Model
         return $inst_id;
     }
 
+    /**
+     *  For a given job id, return the details of
+     *  the associated transaction
+     *
+     *  @param integer $job_id [description]
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_transaction_info($job_id)
     {
         $DB_metadata = $this->load->database('default', TRUE);

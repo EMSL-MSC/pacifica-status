@@ -197,7 +197,7 @@ class Status extends Baseline_controller
                             var email_address = '{$this->email}';
                             ";
         $this->page_data['show_instrument_data'] = TRUE;
-        $this->load->view('single_item_view', $this->page_data);
+        $this->load->view('single_item_view.html', $this->page_data);
     }
 
     /**
@@ -228,7 +228,7 @@ class Status extends Baseline_controller
                 = $this->input->cookie('myemsl_status_last_proposal_selector');
         }
         if (!$this->input->is_ajax_request()) {
-            $view_name = 'emsl_mgmt_view';
+            $view_name = 'emsl_mgmt_view.html';
             $this->page_data['page_header'] = 'MyEMSL Status Reporting';
             $this->page_data['title'] = 'Overview';
             $this->page_data['informational_message'] = '';
