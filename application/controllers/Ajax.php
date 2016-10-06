@@ -44,7 +44,7 @@ class Ajax extends Baseline_controller
         $this->load->model('myemsl_model', 'myemsl');
         $this->load->helper(
             array(
-                'inflector', 'item', 'url', 'opwhse_search',
+                'inflector', 'item', 'url',
                 'form', 'network', 'myemsl'
             )
         );
@@ -113,14 +113,19 @@ class Ajax extends Baseline_controller
         $full_user_info = $this->myemsl->get_user_info();
         $instruments = array();
         $inst_list = $full_user_info['instruments'];
+        $instruments_available = array();
         if(array_key_exists($proposal_id, $full_user_info['proposals'])) {
-            $instruments_available
+            if(array_key_exists('instruments',$full_user_info['proposals'][$proposal_id])){
+                $instruments_available
                 = $full_user_info['proposals'][$proposal_id]['instruments'];
-        } else {
-            $instruments_available = array();
+            }
         }
-        $total_count = sizeof($instruments_available) + 1;
-        asort($instruments_available);
+        if(!empty($instruments_available)){
+            $total_count = sizeof($instruments_available) + 1;
+            asort($instruments_available);
+        }else{
+            $total_count = 0;
+        }
         $instruments[] = array(
             'id' => 0,
             'text' => NULL

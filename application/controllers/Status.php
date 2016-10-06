@@ -51,7 +51,7 @@ class Status extends Baseline_controller
         $this->load->helper(
             array(
             'inflector', 'item', 'url',
-            'opwhse_search', 'form', 'network'
+            'form', 'network'
             )
         );
         $this->load->library(array('table'));
@@ -372,8 +372,14 @@ class Status extends Baseline_controller
         $this->page_data['cart_data'] = array(
             'carts' => $this->cart->get_active_carts($this->user_id, FALSE)
         );
-        krsort($results['transaction_list']['transactions']);
-        krsort($results['transaction_list']['times']);
+        if(!empty($results['transaction_list'])){
+            if(!empty($results['transaction_list']['transactions'])){
+                krsort($results['transaction_list']['transactions']);
+            }
+            if(!empty($results['transaction_list']['times'])){
+                krsort($results['transaction_list']['times']);
+            }
+        }
         $this->page_data['enable_breadcrumbs'] = FALSE;
         $this->page_data['status_list'] = $this->status_list;
         $this->page_data['transaction_data'] = $results['transaction_list'];
