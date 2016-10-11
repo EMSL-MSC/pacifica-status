@@ -215,17 +215,17 @@ class Status extends Baseline_controller
         $time_period = FALSE
     )
     {
-        if($this->input->cookie('myemsl_status_last_timeframe_selector')) {
+        if(!get_cookie('last_timeframe_selector')) {
             $time_period
-                = $this->input->cookie('myemsl_status_last_timeframe_selector');
+                = get_cookie('last_timeframe_selector');
         }
-        if($this->input->cookie('myemsl_status_last_instrument_selector')) {
+        if(get_cookie('last_instrument_selector')) {
             $instrument_id
-                = $this->input->cookie('myemsl_status_last_instrument_selector');
+                = get_cookie('last_instrument_selector');
         }
-        if($this->input->cookie('myemsl_status_last_proposal_selector')) {
+        if(get_cookie('last_proposal_selector')) {
             $proposal_id
-                = $this->input->cookie('myemsl_status_last_proposal_selector');
+                = get_cookie('last_proposal_selector');
         }
         if (!$this->input->is_ajax_request()) {
             $view_name = 'emsl_mgmt_view.html';

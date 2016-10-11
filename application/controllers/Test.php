@@ -37,7 +37,7 @@ class Test extends Baseline_controller
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('status_model', 'status');
+        $this->load->model('Status_model', 'status');
         /* already loaded in status model
         $this->load->model('Myemsl_model', 'myemsl');
         $this->load->model('Cart_model', 'cart');
@@ -135,7 +135,7 @@ class Test extends Baseline_controller
     public function test_get_userinfo()
     {
         $user_info = $this->myemsl->get_user_info();
-        // var_dump($user_info);
+        var_dump($user_info);
     }
 
     /**

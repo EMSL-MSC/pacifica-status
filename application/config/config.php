@@ -411,8 +411,8 @@ $config['sess_regenerate_destroy'] = FALSE;
 |       'cookie_httponly') will also affect sessions.
 |
 */
-$config['cookie_prefix']    = '';
-$config['cookie_domain']    = '';
+$config['cookie_prefix']    = 'myemsl_status_';
+$config['cookie_domain']    = '.my.emsl.pnl.gov';
 $config['cookie_path']        = '/';
 $config['cookie_secure']    = FALSE;
 $config['cookie_httponly']     = FALSE;
