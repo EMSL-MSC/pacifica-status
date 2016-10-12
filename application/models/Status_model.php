@@ -44,7 +44,7 @@ class Status_model extends CI_Model
         $this->local_timezone = 'US/Pacific';
         $this->load->library('EUS', '', 'eus');
         $this->load->model('Myemsl_model','myemsl');
-        $this->load->helper('item');
+        $this->load->helper(array('item','cookie'));
         $this->status_list = array(
             0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
             3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived',
