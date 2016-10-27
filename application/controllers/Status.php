@@ -372,11 +372,11 @@ class Status extends Baseline_controller
         $this->page_data['cart_data'] = array(
             'carts' => $this->cart->get_active_carts($this->user_id, FALSE)
         );
-        if(!empty($results) && array_key_exists('transaction_list', $results)){
-            if(array_key_exists('transactions',$results['transaction_list'])){
+        if(!empty($results) && array_key_exists('transaction_list', $results)) {
+            if(array_key_exists('transactions', $results['transaction_list'])) {
                 krsort($results['transaction_list']['transactions']);
             }
-            if(array_key_exists('times',$results['transaction_list'])){
+            if(array_key_exists('times', $results['transaction_list'])) {
                 krsort($results['transaction_list']['times']);
             }
         }
