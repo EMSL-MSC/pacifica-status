@@ -18,11 +18,13 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
+require_once APPPATH.'libraries/Requests.php';
 
 /**
- * Status API Model
+ *  MyEMSL model
  *
- * The **Status_api_model** performs most of the heavy lifting for the status site.
+ *  The **Myemsl_model** class queries the EUS database clone
+ *  for information on proposals, instruments and users
  *
  * @category CI_Model
  * @package  Pacifica-upload-status
@@ -31,7 +33,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
-class Status_api_model extends CI_Model
+class Myemsl_api_model extends CI_Model
 {
     /**
      *  Class constructor
@@ -41,16 +43,26 @@ class Status_api_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
-        $this->local_timezone = 'US/Pacific';
-        // $this->load->library('EUS', '', 'eus');
-        $this->load->model('Myemsl_api_model', 'myemsl');
-        $this->load->helper('item');
-        $this->status_list = array(
-            0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
-            3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived',
-        );
+        $this->load->helper('myemsl');
+        Requests::register_autoloader();
+        $this->myemsl_ini = read_myemsl_config_file('general');
     }
 
+    /**
+     *  Return any information known to the system about a
+     *  specified user
+     *
+     *  @return array
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function get_user_info()
+    {
+        var_dump($_SERVER);
+
+        return $user_info;
+
+    }
 
 
 }

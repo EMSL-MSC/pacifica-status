@@ -18,39 +18,38 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
+require_once 'Baseline_controller.php';
 
 /**
- * Status API Model
+ * Test is a CI controller class that extends Baseline_controller
  *
- * The **Status_api_model** performs most of the heavy lifting for the status site.
- *
- * @category CI_Model
+ * @category Class
  * @package  Pacifica-upload-status
- * @author   Ken Auberry <kenneth.auberry@pnnl.gov>
- *
- * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
- * @link    http://github.com/EMSL-MSC/pacifica-upload-status
+ * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
+ * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
+ * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
-class Status_api_model extends CI_Model
+class Test extends Baseline_controller
 {
     /**
-     *  Class constructor
-     *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     * Constructor
      */
     public function __construct()
     {
         parent::__construct();
-        $this->local_timezone = 'US/Pacific';
-        // $this->load->library('EUS', '', 'eus');
-        $this->load->model('Myemsl_api_model', 'myemsl');
-        $this->load->helper('item');
-        $this->status_list = array(
-            0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
-            3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived',
-        );
+        $this->load->model('Status_api_model', 'status');
     }
 
+    /**
+     * Test Get User Info json.
+     *
+     * @return void
+     */
+    public function get_userinfo()
+    {
+        $user_info = $this->myemsl->get_user_info();
+        var_dump($user_info);
+    }
 
 
 }
