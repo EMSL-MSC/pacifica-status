@@ -18,7 +18,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
-require_once 'Baseline_controller.php';
+require_once 'Baseline_api_controller.php';
 
 /**
  * Status API is a CI Controller class that extends Baseline_controller
@@ -34,7 +34,7 @@ require_once 'Baseline_controller.php';
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
-class Status_api extends Baseline_controller
+class Status_api extends Baseline_api_controller
 {
     /**
      * Constructor
@@ -46,13 +46,17 @@ class Status_api extends Baseline_controller
     {
         parent::__construct();
         $this->load->model('Status_api_model', 'status');
-        $this->load->model('Myemsl_model', 'myemsl');
-        $this->load->model('Cart_model', 'cart');
-        $this->load->helper(array('user', 'url', 'html', 'myemsl', 'file_info'));
+        $this->load->model('Myemsl_api_model', 'myemsl');
+        // $this->load->model('Cart_model', 'cart');
+        $this->load->helper(
+            array(
+                'user', 'url', 'html', 'myemsl_api', 'file_info'
+            )
+        );
 
         $this->load->helper(
             array(
-            'inflector', 'item', 'form', 'network', 'cookie'
+                'inflector', 'item', 'form', 'network', 'cookie'
             )
         );
         $this->load->library(array('table'));
@@ -129,10 +133,6 @@ class Status_api extends Baseline_controller
                     '/resources/scripts/emsl_mgmt_view.js'
                     )
                 );
-
-            $this->benchmark->mark('get_user_info_from_ws_start');
-            $full_user_info = $this->myemsl->get_user_info();
-            $this->benchmark->mark('get_user_info_from_ws_end');
 
             echo "<pre>";
             var_dump($full_user_info);

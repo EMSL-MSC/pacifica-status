@@ -12,8 +12,6 @@ RUN apt-get update && \
     #DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
 
 RUN a2enmod rewrite
-#ENV CI_ENV unit_testing
-#ENV CI_ROOTED true
 
 ENV APACHE_RUN_USER   www-data
 ENV APACHE_RUN_GROUP  www-data
@@ -21,16 +19,16 @@ ENV APACHE_PID_FILE   /var/run/apache2.pid
 ENV APACHE_RUN_DIR    /var/run/apache2
 ENV APACHE_LOCK_DIR   /var/lock/apache2
 ENV APACHE_LOG_DIR    /var/log/apache2
-ENV APACHE_CI_ENV     unit_testing
+ENV APACHE_CI_ENV     development
 
 EXPOSE 80
 
 COPY websystem/system /var/www/html/system
 COPY websystem/index.php /var/www/html/
 COPY tests /var/www/html/tests
-RUN cat tests/database/myemsl_metadata-eus.sql | sqlite3 tests/database/myemsl_metadata-eus.sqlite3
-RUN cat tests/database/myemsl_metadata-myemsl.sql | sqlite3 tests/database/myemsl_metadata-myemsl.sqlite3
-RUN cat tests/database/myemsl_metadata-website_prefs.sql | sqlite3 tests/database/myemsl_metadata-website_prefs.sqlite3
+#RUN cat tests/database/myemsl_metadata-eus.sql | sqlite3 tests/database/myemsl_metadata-eus.sqlite3
+#RUN cat tests/database/myemsl_metadata-myemsl.sql | sqlite3 tests/database/myemsl_metadata-myemsl.sqlite3
+#RUN cat tests/database/myemsl_metadata-website_prefs.sql | sqlite3 tests/database/myemsl_metadata-website_prefs.sqlite3
 COPY tests/apache_conf/modules /etc/apache2/conf-enabled/
 COPY tests/apache_conf/sites/myemsl-status.conf /etc/apache2/sites-available/
 RUN ln -s /etc/apache2/sites-available/myemsl-status.conf /etc/apache2/sites-enabled/

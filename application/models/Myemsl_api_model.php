@@ -18,7 +18,6 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
-require_once APPPATH.'libraries/Requests.php';
 
 /**
  *  MyEMSL model
@@ -44,7 +43,6 @@ class Myemsl_api_model extends CI_Model
     {
         parent::__construct();
         $this->load->helper('myemsl');
-        Requests::register_autoloader();
         $this->myemsl_ini = read_myemsl_config_file('general');
     }
 
