@@ -23,9 +23,5 @@ $config['application_config_file_path'] = "/etc/myemsl/";
 
 $config['template'] = "emsl";
 
-$config['application_version'] = "0.99.9";
-
-$config['metadata_url'] = "http://metadata:8080/";
-
-
+$config['application_version'] = "0.99.11";
 ?>

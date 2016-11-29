@@ -51,7 +51,7 @@ class Status extends Baseline_controller
         $this->load->helper(
             array(
             'inflector', 'item', 'url',
-            'opwhse_search', 'form', 'network'
+            'form', 'network'
             )
         );
         $this->load->library(array('table'));
@@ -141,6 +141,14 @@ class Status extends Baseline_controller
         $this->page_data['page_header'] = 'Upload Report';
         $this->page_data['title'] = 'Upload Report';
 
+        $this->page_data['css_uris']
+            = array_merge(
+                $this->page_data['css_uris'], array(
+                '/project_resources/stylesheets/view.css'
+                )
+            );
+
+
         $this->page_data['script_uris']
             = array_merge(
                 $this->page_data['script_uris'], array(
@@ -155,7 +163,7 @@ class Status extends Baseline_controller
             $tx_info = $this->status->get_transaction_info($id);
             $tx_id = $tx_info['transaction_id'];
             if ($tx_info['transaction_id'] > 0 && $tx_info['current_step'] >= 5) {
-                redirect(base_url()."index.php/status/view/t/{$tx_id}");
+                redirect(base_url()."view/t/{$tx_id}");
             } else {
                 $job_status_info = $this->status->get_formatted_object_for_job($id);
                 if (empty($job_status_info)) {
@@ -215,17 +223,17 @@ class Status extends Baseline_controller
         $time_period = FALSE
     )
     {
-        if(!get_cookie('last_timeframe_selector')) {
+        if($this->input->cookie('myemsl_status_last_timeframe_selector')) {
             $time_period
-                = get_cookie('last_timeframe_selector');
+                = $this->input->cookie('myemsl_status_last_timeframe_selector');
         }
-        if(get_cookie('last_instrument_selector')) {
+        if($this->input->cookie('myemsl_status_last_instrument_selector')) {
             $instrument_id
-                = get_cookie('last_instrument_selector');
+                = $this->input->cookie('myemsl_status_last_instrument_selector');
         }
-        if(get_cookie('last_proposal_selector')) {
+        if($this->input->cookie('myemsl_status_last_proposal_selector')) {
             $proposal_id
-                = get_cookie('last_proposal_selector');
+                = $this->input->cookie('myemsl_status_last_proposal_selector');
         }
         if (!$this->input->is_ajax_request()) {
             $view_name = 'emsl_mgmt_view.html';
@@ -235,13 +243,14 @@ class Status extends Baseline_controller
             $this->page_data['css_uris']
                 = array_merge(
                     $this->page_data['css_uris'], array(
-                    '/project_resources/stylesheets/selector.css'
+                    '/project_resources/stylesheets/selector.css',
+                    '/project_resources/stylesheets/overview.css'
                     )
                 );
             $this->page_data['script_uris']
                 = array_merge(
                     $this->page_data['script_uris'], array(
-                    '/resources/scripts/emsl_mgmt_view.js'
+                    '/project_resources/scripts/emsl_mgmt_view.js'
                     )
                 );
 
@@ -372,11 +381,11 @@ class Status extends Baseline_controller
         $this->page_data['cart_data'] = array(
             'carts' => $this->cart->get_active_carts($this->user_id, FALSE)
         );
-        if(!empty($results) && array_key_exists('transaction_list', $results)){
-            if(array_key_exists('transactions',$results['transaction_list'])){
+        if(!empty($results) && array_key_exists('transaction_list', $results)) {
+            if(array_key_exists('transactions', $results['transaction_list'])) {
                 krsort($results['transaction_list']['transactions']);
             }
-            if(array_key_exists('times',$results['transaction_list'])){
+            if(array_key_exists('times', $results['transaction_list'])) {
                 krsort($results['transaction_list']['times']);
             }
         }
