@@ -41,19 +41,18 @@ class Baseline_api_controller extends CI_Controller
         //get user info
         $this->load->helper(array('url', 'html', 'myemsl_api', 'file_info'));
         $this->output->enable_profiler(FALSE);
-        if(getenv('CI_ENV') !== 'unit_testing' && getenv('CI_ENV') !== 'development') {
-            $this->user_id = get_user();
-        }else{
-            $this->user_id = 43751;
-        }
-
+        // if(getenv('CI_ENV') !== 'unit_testing' && getenv('CI_ENV') !== 'development') {
+        //     $this->user_id = get_user();
+        // }else{
+        $this->user_id = 43751;
+        // }
+        $this->metadata_url_base = str_replace('tcp:', 'http:', getenv('METADATA_PORT'));
         $this->application_version = $this->config->item('application_version');
         $this->page_address = implode('/', $this->uri->rsegments);
 
 
         $this->benchmark->mark('get_user_details_start');
         $user_info = get_user_details($this->user_id);
-        exit();
         if($user_info['first_name'] != NULL) {
             $this->username = $user_info['first_name'];
         } else {
@@ -74,7 +73,7 @@ class Baseline_api_controller extends CI_Controller
         }else {
             $current_path_info = './';
         }
-        
+
         $this->nav_info['current_page_info']['logged_in_user'] = "{$this->fullname}";
         $this->benchmark->mark('get_user_details_end');
 

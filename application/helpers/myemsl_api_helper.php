@@ -40,9 +40,10 @@ function get_user_details($eus_id)
 {
     $CI =& get_instance();
     $CI->load->library('PHPRequests');
-    $md_url = $CI->config->item('metadata_url');
-
-    $query = Requests::get("{$md_url}/userinfo/{$eus_id}", array('Accept' => 'application/json'));
+    // $md_url = $CI->config->item('metadata_url');
+    $md_url = $CI->metadata_url_base;
+    $query_url = "{$md_url}/userinfo/{$eus_id}";
+    $query = Requests::get($query_url, array('Accept' => 'application/json'));
     $results_body = $query->body;
 
     return json_decode($results_body, TRUE);

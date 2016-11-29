@@ -12,6 +12,9 @@ services:
             - policyserver:policy
         ports:
             - 80:80
+        environment:
+            METADATA_PORT: tcp://metadata:8121
+            POLICY_PORT: tcp://policy:8181
 
     metadataserver:
         build:
@@ -23,7 +26,7 @@ services:
             - elasticmaster
             - elasticlb
         ports:
-            - 8121:8080
+            - 8121:8121
         environment:
             ELASTICDB_PORT: tcp://elasticmaster:9200
             POSTGRES_ENV_POSTGRES_DB: pacifica_metadata
@@ -44,7 +47,7 @@ services:
         ports:
             - 8181:8181
         environment:
-            METADATA_PORT: tcp://metadata:8080
+            METADATA_PORT: tcp://metadata:8121
 
     elasticmaster:
         build:
@@ -75,7 +78,7 @@ services:
         volumes:
             - /var/run/docker.sock:/var/run/docker.sock
         ports:
-            - 9200:80
+            - 9200:9200
 
     metadatadb:
         image: postgres

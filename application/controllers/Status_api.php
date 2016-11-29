@@ -50,7 +50,7 @@ class Status_api extends Baseline_api_controller
         // $this->load->model('Cart_model', 'cart');
         $this->load->helper(
             array(
-                'user', 'url', 'html', 'myemsl_api', 'file_info'
+                'url', 'html', 'myemsl_api', 'file_info'
             )
         );
 
@@ -93,7 +93,7 @@ class Status_api extends Baseline_api_controller
      * @return void
      */
      public function index(){
-        echo "index page";
+         redirect('status_api/overview');
     }
 
     /**
@@ -134,10 +134,158 @@ class Status_api extends Baseline_api_controller
                     )
                 );
 
-            echo "<pre>";
-            var_dump($full_user_info);
-            echo "</pre>";
+            $this->benchmark->mark('get_user_info_from_ws_start');
+            $full_user_info = $this->myemsl->get_user_info();
+            $this->benchmark->mark('get_user_info_from_ws_end');
 
+            $proposal_list = array();
+            if (array_key_exists('proposals', $full_user_info)) {
+                foreach ($full_user_info['proposals'] as $prop_id => $prop_info) {
+                    if (array_key_exists('title', $prop_info)) {
+                        $proposal_list[$prop_id] = $prop_info['title'];
+                    }
+                }
+            }
+            krsort($proposal_list);
+            $js = "var initial_proposal_id = '{$proposal_id}';
+                    var initial_instrument_id = '{$instrument_id}';
+                    var initial_time_period = '{$time_period}';
+                    var email_address = '{$this->email}';
+                    var lookup_type = 't';
+                    var initial_instrument_list = [];";
+
+            $this->page_data['proposal_list'] = $proposal_list;
+
+            $this->page_data['load_prototype'] = FALSE;
+            $this->page_data['load_jquery'] = TRUE;
+            $this->page_data['selected_proposal'] = $proposal_id;
+            $this->page_data['time_period'] = $time_period;
+            $this->page_data['instrument_id'] = $instrument_id;
+            $this->page_data['js'] = $js;
+        } else {
+            $view_name = 'upload_item_view.html';
         }
+        if (isset($instrument_id) && isset($time_period) && $time_period > 0) {
+            // $inst_lookup_id = $instrument_id >= 0 ? $instrument_id : "";
+            $group_lookup_list
+                = $this->status->get_instrument_group_list($instrument_id);
+            if ($instrument_id > 0
+                && array_key_exists(
+                    $instrument_id,
+                    $group_lookup_list['by_inst_id']
+                )
+            ) {
+                $results = $this->status->get_transactions_for_group(
+                    array_keys($group_lookup_list['by_inst_id'][$instrument_id]),
+                    $time_period,
+                    $proposal_id
+                );
+            } elseif ($instrument_id <= 0) {
+                //this should be the "all instruments" trigger
+                //  get all the instruments for this proposal
+
+                $results = array(
+                    'transaction_list' => array(),
+                    'time_period_empty' => FALSE,
+                    'message' => '',
+                );
+                foreach (
+                    $group_lookup_list['by_inst_id'] as $inst_id => $group_id_list
+                ) {
+                    $transaction_list
+                        = $this->status->get_transactions_for_group(
+                            array_keys($group_id_list),
+                            $time_period,
+                            $proposal_id
+                        );
+                    if (!empty($transaction_list['transaction_list'])) {
+                        foreach (
+                            $transaction_list['transaction_list']['transactions']
+                            as $group_id => $group_info
+                        ) {
+                            if(!array_key_exists(
+                                'transactions',
+                                $results['transaction_list']
+                            )
+                            ) {
+                                $results['transaction_list']
+                                    ['transactions'] = array();
+                            }
+                            if (!array_key_exists(
+                                $group_id,
+                                $results['transaction_list']['transactions']
+                            )
+                            ) {
+                                $results['transaction_list']
+                                    ['transactions'][$group_id] = $group_info;
+                            }
+                        }
+                    }
+                    if (!empty($transaction_list['transaction_list']['times'])) {
+                        foreach (
+                            $transaction_list['transaction_list']['times']
+                            as $ts => $tx_id) {
+                            if(!array_key_exists(
+                                'times',
+                                $results['transaction_list']
+                            )
+                            ) {
+                                $results['transaction_list']['times'] = array();
+                            }
+                            if(!array_key_exists(
+                                $ts,
+                                $results['transaction_list']['times']
+                            )
+                            ) {
+                                $results['transaction_list']['times']
+                                    [$ts] = $tx_id;
+                            }
+                        }
+                    }
+                }
+            } else {
+                $results = array(
+                    'transaction_list' => array(),
+                    'time_period_empty' => TRUE,
+                    'message' => 'No data uploaded for this instrument',
+                );
+            }
+        } else {
+            $results = array(
+                'transaction_list' => array(),
+                'time_period_empty' => TRUE,
+                'message' => 'No data uploaded for this instrument',
+            );
+        }
+        // $this->page_data['cart_data'] = array(
+        //     'carts' => $this->cart->get_active_carts($this->user_id, FALSE)
+        // );
+        $this->page_data['cart_data'] = array('carts' => array());
+        if(!empty($results) && array_key_exists('transaction_list', $results)) {
+            if(array_key_exists('transactions', $results['transaction_list'])) {
+                krsort($results['transaction_list']['transactions']);
+            }
+            if(array_key_exists('times', $results['transaction_list'])) {
+                krsort($results['transaction_list']['times']);
+            }
+        }
+        $this->page_data['enable_breadcrumbs'] = FALSE;
+        $this->page_data['status_list'] = $this->status_list;
+        $this->page_data['transaction_data'] = $results['transaction_list'];
+        if (array_key_exists('transactions', $results['transaction_list'])
+            && !empty($results['transaction_list']['transactions'])
+        ) {
+            $this->page_data['transaction_sizes']
+                = $this->status->get_total_size_for_transactions(
+                    array_keys($results['transaction_list']['transactions'])
+                );
+        } else {
+            $this->page_data['transaction_sizes'] = array();
+        }
+        $this->page_data['informational_message'] = $results['message'];
+        $this->page_data['request_type'] = 't';
+
+        $this->load->view($view_name, $this->page_data);
+
     }
 }

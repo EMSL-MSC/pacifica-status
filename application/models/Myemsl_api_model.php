@@ -42,7 +42,7 @@ class Myemsl_api_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
-        $this->load->helper('myemsl');
+        $this->load->helper('myemsl_api');
         $this->myemsl_ini = read_myemsl_config_file('general');
     }
 
@@ -56,9 +56,8 @@ class Myemsl_api_model extends CI_Model
      */
     public function get_user_info()
     {
-        var_dump($_SERVER);
 
-        return $user_info;
+        return get_user_details($this->user_id);
 
     }
 
