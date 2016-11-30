@@ -199,7 +199,7 @@ var update_content = function(event){
 };
 
 var get_instrument_list = function(proposal_id){
-    var inst_url = '/ajax/get_instruments_for_proposal/' + proposal_id;
+    var inst_url = '/ajax_api/get_instruments_for_proposal/' + proposal_id;
     var target = document.getElementById('instrument_selector_spinner');
     var spinner = new Spinner(spinner_opts).spin(target);
     $('#instrument_selector').empty();

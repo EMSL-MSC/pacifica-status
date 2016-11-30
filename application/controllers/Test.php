@@ -290,7 +290,8 @@ class Test extends Baseline_controller
         echo '</pre>';
     }
 
-    public function get_instrument_group_list($inst_id){
+    public function get_instrument_group_list($inst_id)
+    {
         $obj = $this->status->get_instrument_group_list($inst_id);
         echo '<pre>';
         var_dump($obj);

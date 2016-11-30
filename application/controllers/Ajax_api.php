@@ -30,7 +30,7 @@ class Ajax_api extends Baseline_api_controller
 		parent::__construct();
 		$this->load->model('status_api_model','status');
 		$this->load->model('myemsl_api_model','myemsl');
-
+		$this->load->library('PHPRequests');
 	}
 
 	public function get_proposals_by_name($terms = FALSE)
@@ -64,7 +64,15 @@ class Ajax_api extends Baseline_api_controller
 		$proposal_id = FALSE, $terms = FALSE
 	)
 	{
+		if(!$proposal_id || empty($proposal_id)){
+			//some kind of error callback
+			return array();
+		}
+		$policy_url = "{$this->policy_url_base}/status/instrument/by_proposal_id/{$proposal_id}";
+		$query = Requests::get($policy_url, array('Accept' => 'application/json'));
+		// $results_body = $query->body;
 
+		print($query->body);
 	}
 
 }

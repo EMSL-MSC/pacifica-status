@@ -47,6 +47,7 @@ class Baseline_api_controller extends CI_Controller
         $this->user_id = 43751;
         // }
         $this->metadata_url_base = str_replace('tcp:', 'http:', getenv('METADATA_PORT'));
+        $this->policy_url_base = str_replace('tcp:', 'http:', getenv('POLICY_PORT'));
         $this->application_version = $this->config->item('application_version');
         $this->page_address = implode('/', $this->uri->rsegments);
 

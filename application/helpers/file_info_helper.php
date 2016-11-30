@@ -116,12 +116,12 @@ function get_last_update()
     $files = array();
     $accepted_subdirs = array('controllers','models','views','helpers');
     foreach ( $dirs as $dir )
-        foreach($accepted_subdirs as $subdir){
+    foreach($accepted_subdirs as $subdir){
         {
-            // $directory = new RecursiveDirectoryIterator($dir);
-            $fulldir = $dir . $subdir;
-            $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($fulldir), RecursiveIteratorIterator::LEAVES_ONLY);
-            $files = array_merge($files, array_keys(iterator_to_array($objects, TRUE)));
+        // $directory = new RecursiveDirectoryIterator($dir);
+        $fulldir = $dir . $subdir;
+        $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($fulldir), RecursiveIteratorIterator::LEAVES_ONLY);
+        $files = array_merge($files, array_keys(iterator_to_array($objects, TRUE)));
         }
     }
     $maxtimestamp = 0;

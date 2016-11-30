@@ -43,7 +43,7 @@ class Status_model extends CI_Model
         parent::__construct();
         $this->local_timezone = 'US/Pacific';
         $this->load->library('EUS', '', 'eus');
-        $this->load->model('Myemsl_model','myemsl');
+        $this->load->model('Myemsl_model', 'myemsl');
         $this->load->helper(array('item','cookie'));
         $this->status_list = array(
             0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
@@ -94,8 +94,8 @@ class Status_model extends CI_Model
         $DB_metadata->select(array('group_id', 'name', 'type'));
 
         // $where_clause = "(type = 'omics.dms.instrument_id' or type like 'instrument.%') and name not in ('foo')";
-        $DB_metadata->where('LOWER(type)','omics.dms.instrument_id');
-        $DB_metadata->or_like('LOWER(type)','instrument.');
+        $DB_metadata->where('LOWER(type)', 'omics.dms.instrument_id');
+        $DB_metadata->or_like('LOWER(type)', 'instrument.');
         // $DB_metadata->where($where_clause);
         $query = $DB_metadata->order_by('name')->get('groups');
         $results_by_group = array();
@@ -167,7 +167,7 @@ class Status_model extends CI_Model
     {
         $DB_metadata = $this->load->database('default', TRUE);
 
-        if($DB_metadata->dbdriver != 'sqlite3'){
+        if($DB_metadata->dbdriver != 'sqlite3') {
             $file_select_array = array(
                 'f.item_id',
                 'f.name',
@@ -192,7 +192,7 @@ class Status_model extends CI_Model
         }
 
         $DB_metadata->trans_start();
-        if($DB_metadata->dbdriver != 'sqlite3'){
+        if($DB_metadata->dbdriver != 'sqlite3') {
             $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
         }
         $DB_metadata->select($file_select_array)->from('transactions t')->join('files f', 't."transaction" = f."transaction"');
@@ -252,7 +252,7 @@ class Status_model extends CI_Model
 
         $raw_transaction_list = array();
         $DB_metadata->trans_start();
-        if($DB_metadata->dbdriver != 'sqlite3'){
+        if($DB_metadata->dbdriver != 'sqlite3') {
             $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
         }
         $DB_metadata->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
@@ -330,7 +330,7 @@ class Status_model extends CI_Model
             'max(gi.group_id) as group_id',
         );
         $DB_metadata->trans_start();
-        if($DB_metadata->dbdriver != 'sqlite3'){
+        if($DB_metadata->dbdriver != 'sqlite3') {
             $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
         }
         $DB_metadata->select($select_array)->from('group_items gi')->join('files f', 'gi.item_id = f.item_id');
@@ -356,10 +356,10 @@ class Status_model extends CI_Model
             $earliest_date = clone $today;
             $earliest_date->modify("-{$num_days_back} days");
             $DB_metadata->trans_start();
-            if($DB_metadata->dbdriver != 'sqlite3'){
+            if($DB_metadata->dbdriver != 'sqlite3') {
                 $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
             }
-            if($DB_metadata->dbdriver != 'sqlite3'){
+            if($DB_metadata->dbdriver != 'sqlite3') {
                 $DB_metadata->where("stime AT TIME ZONE 'US/Pacific' >=", $earliest_date->format('Y-m-d'));
             }else{
                 $DB_metadata->where("stime >=", $earliest_date->format('Y-m-d'));
@@ -636,7 +636,7 @@ class Status_model extends CI_Model
             'jobid', 'trans_id', 'person_id', 'step', 'message', 'status',
         );
         $DB_metadata->trans_start();
-        if($DB_metadata->dbdriver != 'sqlite3'){
+        if($DB_metadata->dbdriver != 'sqlite3') {
             $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
         }
         $DB_metadata->select($select_array)->where_in($lookup_field, $id_list);
@@ -723,7 +723,7 @@ class Status_model extends CI_Model
         $DB_metadata = $this->load->database('default', TRUE);
         $current_step = 0;
         $DB_metadata->trans_start();
-        if($DB_metadata->dbdriver != 'sqlite3'){
+        if($DB_metadata->dbdriver != 'sqlite3') {
             $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
         }
         $query = $DB_metadata->select(array('trans_id as transaction_id', 'step'))->get_where('ingest_state', array('jobid' => $job_id), 1);

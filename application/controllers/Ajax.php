@@ -116,12 +116,12 @@ class Ajax extends Baseline_controller
         $inst_list = $full_user_info['instruments'];
         $instruments_available = array();
         if(array_key_exists($proposal_id, $full_user_info['proposals'])) {
-            if(array_key_exists('instruments',$full_user_info['proposals'][$proposal_id])){
+            if(array_key_exists('instruments', $full_user_info['proposals'][$proposal_id])) {
                 $instruments_available
                 = $full_user_info['proposals'][$proposal_id]['instruments'];
             }
         }
-        if(!empty($instruments_available)){
+        if(!empty($instruments_available)) {
             $total_count = sizeof($instruments_available) + 1;
             asort($instruments_available);
         }else{

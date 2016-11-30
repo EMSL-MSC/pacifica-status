@@ -92,8 +92,9 @@ class Status_api extends Baseline_api_controller
      *
      * @return void
      */
-     public function index(){
-         redirect('status_api/overview');
+    public function index()
+    {
+        redirect('status_api/overview');
     }
 
     /**
@@ -116,7 +117,7 @@ class Status_api extends Baseline_api_controller
         $time_period = $time_period ?: get_cookie('last_timeframe_selector');
 
         //add in the page display defaults, etc. if a non-AJAX load
-        if(!$this->input->is_ajax_request()){
+        if(!$this->input->is_ajax_request()) {
             $view_name = 'emsl_mgmt_view.html';
             $this->page_data['page_header'] = 'MyEMSL Status Reporting';
             $this->page_data['title'] = 'Overview';
