@@ -71,7 +71,7 @@ class Status_api extends Baseline_api_controller
             '/resources/scripts/spinner/spin.min.js',
             '/resources/scripts/fancytree/jquery.fancytree-all.js',
             '/resources/scripts/jquery-crypt/jquery.crypt.js',
-            '/resources/scripts/myemsl_file_download.js',
+            '/project_resources/scripts/myemsl_file_download.js',
             '/project_resources/scripts/status_common.js',
             '/resources/scripts/select2-4/dist/js/select2.js',
             '/resources/scripts/moment.min.js'

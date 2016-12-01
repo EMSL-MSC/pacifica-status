@@ -71,7 +71,7 @@ $(
 
         //window.setInterval(check_cart_status, 30000);
         //window.setInterval(update_breadcrumbs,30000);
-        window.setInterval(get_latest_transactions, 60000);
+        // window.setInterval(get_latest_transactions, 60000);
 
         function formatProposal(item) {
             var markup = false;
