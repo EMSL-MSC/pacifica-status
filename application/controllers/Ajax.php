@@ -118,7 +118,7 @@ class Ajax extends Baseline_controller
         if(array_key_exists($proposal_id, $full_user_info['proposals'])) {
             if(array_key_exists('instruments', $full_user_info['proposals'][$proposal_id])) {
                 $instruments_available
-                = $full_user_info['proposals'][$proposal_id]['instruments'];
+                    = $full_user_info['proposals'][$proposal_id]['instruments'];
             }
         }
         if(!empty($instruments_available)) {

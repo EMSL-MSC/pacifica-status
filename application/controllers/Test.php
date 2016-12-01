@@ -290,6 +290,15 @@ class Test extends Baseline_controller
         echo '</pre>';
     }
 
+    /**
+     *  [get_instrument_group_list description]
+     *
+     *  @param integer $inst_id instrument to get group list for
+     *
+     *  @return void
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_instrument_group_list($inst_id)
     {
         $obj = $this->status->get_instrument_group_list($inst_id);

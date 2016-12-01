@@ -42,7 +42,7 @@ function get_user_details($eus_id)
     $CI->load->library('PHPRequests');
     // $md_url = $CI->config->item('metadata_url');
     $md_url = $CI->metadata_url_base;
-    $query_url = "{$md_url}/userinfo/{$eus_id}";
+    $query_url = "{$md_url}/userinfo/by_id/{$eus_id}";
     $query = Requests::get($query_url, array('Accept' => 'application/json'));
     $results_body = $query->body;
 

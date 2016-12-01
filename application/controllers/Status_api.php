@@ -168,19 +168,15 @@ class Status_api extends Baseline_api_controller
         }
         if (isset($instrument_id) && isset($time_period) && $time_period > 0) {
             // $inst_lookup_id = $instrument_id >= 0 ? $instrument_id : "";
-            $group_lookup_list
-                = $this->status->get_instrument_group_list($instrument_id);
-            if ($instrument_id > 0
-                && array_key_exists(
-                    $instrument_id,
-                    $group_lookup_list['by_inst_id']
-                )
-            ) {
-                $results = $this->status->get_transactions_for_group(
-                    array_keys($group_lookup_list['by_inst_id'][$instrument_id]),
-                    $time_period,
-                    $proposal_id
-                );
+            // $group_lookup_list
+            //     = $this->status->get_instrument_group_list($instrument_id);
+            if (isset($instrument_id) && isset($proposal_id)) {
+                // $results = $this->status->get_transactions_for_group(
+                //     array_keys($group_lookup_list['by_inst_id'][$instrument_id]),
+                //     $time_period,
+                //     $proposal_id
+                // );
+                $results = $this->status->get_transactions_for_instrument_proposal($instrument_id,$proposal_id);
             } elseif ($instrument_id <= 0) {
                 //this should be the "all instruments" trigger
                 //  get all the instruments for this proposal
