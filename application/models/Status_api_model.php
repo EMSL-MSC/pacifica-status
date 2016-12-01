@@ -49,8 +49,17 @@ class Status_api_model extends CI_Model
             0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
             3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived',
         );
+        $this->load->library('PHPRequests');
+        print $this->policy_url_base;
     }
 
+    public function get_transactions(
+        $instrument_id = False,
+        $proposal_id = False,
+        $time_period = False
+    )
+    {
 
+    }
 
 }
