@@ -14,7 +14,7 @@ $(
                     delay: 250,
                     cache: true,
                     url: function(params) {
-                        var myURL = base_url + "ajax/get_proposals_by_name/";
+                        var myURL = base_url + "ajax_api/get_proposals_by_name/";
                         if (params.term != undefined) {
                             myURL += params.term;
                         }
