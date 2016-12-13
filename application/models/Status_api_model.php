@@ -44,22 +44,54 @@ class Status_api_model extends CI_Model
         $this->local_timezone = 'US/Pacific';
         // $this->load->library('EUS', '', 'eus');
         $this->load->model('Myemsl_api_model', 'myemsl');
-        $this->load->helper('item');
+        $this->load->helper('item', 'network');
+
         $this->status_list = array(
             0 => 'Submitted', 1 => 'Received', 2 => 'Processing',
             3 => 'Verified', 4 => 'Stored', 5 => 'Available', 6 => 'Archived',
         );
         $this->load->library('PHPRequests');
-        print $this->policy_url_base;
     }
 
-    public function get_transactions(
-        $instrument_id = False,
-        $proposal_id = False,
-        $time_period = False
-    )
+    public function get_transactions($instrument_id, $proposal_id, $start_time, $end_time, $submitter = -1)
     {
+        $transactions_url = "{$this->policy_url_base}/status/transactions/search/details?";
 
+        $url_args_array = array(
+            'instrument' => $instrument_id,
+            'proposal' => $proposal_id,
+            'start' => $start_time,
+            'end' => $end_time,
+            'submitter' => $submitter,
+            'requesting_user' => $this->user_id
+        );
+        $transactions_url .= http_build_query($url_args_array, '', '&');
+
+
+        try {
+            $query = Requests::get($transactions_url, array('Accept' => 'application/json'));
+            $results = json_decode($query->body, TRUE);
+        } catch (Exception $e) {
+            $results = array();
+        }
+        return $results;
+    }
+
+    public function get_proposals_by_name($terms, $requester_id, $is_active = 'active'){
+        $proposals_url = "{$this->policy_url_base}/status/proposals/search/{$terms}?";
+        $url_args_array = array(
+            'user' => $this->user_id
+        );
+        $proposals_url .= http_build_query($url_args_array, '', '&');
+
+        try{
+            $query = Requests::get($proposals_url, array('Accept' => 'application/json'));
+            // var_dump($query);
+            $results = json_decode($query->body, TRUE);
+        } catch (Exception $e){
+            $results = array();
+        }
+        return $results;
     }
 
 }

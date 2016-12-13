@@ -97,8 +97,8 @@ function generate_cart_token($item_list,$eus_person_id)
     // $time = '2015-05-08T16:07:06-07:00';
 
     $token_object = array(
-    'd' => $duration, 'i' => $item_list, 'p' => intval($eus_person_id),
-    's' => $time, 'u' => $uuid
+        'd' => $duration, 'i' => $item_list, 'p' => intval($eus_person_id),
+        's' => $time, 'u' => $uuid
     );
 
     $token_json = json_encode($token_object);

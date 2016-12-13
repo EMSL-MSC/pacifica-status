@@ -36,9 +36,11 @@ class Ajax_api extends Baseline_api_controller
      */
     public function __construct()
     {
+
         parent::__construct();
         $this->load->model('status_api_model', 'status');
         $this->load->model('myemsl_api_model', 'myemsl');
+        $this->load->helper('network');
         $this->load->library('PHPRequests');
     }
 
@@ -55,7 +57,7 @@ class Ajax_api extends Baseline_api_controller
      */
     public function get_proposals_by_name($terms = FALSE)
     {
-        $prop_list = $this->eus->get_proposals_by_name(
+        $prop_list = $this->status->get_proposals_by_name(
             $terms, $this->user_id, FALSE
         );
         $results = array(

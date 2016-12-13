@@ -107,9 +107,9 @@ class Status_api extends Baseline_api_controller
      * @return void
      */
     public function overview(
-        $proposal_id = FALSE,
-        $instrument_id = FALSE,
-        $time_period = FALSE
+        $proposal_id = 0,
+        $instrument_id = 0,
+        $time_period = 0
     )
     {
         $proposal_id = $proposal_id ?: get_cookie('last_proposal_selector');
@@ -131,7 +131,7 @@ class Status_api extends Baseline_api_controller
             $this->page_data['script_uris']
                 = array_merge(
                     $this->page_data['script_uris'], array(
-                    '/resources/scripts/emsl_mgmt_view.js'
+                    '/project_resources/scripts/emsl_mgmt_view.js'
                     )
                 );
 
@@ -166,94 +166,109 @@ class Status_api extends Baseline_api_controller
         } else {
             $view_name = 'upload_item_view.html';
         }
-        if (isset($instrument_id) && isset($time_period) && $time_period > 0) {
-            // $inst_lookup_id = $instrument_id >= 0 ? $instrument_id : "";
-            // $group_lookup_list
-            //     = $this->status->get_instrument_group_list($instrument_id);
-            if (isset($instrument_id) && isset($proposal_id)) {
-                // $results = $this->status->get_transactions_for_group(
-                //     array_keys($group_lookup_list['by_inst_id'][$instrument_id]),
-                //     $time_period,
-                //     $proposal_id
-                // );
-                $results = $this->status->get_transactions_for_instrument_proposal($instrument_id,$proposal_id);
-            } elseif ($instrument_id <= 0) {
-                //this should be the "all instruments" trigger
-                //  get all the instruments for this proposal
 
-                $results = array(
-                    'transaction_list' => array(),
-                    'time_period_empty' => FALSE,
-                    'message' => '',
-                );
-                foreach (
-                    $group_lookup_list['by_inst_id'] as $inst_id => $group_id_list
-                ) {
-                    $transaction_list
-                        = $this->status->get_transactions_for_group(
-                            array_keys($group_id_list),
-                            $time_period,
-                            $proposal_id
-                        );
-                    if (!empty($transaction_list['transaction_list'])) {
-                        foreach (
-                            $transaction_list['transaction_list']['transactions']
-                            as $group_id => $group_info
-                        ) {
-                            if(!array_key_exists(
-                                'transactions',
-                                $results['transaction_list']
-                            )
-                            ) {
-                                $results['transaction_list']
-                                    ['transactions'] = array();
-                            }
-                            if (!array_key_exists(
-                                $group_id,
-                                $results['transaction_list']['transactions']
-                            )
-                            ) {
-                                $results['transaction_list']
-                                    ['transactions'][$group_id] = $group_info;
-                            }
-                        }
-                    }
-                    if (!empty($transaction_list['transaction_list']['times'])) {
-                        foreach (
-                            $transaction_list['transaction_list']['times']
-                            as $ts => $tx_id) {
-                            if(!array_key_exists(
-                                'times',
-                                $results['transaction_list']
-                            )
-                            ) {
-                                $results['transaction_list']['times'] = array();
-                            }
-                            if(!array_key_exists(
-                                $ts,
-                                $results['transaction_list']['times']
-                            )
-                            ) {
-                                $results['transaction_list']['times']
-                                    [$ts] = $tx_id;
-                            }
-                        }
-                    }
-                }
-            } else {
-                $results = array(
-                    'transaction_list' => array(),
-                    'time_period_empty' => TRUE,
-                    'message' => 'No data uploaded for this instrument',
-                );
-            }
-        } else {
-            $results = array(
-                'transaction_list' => array(),
-                'time_period_empty' => TRUE,
-                'message' => 'No data uploaded for this instrument',
+        if($instrument_id !== 0 && $proposal_id !== 0 && $time_period !== 0){
+            //all criteria set, proceed with load
+            $now = new DateTime();
+            $end_time = $now->format('Y-m-d');
+            $now->modify("-{$time_period} days");
+            $start_time = $now->format('Y-m-d');
+            $transactions = $this->status->get_transactions(
+                $instrument_id, $proposal_id, $start_time, $end_time
             );
+            // var_dump($transactions);
+        }else{
+            //not enough information to load transactions
         }
+
+        // if (isset($instrument_id) && isset($time_period) && $time_period > 0) {
+        //     // $inst_lookup_id = $instrument_id >= 0 ? $instrument_id : "";
+        //     // $group_lookup_list
+        //     //     = $this->status->get_instrument_group_list($instrument_id);
+        //     if (isset($instrument_id) && isset($proposal_id)) {
+        //         // $results = $this->status->get_transactions_for_group(
+        //         //     array_keys($group_lookup_list['by_inst_id'][$instrument_id]),
+        //         //     $time_period,
+        //         //     $proposal_id
+        //         // );
+        //         $results = $this->status->get_transactions_for_instrument_proposal($instrument_id,$proposal_id, $time);
+        //     } elseif ($instrument_id <= 0) {
+        //         //this should be the "all instruments" trigger
+        //         //  get all the instruments for this proposal
+        //
+        //         $results = array(
+        //             'transaction_list' => array(),
+        //             'time_period_empty' => FALSE,
+        //             'message' => '',
+        //         );
+        //         foreach (
+        //             $group_lookup_list['by_inst_id'] as $inst_id => $group_id_list
+        //         ) {
+        //             $transaction_list
+        //                 = $this->status->get_transactions_for_group(
+        //                     array_keys($group_id_list),
+        //                     $time_period,
+        //                     $proposal_id
+        //                 );
+        //             if (!empty($transaction_list['transaction_list'])) {
+        //                 foreach (
+        //                     $transaction_list['transaction_list']['transactions']
+        //                     as $group_id => $group_info
+        //                 ) {
+        //                     if(!array_key_exists(
+        //                         'transactions',
+        //                         $results['transaction_list']
+        //                     )
+        //                     ) {
+        //                         $results['transaction_list']
+        //                             ['transactions'] = array();
+        //                     }
+        //                     if (!array_key_exists(
+        //                         $group_id,
+        //                         $results['transaction_list']['transactions']
+        //                     )
+        //                     ) {
+        //                         $results['transaction_list']
+        //                             ['transactions'][$group_id] = $group_info;
+        //                     }
+        //                 }
+        //             }
+        //             if (!empty($transaction_list['transaction_list']['times'])) {
+        //                 foreach (
+        //                     $transaction_list['transaction_list']['times']
+        //                     as $ts => $tx_id) {
+        //                     if(!array_key_exists(
+        //                         'times',
+        //                         $results['transaction_list']
+        //                     )
+        //                     ) {
+        //                         $results['transaction_list']['times'] = array();
+        //                     }
+        //                     if(!array_key_exists(
+        //                         $ts,
+        //                         $results['transaction_list']['times']
+        //                     )
+        //                     ) {
+        //                         $results['transaction_list']['times']
+        //                             [$ts] = $tx_id;
+        //                     }
+        //                 }
+        //             }
+        //         }
+        //     } else {
+        //         $results = array(
+        //             'transaction_list' => array(),
+        //             'time_period_empty' => TRUE,
+        //             'message' => 'No data uploaded for this instrument',
+        //         );
+        //     }
+        // } else {
+        //     $results = array(
+        //         'transaction_list' => array(),
+        //         'time_period_empty' => TRUE,
+        //         'message' => 'No data uploaded for this instrument',
+        //     );
+        // }
         // $this->page_data['cart_data'] = array(
         //     'carts' => $this->cart->get_active_carts($this->user_id, FALSE)
         // );
@@ -268,18 +283,18 @@ class Status_api extends Baseline_api_controller
         }
         $this->page_data['enable_breadcrumbs'] = FALSE;
         $this->page_data['status_list'] = $this->status_list;
-        $this->page_data['transaction_data'] = $results['transaction_list'];
-        if (array_key_exists('transactions', $results['transaction_list'])
-            && !empty($results['transaction_list']['transactions'])
-        ) {
-            $this->page_data['transaction_sizes']
-                = $this->status->get_total_size_for_transactions(
-                    array_keys($results['transaction_list']['transactions'])
-                );
-        } else {
-            $this->page_data['transaction_sizes'] = array();
-        }
-        $this->page_data['informational_message'] = $results['message'];
+        // $this->page_data['transaction_data'] = $results['transaction_list'];
+        // if (array_key_exists('transactions', $results['transaction_list'])
+        //     && !empty($results['transaction_list']['transactions'])
+        // ) {
+        //     $this->page_data['transaction_sizes']
+        //         = $this->status->get_total_size_for_transactions(
+        //             array_keys($results['transaction_list']['transactions'])
+        //         );
+        // } else {
+        //     $this->page_data['transaction_sizes'] = array();
+        // }
+        // $this->page_data['informational_message'] = $results['message'];
         $this->page_data['request_type'] = 't';
 
         $this->load->view($view_name, $this->page_data);

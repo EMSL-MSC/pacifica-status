@@ -18,7 +18,7 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
-require_once 'Baseline_controller.php';
+require_once 'Baseline_api_controller.php';
 
 /**
  * Test is a CI controller class that extends Baseline_controller
@@ -29,7 +29,7 @@ require_once 'Baseline_controller.php';
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
-class Test extends Baseline_controller
+class Test_api extends Baseline_api_controller
 {
     /**
      * Constructor
@@ -49,6 +49,21 @@ class Test extends Baseline_controller
     {
         $user_info = $this->myemsl->get_user_info();
         var_dump($user_info);
+    }
+
+    public function get_transactions(){
+        $transactions = $this->status->get_transactions(-1, '45796', '2016-12-03', '2016-12-10', 50724);
+
+        echo "<pre>";
+        var_dump($transactions);
+        echo "</pre>";
+    }
+
+    public function get_proposals($search_terms){
+        echo "<pre>";
+        $proposals = $this->status->get_proposals_by_name($search_terms, $this->user_id, false);
+        send_json_array($proposals);
+        echo "</pre>";
     }
 
 

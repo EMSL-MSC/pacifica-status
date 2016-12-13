@@ -37,7 +37,6 @@ class Baseline_api_controller extends CI_Controller
     {
         date_default_timezone_set('America/Los_Angeles');
         parent::__construct();
-
         //get user info
         $this->load->helper(array('url', 'html', 'myemsl_api', 'file_info'));
         $this->output->enable_profiler(FALSE);
@@ -89,5 +88,6 @@ class Baseline_api_controller extends CI_Controller
         $this->page_data['load_prototype'] = FALSE;
         $this->page_data['load_jquery'] = TRUE;
         $this->controller_name = $this->uri->rsegment(1);
+
     }
 }

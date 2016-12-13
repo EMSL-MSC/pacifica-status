@@ -141,7 +141,7 @@ var update_content = function(event){
     }
     initial_load = false;
     var ts = moment().format('YYYYMMDDHHmmss');
-    var url = '/status/overview/' + proposal_id + '/' + instrument_id + '/' + time_frame + '/ovr_' + ts;
+    var url = '/status_api/overview/' + proposal_id + '/' + instrument_id + '/' + time_frame + '/ovr_' + ts;
     if(proposal_id && instrument_id && time_frame) {
         inital_load = false;
         $('#item_info_container').hide();
