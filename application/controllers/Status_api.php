@@ -173,10 +173,9 @@ class Status_api extends Baseline_api_controller
             $end_time = $now->format('Y-m-d');
             $now->modify("-{$time_period} days");
             $start_time = $now->format('Y-m-d');
-            $transactions = $this->status->get_transactions(
+            $results['transaction_list'] = $this->status->get_transactions(
                 $instrument_id, $proposal_id, $start_time, $end_time
             );
-            // var_dump($transactions);
         }else{
             //not enough information to load transactions
         }
@@ -283,18 +282,18 @@ class Status_api extends Baseline_api_controller
         }
         $this->page_data['enable_breadcrumbs'] = FALSE;
         $this->page_data['status_list'] = $this->status_list;
-        // $this->page_data['transaction_data'] = $results['transaction_list'];
-        // if (array_key_exists('transactions', $results['transaction_list'])
-        //     && !empty($results['transaction_list']['transactions'])
-        // ) {
-        //     $this->page_data['transaction_sizes']
-        //         = $this->status->get_total_size_for_transactions(
-        //             array_keys($results['transaction_list']['transactions'])
-        //         );
-        // } else {
-        //     $this->page_data['transaction_sizes'] = array();
-        // }
-        // $this->page_data['informational_message'] = $results['message'];
+        $this->page_data['transaction_data'] = $results['transaction_list'];
+        if (array_key_exists('transactions', $results['transaction_list'])
+            && !empty($results['transaction_list']['transactions'])
+        ) {
+            $this->page_data['transaction_sizes']
+                = $this->status->get_total_size_for_transactions(
+                    array_keys($results['transaction_list']['transactions'])
+                );
+        } else {
+            $this->page_data['transaction_sizes'] = array();
+        }
+        $this->page_data['informational_message'] = $results['message'];
         $this->page_data['request_type'] = 't';
 
         $this->load->view($view_name, $this->page_data);
