@@ -1,10 +1,6 @@
 $(
     function() {
         var initials = [];
-        var selected = 49418;
-        // initials.push({id:49418, title: 'Development of NMR Sparse Sampling Methods for Quantitative Metabolic Flux Analysis'})
-        // initials.push({id:49223, title: 'Extinction, ecosystem structure and carbon cycling in coastal sediments: Quantifying the impacts of megafaunal species loss upon coastal sediment organic carbon pools using nuclear magnetic resonance (NMR) and high resolution mass spectroscopy'})
-
 
         $('#proposal_selector').select2(
             {
@@ -63,9 +59,7 @@ $(
                 placeholder: "Select a Time Frame..."
             }
         );
-
         $('.criterion_selector').change(update_content);
-
         setup_tree_data();
         setup_metadata_disclosure();
 
