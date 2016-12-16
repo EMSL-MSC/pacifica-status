@@ -148,10 +148,7 @@ class Status_api extends Baseline_api_controller
                 }
             }
             krsort($proposal_list);
-            $js = "var initial_proposal_id = '{$proposal_id}';
-                    var initial_instrument_id = '{$instrument_id}';
-                    var initial_time_period = '{$time_period}';
-                    var email_address = '{$this->email}';
+            $js = "var email_address = '{$this->email}';
                     var lookup_type = 't';
                     var initial_instrument_list = [];";
 

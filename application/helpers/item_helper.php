@@ -72,7 +72,6 @@ function build_folder_structure(&$dirs, $path_array, $item_info)
 function format_folder_object_json($folder_obj,$folder_name)
 {
     $output = array();
-
     if(array_key_exists('folders', $folder_obj)) {
         foreach($folder_obj['folders'] as $folder_entry => $folder_tree){
             $folder_output = array('title' => $folder_entry, 'folder' => TRUE);
