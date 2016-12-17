@@ -67,14 +67,29 @@ class Status_api_model extends CI_Model
         $transactions_url .= http_build_query($url_args_array, '', '&');
         // try {
             $query = Requests::get($transactions_url, array('Accept' => 'application/json'));
-            $results = json_decode($query->body, TRUE);
+            $results = json_decode($query->body, true);
         // } catch (Exception $e) {
         //     $results = array();
         // }
         return $results;
     }
 
-    public function get_proposals_by_name($terms, $requester_id, $is_active = 'active'){
+    public function get_formatted_transaction($transaction_id)
+    {
+        $transactions_url = "{$this->policy_url_base}/status/transactions/search/details?";
+        $url_args_array = array(
+            'user' => $this->user_id,
+            'transaction_id' => $transaction_id
+        );
+        $transactions_url .= http_build_query($url_args_array, '', '&');
+
+        $query = Requests::get($transactions_url, array('Accept' => 'application/json'));
+        $results = json_decode($query->body, true);
+        return $results;
+    }
+
+    public function get_proposals_by_name($terms, $requester_id, $is_active = 'active')
+    {
         $proposals_url = "{$this->policy_url_base}/status/proposals/search/{$terms}?";
         $url_args_array = array(
             'user' => $this->user_id
@@ -84,11 +99,56 @@ class Status_api_model extends CI_Model
         try{
             $query = Requests::get($proposals_url, array('Accept' => 'application/json'));
             // var_dump($query);
-            $results = json_decode($query->body, TRUE);
+            $results = json_decode($query->body, true);
         } catch (Exception $e){
             $results = array();
         }
         return $results;
+    }
+
+    public function get_transaction_details($transaction_id)
+    {
+        $transaction_url = "{$this->policy_url_base}/status/transactions/by_id/{$transaction_id}";
+        $url_args_array = array(
+            'user' => $this->user_id
+        );
+        $transaction_url .= http_build_query($url_args_array, '', '&');
+
+        $results = array();
+
+        try{
+            $query = Requests::get($transaction_url, array('Accept' => 'application/json'));
+            $sc = $query->status_code;
+            if($sc / 100 == 2) {
+                //good data, move along
+                $results = json_decode($query->body, true);
+
+            }elseif($sc / 100 == 4) {
+                if($sc == 404) {
+                    //transaction not found
+                    $results = array();
+                }else{
+                    //some other input error
+                }
+            }else{
+
+            }
+        } catch (Exception $e){
+            //some other error
+        }
+
+        return $results;
+
+    }
+
+    public function get_total_size_for_transaction($transaction_id)
+    {
+        $transaction = $this->get_transaction_details($transaction_id);
+        $total_file_size_bytes = 0;
+        foreach($transaction['files'] as $file_id => $file_info){
+            $total_file_size_bytes += $file_info['size'];
+        }
+        return $total_file_size_bytes;
     }
 
 
@@ -112,9 +172,9 @@ class Status_api_model extends CI_Model
         $results = array();
         // try{
             $query = Requests::get($files_url, array('Accept' => 'application/json'));
-            if($query->status_code / 100 == 2){
-                $results = json_decode($query->body, TRUE);
-            }
+        if($query->status_code / 100 == 2) {
+            $results = json_decode($query->body, true);
+        }
         // } catch (Exception $e){
         //     $results = array();
         // }
@@ -122,7 +182,7 @@ class Status_api_model extends CI_Model
         if ($results && !empty($results) > 0) {
             $dirs = array();
             foreach ($results as $item_id => $item_info) {
-                $subdir = preg_replace('|^proposal\s[^/]+/[^/]+/\d{4}\.\d{1,2}\.\d{1,2}/?|i', '', trim($item_info['subdir'],'/'));
+                $subdir = preg_replace('|^proposal\s[^/]+/[^/]+/\d{4}\.\d{1,2}\.\d{1,2}/?|i', '', trim($item_info['subdir'], '/'));
                 $filename = $item_info['name'];
                 $path = !empty($subdir) ? "{$subdir}/{$filename}" : $filename;
                 $path_array = explode('/', $path);
@@ -131,63 +191,6 @@ class Status_api_model extends CI_Model
 
             return array('treelist' => $dirs, 'files' => $results);
         }
-
-
-        // $DB_metadata = $this->load->database('default', TRUE);
-        //
-        // if($DB_metadata->dbdriver != 'sqlite3') {
-        //     $file_select_array = array(
-        //         'f.item_id',
-        //         'f.name',
-        //         'f.subdir',
-        //         "DATE_TRUNC('second',t.stime) AT TIME ZONE 'US/Pacific' as stime",
-        //         'f.mtime as modified_time',
-        //         'f.ctime as created_time',
-        //         'f."transaction"',
-        //         'f.size',
-        //     );
-        // }else{
-        //     $file_select_array = array(
-        //         'f.item_id',
-        //         'f.name',
-        //         'f.subdir',
-        //         "DATE_TRUNC('second',t.stime) as stime",
-        //         'f.mtime as modified_time',
-        //         'f.ctime as created_time',
-        //         'f."transaction"',
-        //         'f.size',
-        //     );
-        // }
-        //
-        // $DB_metadata->trans_start();
-        // if($DB_metadata->dbdriver != 'sqlite3') {
-        //     $DB_metadata->query("set local timezone to '{$this->local_timezone}';");
-        // }
-        // $DB_metadata->select($file_select_array)->from('transactions t')->join('files f', 't."transaction" = f."transaction"');
-        // $DB_metadata->where('f."transaction"', $transaction_id);
-        // $DB_metadata->order_by('f.subdir, f.name');
-        // $files_query = $DB_metadata->get();
-        // $DB_metadata->trans_complete();
-        // $files_list = array();
-
-        // if ($files_query && $files_query->num_rows() > 0) {
-        //     foreach ($files_query->result_array() as $row) {
-        //         $files_list[$row['item_id']] = $row;
-        //     }
-        //     $file_tree = array();
-        //
-        //     $dirs = array();
-        //     foreach ($files_list as $item_id => $item_info) {
-        //         $subdir = preg_replace('|^proposal\s[^/]+/[^/]+/\d{4}\.\d{1,2}\.\d{1,2}/?|i', '', $item_info['subdir']);
-        //         $filename = $item_info['name'];
-        //         $path = !empty($subdir) ? "{$subdir}/{$filename}" : $filename;
-        //         $path_array = explode('/', $path);
-        //         build_folder_structure($dirs, $path_array, $item_info);
-        //     }
-        //
-        //     return array('treelist' => $dirs, 'files' => $files_list);
-        // }
     }
-
 
 }

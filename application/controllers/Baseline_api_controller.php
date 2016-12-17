@@ -47,6 +47,10 @@ class Baseline_api_controller extends CI_Controller
         // }
         $this->metadata_url_base = str_replace('tcp:', 'http:', getenv('METADATA_PORT'));
         $this->policy_url_base = str_replace('tcp:', 'http:', getenv('POLICY_PORT'));
+
+        // $this->metadata_url_base = 'http://dmlb2000.emsl.pnl.gov:8121';
+        // $this->policy_url_base = 'http://dmlb2000.emsl.pnl.gov:8181';
+
         $this->application_version = $this->config->item('application_version');
         $this->page_address = implode('/', $this->uri->rsegments);
 

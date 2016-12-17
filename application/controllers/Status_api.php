@@ -85,6 +85,10 @@ class Status_api extends Baseline_api_controller
             '/resources/stylesheets/file_directory_styling.css',
             '/resources/stylesheets/bread_crumbs.css',
         );
+        $this->page_data['load_prototype'] = false;
+        $this->page_data['load_jquery'] = true;
+        $this->page_data['status_list'] = $this->status_list;
+
     }
 
     /**
@@ -153,9 +157,6 @@ class Status_api extends Baseline_api_controller
                     var initial_instrument_list = [];";
 
             $this->page_data['proposal_list'] = $proposal_list;
-
-            $this->page_data['load_prototype'] = false;
-            $this->page_data['load_jquery'] = true;
             $this->page_data['selected_proposal'] = $proposal_id;
             $this->page_data['time_period'] = $time_period;
             $this->page_data['instrument_id'] = $instrument_id;
@@ -176,6 +177,11 @@ class Status_api extends Baseline_api_controller
             $transaction_list = $this->status->get_transactions(
                 $instrument_id, $proposal_id, $start_time, $end_time
             );
+            $file_size_totals = array();
+            foreach($transaction_list['transactions'] as $transaction_id => $transaction_info){
+                $file_size_totals[$transaction_id] = $transaction_info['file_size_bytes'];
+            }
+            $transaction_list['file_size_totals'] = $file_size_totals;
             $results = array(
                 'transaction_list' => $transaction_list,
                 'time_period_empty' => false,
@@ -211,6 +217,56 @@ class Status_api extends Baseline_api_controller
         $this->page_data['request_type'] = 't';
 
         $this->load->view($view_name, $this->page_data);
+    }
+
+    public function view($id){
+        $instrument_id = -1;
+        if (!is_numeric($id) || $id < 0) {
+            //that doesn't look like a real id
+            //send to error page saying so
+            $err_msg = 'No '.ucwords($lookup_type_description)." with the ".
+                    "{$id} could be found in the system";
+            $this->page_data['error_message'] = $err_msg;
+            $this->page_data['lookup_type_desc'] = $lookup_type_description;
+            $this->page_data['lookup_type'] = $lookup_type;
+            $this->load->view('status_error_page.html', $this->page_data);
+        }
+        $this->page_data['page_header'] = 'Upload Report';
+        $this->page_data['title'] = 'Upload Report';
+
+        $this->page_data['css_uris']
+            = array_merge(
+                $this->page_data['css_uris'], array(
+                '/project_resources/stylesheets/view.css'
+                )
+            );
+
+
+        $this->page_data['script_uris']
+            = array_merge(
+                $this->page_data['script_uris'], array(
+                '/resources/scripts/single_item_view.js',
+                '/resources/scripts/jquery-dateFormat/jquery-dateFormat.min.js'
+                )
+            );
+
+        $transaction_info = $this->status->get_formatted_transaction($id);
+        $this->page_data['transaction_sizes'] = $transaction_info['transactions'][$id]['file_size_bytes'];
+        $inst_id = $transaction_info['transactions'][$id]['groups']['instrument_id'];
+
+        $this->page_data['transaction_data'] = $transaction_info;
+        $this->page_data['cart_data'] = array(
+            'carts' => array()
+        );
+        $this->page_data['request_type'] = 't';
+        $this->page_data['enable_breadcrumbs'] = TRUE;
+        $this->page_data['js'] = "var initial_inst_id = '{$inst_id}';
+                            var lookup_type = 't';
+                            var email_address = '{$this->email}';
+                            ";
+        $this->page_data['show_instrument_data'] = TRUE;
+        $this->load->view('single_item_view.html', $this->page_data);
+
     }
 
     /**
