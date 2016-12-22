@@ -135,7 +135,7 @@ function truncate_text($string, $limit, $break=" ", $pad="...")
 {
     $textLength = strlen($string);
     $result = $string;
-    if($textLength > $limit){
+    if($textLength > $limit) {
         $result = substr_replace(
             $string,
             '...',
