@@ -32,7 +32,6 @@ COPY tests /var/www/html/tests
 COPY tests/apache_conf/modules /etc/apache2/conf-enabled/
 COPY tests/apache_conf/sites/myemsl-status.conf /etc/apache2/sites-available/
 RUN ln -s /etc/apache2/sites-available/myemsl-status.conf /etc/apache2/sites-enabled/
-COPY config_files/general.ini /etc/myemsl/
 RUN ln -s /var/www/html/application/resources /var/www/html/project_resources
 RUN cp -f /usr/share/php5/php.ini-development /usr/local/etc/php/php.ini
 RUN ln -s /usr/share/php5/pgsql/* /usr/local/etc/php/conf.d/

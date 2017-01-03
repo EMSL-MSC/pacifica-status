@@ -38,14 +38,10 @@ date_default_timezone_set('America/Los_Angeles');
 | a PHP script and you can easily do that on your own.
 |
 */
-$protocol = isset($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] == "on" ? "https" : "http";
-$rooted = getenv('CI_ROOTED');
-$rooted = !empty($rooted) && $rooted == TRUE ? TRUE : FALSE;
-// $rooted = isset($_SERVER["CI_ROOTED"]) && $_SERVER["CI_ROOTED"] == TRUE ? TRUE : FALSE;
-$basedir = $rooted ? '' : '/myemsl/reporting';
-$config['base_url']    = "{$protocol}://".$_SERVER["SERVER_NAME"].$basedir;
-$config['base_dir'] = $basedir;
+$config['base_url']    = '';
+$config['base_dir'] = '';
 $config['local_resources_folder'] = "application/resources";
+
 /*
 |--------------------------------------------------------------------------
 | Index File
@@ -56,7 +52,7 @@ $config['local_resources_folder'] = "application/resources";
 | variable so that it is blank.
 |
 */
-$config['index_page'] = $rooted ? '' : 'index.php';
+$config['index_page'] = '';
 
 /*
 |--------------------------------------------------------------------------
