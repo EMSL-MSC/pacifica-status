@@ -43,7 +43,6 @@ class Myemsl_api_model extends CI_Model
     {
         parent::__construct();
         $this->load->helper('myemsl_api');
-        $this->myemsl_ini = read_myemsl_config_file('general');
     }
 
     /**
