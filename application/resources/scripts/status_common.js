@@ -107,7 +107,7 @@ var get_latest_transactions = function(){
 };
 
 var update_content = function(event){
-    debugger;
+    // debugger;
     var proposal_id = $('#proposal_selector').val() != null ? $('#proposal_selector').val() : initial_proposal_id;
     var instrument_id = $('#instrument_selector').val() != null ? $('#instrument_selector').val() : initial_instrument_id;
     var time_frame = $('#timeframe_selector').val() != null ? $('#timeframe_selector').val() : 0;
@@ -147,7 +147,7 @@ var update_content = function(event){
                 var getting = $.get(url);
                 getting.done(
                     function(data){
-                        debugger;
+                        // debugger;
                         if(data) {
                             $('#loading_status').fadeOut(
                                 200,function(){
@@ -184,7 +184,7 @@ var update_content = function(event){
         );
     }
     if(el && el.prop('id') == 'proposal_selector') {
-        debugger;
+        // debugger;
         //check to see if instrument list is current
         if(el.val() != initial_proposal_id) {
             get_instrument_list(el.val());

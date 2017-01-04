@@ -102,7 +102,7 @@ $(function(){
 	});
 
 	$('#timeframe_selector').change(function(event){
-		debugger;
+		// debugger;
 		var el = $(event.target);
 		var time_frame = (parseInt(el.val(), 10) != null ? el.val() : 0);
 		$.cookie(cookie_base + el.prop('id'), time_frame);
