@@ -38,7 +38,7 @@ date_default_timezone_set('America/Los_Angeles');
 | a PHP script and you can easily do that on your own.
 |
 */
-$config['base_url']    = 'http://localhost:8192';
+$config['base_url']    = 'http://dmlb2000.emsl.pnl.gov:8192';
 $config['base_dir'] = '';
 
 /*

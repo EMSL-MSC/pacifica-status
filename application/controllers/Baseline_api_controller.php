@@ -38,13 +38,13 @@ class Baseline_api_controller extends CI_Controller
         date_default_timezone_set('America/Los_Angeles');
         parent::__construct();
         //get user info
-        $this->load->helper(array('url', 'html', 'myemsl_api', 'file_info'));
+        $this->load->helper(array('url', 'html', 'myemsl_api', 'file_info', 'get_user'));
         $this->output->enable_profiler(FALSE);
-        // if(getenv('CI_ENV') !== 'unit_testing' && getenv('CI_ENV') !== 'development') {
-        //     $this->user_id = get_user();
-        // }else{
-        $this->user_id = 43751;
-        // }
+        if(getenv('CI_ENV') !== 'unit_testing' && getenv('CI_ENV') !== 'development') {
+            $this->user_id = get_user();
+        }else{
+            $this->user_id = 43751;
+        }
         $this->metadata_url_base = str_replace('tcp:', 'http:', getenv('METADATA_PORT'));
         $this->policy_url_base = str_replace('tcp:', 'http:', getenv('POLICY_PORT'));
 
