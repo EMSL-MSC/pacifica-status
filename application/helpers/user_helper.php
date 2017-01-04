@@ -23,7 +23,8 @@
  *
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
-if (!defined('BASEPATH')) exit('No direct script access allowed');
+if (!defined('BASEPATH')) { exit('No direct script access allowed');
+}
 
 /**
  *  Properly formats the user returned in the ['REMOTE_USER']
@@ -49,7 +50,7 @@ function get_user()
     $query_url .= http_build_query($url_args_array, '', '&');
     $query = Requests::get($query_url, array('Accept' => 'application/json'));
     $results_body = $query->body;
-    $results_json = json_decode($results_body, TRUE);
+    $results_json = json_decode($results_body, true);
     return strtolower($results_json[0]['_id']);
 }
 

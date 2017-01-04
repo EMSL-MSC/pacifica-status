@@ -321,6 +321,13 @@ var update_content = function(event){
                     );
                 }
             );
+        } else {
+            getting.always(
+                function(){
+                    $('.criterion_selector').change(update_content);
+                    currently_updating = false;
+                }
+            );
         }
     }
 };
