@@ -42,6 +42,8 @@ function get_user()
     $md_url = $CI->metadata_url_base;
     if(isset($_SERVER["REMOTE_USER"])) {
         $user = str_replace('@PNL.GOV', '', $_SERVER["REMOTE_USER"]);
+    } else if (isset($_SERVER["PHP_AUTH_USER"])) {
+        $user = str_replace('@PNL.GOV', '', $_SERVER["PHP_AUTH_USER"]);
     }
     $url_args_array = array(
         'network_id' => $user
@@ -64,7 +66,7 @@ function get_user()
  *
  *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function get_user_details($user_id)
+function get_user_details_server_vars($user_id)
 {
     $user_info = array(
     'user_id' => strtolower($_SERVER['REMOTE_USER']),

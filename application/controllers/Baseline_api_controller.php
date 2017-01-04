@@ -40,14 +40,13 @@ class Baseline_api_controller extends CI_Controller
         //get user info
         $this->load->helper(array('url', 'html', 'myemsl_api', 'file_info', 'user'));
         $this->output->enable_profiler(FALSE);
+        $this->metadata_url_base = str_replace('tcp:', 'http:', getenv('METADATA_PORT'));
+        $this->policy_url_base = str_replace('tcp:', 'http:', getenv('POLICY_PORT'));
         if(getenv('CI_ENV') !== 'unit_testing' && getenv('CI_ENV') !== 'development') {
             $this->user_id = get_user();
         }else{
             $this->user_id = 43751;
         }
-        $this->metadata_url_base = str_replace('tcp:', 'http:', getenv('METADATA_PORT'));
-        $this->policy_url_base = str_replace('tcp:', 'http:', getenv('POLICY_PORT'));
-
         // $this->metadata_url_base = 'http://dmlb2000.emsl.pnl.gov:8121';
         // $this->policy_url_base = 'http://dmlb2000.emsl.pnl.gov:8181';
 
