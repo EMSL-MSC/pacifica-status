@@ -38,7 +38,7 @@ class Baseline_api_controller extends CI_Controller
         date_default_timezone_set('America/Los_Angeles');
         parent::__construct();
         //get user info
-        $this->load->helper(array('url', 'html', 'myemsl_api', 'file_info', 'get_user'));
+        $this->load->helper(array('url', 'html', 'myemsl_api', 'file_info', 'user'));
         $this->output->enable_profiler(FALSE);
         if(getenv('CI_ENV') !== 'unit_testing' && getenv('CI_ENV') !== 'development') {
             $this->user_id = get_user();
