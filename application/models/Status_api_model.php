@@ -168,7 +168,7 @@ class Status_api_model extends CI_Model
         $url_args_array = array(
             'user' => $this->user_id
         );
-        $files_url .= http_build_query($url_args_array, '', '&');
+        // $files_url .= http_build_query($url_args_array, '', '&');
         $results = array();
         // try{
             $query = Requests::get($files_url, array('Accept' => 'application/json'));
