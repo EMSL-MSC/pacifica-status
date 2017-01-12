@@ -51,7 +51,13 @@ class Test_api extends Baseline_api_controller
         var_dump($user_info);
     }
 
-    public function get_transactions(){
+    /**
+     * Test Get Transaction Info json.
+     *
+     * @return void
+     */
+    public function get_transactions()
+    {
         $transactions = $this->status->get_transactions(-1, '45796', '2016-12-03', '2016-12-10', 50724);
 
         echo "<pre>";
@@ -59,11 +65,35 @@ class Test_api extends Baseline_api_controller
         echo "</pre>";
     }
 
-    public function get_proposals($search_terms){
+    /**
+     * Test Get Proposal Info json.
+     *
+     * @param string $search_terms search terms to use in searching for proposals
+     *
+     * @return void
+     */
+    public function get_proposals($search_terms)
+    {
         echo "<pre>";
-        $proposals = $this->status->get_proposals_by_name($search_terms, $this->user_id, false);
+        $proposals = $this->status->get_proposals_by_name($search_terms, $this->user_id, FALSE);
         send_json_array($proposals);
         echo "</pre>";
+    }
+
+
+    public function get_transaction_details($transaction_id){
+        $tx = $this->status->get_transaction_details($transaction_id);
+        echo "<pre>";
+        var_dump($tx);
+        echo "</pre>";
+    }
+
+    public function get_formatted_transaction($transaction_id){
+        $tx = $this->status->get_formatted_transaction($transaction_id);
+        echo "<pre>";
+        var_dump($tx);
+        echo "</pre>";
+
     }
 
 

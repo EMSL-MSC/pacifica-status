@@ -13,10 +13,11 @@
  *
  * PHP Version 5
  *
+ * @package Pacifica-upload-status
  * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  *
- * @link    http://github.com/EMSL-MSC/pacifica-upload-status
+ * @link http://github.com/EMSL-MSC/pacifica-upload-status
  */
 require_once 'Baseline_api_controller.php';
 
@@ -29,11 +30,11 @@ require_once 'Baseline_api_controller.php';
  * that shows the status of a specified upload transaction
  *
  * @category Class
- *
+ * @package  Pacifica-upload-status
  * @author   Ken Auberry  <Kenneth.Auberry@pnnl.gov>
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  *
- * @link     http://github.com/EMSL-MSC/pacifica-upload-status
+ * @link http://github.com/EMSL-MSC/pacifica-upload-status
  */
 class Status_api extends Baseline_api_controller
 {
@@ -85,14 +86,16 @@ class Status_api extends Baseline_api_controller
             '/resources/stylesheets/file_directory_styling.css',
             '/resources/stylesheets/bread_crumbs.css',
         );
-        $this->page_data['load_prototype'] = false;
-        $this->page_data['load_jquery'] = true;
+        $this->page_data['load_prototype'] = FALSE;
+        $this->page_data['load_jquery'] = TRUE;
         $this->page_data['status_list'] = $this->status_list;
 
     }
 
     /**
      * Primary index redirect method.
+     *
+     * @return void
      */
     public function index()
     {
@@ -105,12 +108,16 @@ class Status_api extends Baseline_api_controller
      * @param string $proposal_id   id of the proposal to display
      * @param string $instrument_id id of the instrument to display
      * @param string $time_period   time period the status should be displayed
+     *
+     * @return void
      */
     public function overview(
         $proposal_id = '',
         $instrument_id = '',
         $time_period = ''
-    ) {
+    )
+    {
+
         $proposal_id = $proposal_id ?: get_cookie('last_proposal_selector');
         $instrument_id = $instrument_id ?: get_cookie('last_instrument_selector');
         $time_period = $time_period ?: get_cookie('last_timeframe_selector');
@@ -168,9 +175,9 @@ class Status_api extends Baseline_api_controller
             $view_name = 'upload_item_view.html';
         }
 
-        if (isset($instrument_id) && intval($instrument_id) != 0 &&
-            isset($proposal_id) && intval($proposal_id) != 0 &&
-            isset($time_period) && intval($time_period) != 0
+        if (isset($instrument_id) && intval($instrument_id) != 0
+            && isset($proposal_id) && intval($proposal_id) != 0
+            && isset($time_period) && intval($time_period) != 0
         ) {
             //all criteria set, proceed with load
             $now = new DateTime();
@@ -187,13 +194,13 @@ class Status_api extends Baseline_api_controller
             $transaction_list['file_size_totals'] = $file_size_totals;
             $results = array(
                 'transaction_list' => $transaction_list,
-                'time_period_empty' => false,
+                'time_period_empty' => FALSE,
                 'message' => '',
             );
         } else {
             $results = array(
                 'transaction_list' => array(),
-                'time_period_empty' => true,
+                'time_period_empty' => TRUE,
                 'message' => 'No data available for this instrument and proposal',
             );
         }
@@ -206,7 +213,7 @@ class Status_api extends Baseline_api_controller
                 krsort($results['transaction_list']['times']);
             }
         }
-        $this->page_data['enable_breadcrumbs'] = false;
+        $this->page_data['enable_breadcrumbs'] = FALSE;
         $this->page_data['status_list'] = $this->status_list;
         $this->page_data['transaction_data'] = $results['transaction_list'];
         if (array_key_exists('transactions', $results['transaction_list'])
@@ -222,7 +229,16 @@ class Status_api extends Baseline_api_controller
         $this->load->view($view_name, $this->page_data);
     }
 
-    public function view($id){
+
+    /**
+     * Detail page for individual transactions.
+     *
+     * @param string $id id of the transaction to display
+     *
+     * @return void
+     */
+    public function view($id)
+    {
         $instrument_id = -1;
         if (!is_numeric($id) || $id < 0) {
             //that doesn't look like a real id
@@ -274,6 +290,8 @@ class Status_api extends Baseline_api_controller
 
     /**
      * Get Lazy Load Folder.
+     *
+     * @return void
      */
     public function get_lazy_load_folder()
     {

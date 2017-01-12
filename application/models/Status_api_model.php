@@ -53,6 +53,20 @@ class Status_api_model extends CI_Model
         $this->load->library('PHPRequests');
     }
 
+    /**
+     *  Retrieves a set of transaction entries that correspond to the combination
+     *  of instrument, proposal, and timeframe specified in the call
+     *
+     *  @param int     $instrument_id [description]
+     *  @param string  $proposal_id   [description]
+     *  @param string  $start_time    [description]
+     *  @param string  $end_time      [description]
+     *  @param integer $submitter     [description]
+     *
+     *  @return array   transaction results from search
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_transactions($instrument_id, $proposal_id, $start_time, $end_time, $submitter = -1)
     {
         $transactions_url = "{$this->policy_url_base}/status/transactions/search/details?";
@@ -65,15 +79,21 @@ class Status_api_model extends CI_Model
             'requesting_user' => $this->user_id
         );
         $transactions_url .= http_build_query($url_args_array, '', '&');
-        // try {
-            $query = Requests::get($transactions_url, array('Accept' => 'application/json'));
-            $results = json_decode($query->body, true);
-        // } catch (Exception $e) {
-        //     $results = array();
-        // }
+        $query = Requests::get($transactions_url, array('Accept' => 'application/json'));
+        $results = json_decode($query->body, TRUE);
+
         return $results;
     }
 
+    /**
+     *  Retrieves detailed info for a specified transaction id
+     *
+     *  @param int $transaction_id The transaction id to grab
+     *
+     *  @return array transaction details
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_formatted_transaction($transaction_id)
     {
         $transactions_url = "{$this->policy_url_base}/status/transactions/search/details?";
@@ -84,10 +104,22 @@ class Status_api_model extends CI_Model
         $transactions_url .= http_build_query($url_args_array, '', '&');
 
         $query = Requests::get($transactions_url, array('Accept' => 'application/json'));
-        $results = json_decode($query->body, true);
+        $results = json_decode($query->body, TRUE);
         return $results;
     }
 
+    /**
+     *  Retrieves a set of proposal entries for a given set of search terms and
+     *  a corresponding requester_id
+     *
+     *  @param string $terms        search terms from the user
+     *  @param int    $requester_id the user requesting proposals
+     *  @param string $is_active    do we retrieve inactive proposals
+     *
+     *  @return array   proposal details listing
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_proposals_by_name($terms, $requester_id, $is_active = 'active')
     {
         $proposals_url = "{$this->policy_url_base}/status/proposals/search/{$terms}?";
@@ -99,7 +131,7 @@ class Status_api_model extends CI_Model
         try{
             $query = Requests::get($proposals_url, array('Accept' => 'application/json'));
             // var_dump($query);
-            $results = json_decode($query->body, true);
+            $results = json_decode($query->body, TRUE);
         } catch (Exception $e){
             $results = array();
         }
@@ -121,7 +153,7 @@ class Status_api_model extends CI_Model
             $sc = $query->status_code;
             if($sc / 100 == 2) {
                 //good data, move along
-                $results = json_decode($query->body, true);
+                $results = json_decode($query->body, TRUE);
 
             }elseif($sc / 100 == 4) {
                 if($sc == 404) {
@@ -173,7 +205,7 @@ class Status_api_model extends CI_Model
         // try{
             $query = Requests::get($files_url, array('Accept' => 'application/json'));
         if($query->status_code / 100 == 2) {
-            $results = json_decode($query->body, true);
+            $results = json_decode($query->body, TRUE);
         }
         // } catch (Exception $e){
         //     $results = array();
