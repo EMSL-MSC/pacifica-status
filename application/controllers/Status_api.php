@@ -174,10 +174,10 @@ class Status_api extends Baseline_api_controller
         } else {
             $view_name = 'upload_item_view.html';
         }
-        $time_period_empty = true;
-        if (isset($instrument_id) && intval($instrument_id) != 0 &&
-            isset($proposal_id) && intval($proposal_id) != 0 &&
-            isset($time_period) && intval($time_period) != 0
+        $time_period_empty = TRUE;
+        if (isset($instrument_id) && intval($instrument_id) != 0 
+            && isset($proposal_id) && intval($proposal_id) != 0 
+            && isset($time_period) && intval($time_period) != 0
         ) {
             $message = "No data available for this instrument and proposal in the last {$time_period} days";
             //all criteria set, proceed with load
@@ -192,7 +192,7 @@ class Status_api extends Baseline_api_controller
             foreach($transaction_list['transactions'] as $transaction_id => $transaction_info){
                 $file_size_totals[$transaction_id] = $transaction_info['file_size_bytes'];
                 $message = "";
-                $time_period_emtpy = false;
+                $time_period_emtpy = FALSE;
             }
             $transaction_list['file_size_totals'] = $file_size_totals;
             $results = array(

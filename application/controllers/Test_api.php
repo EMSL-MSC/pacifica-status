@@ -80,21 +80,4 @@ class Test_api extends Baseline_api_controller
         echo "</pre>";
     }
 
-
-    public function get_transaction_details($transaction_id){
-        $tx = $this->status->get_transaction_details($transaction_id);
-        echo "<pre>";
-        var_dump($tx);
-        echo "</pre>";
-    }
-
-    public function get_formatted_transaction($transaction_id){
-        $tx = $this->status->get_formatted_transaction($transaction_id);
-        echo "<pre>";
-        var_dump($tx);
-        echo "</pre>";
-
-    }
-
-
 }

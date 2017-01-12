@@ -138,13 +138,22 @@ class Status_api_model extends CI_Model
         return $results;
     }
 
+    /**
+     *  More highly detailed transaction info with file lists, etc.
+     *
+     *  @param int $transaction_id The transaction id to grab
+     *
+     *  @return array detailed transaction info
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_transaction_details($transaction_id)
     {
-        $transaction_url = "{$this->policy_url_base}/status/transactions/by_id/{$transaction_id}";
-        $url_args_array = array(
-            'user' => $this->user_id
-        );
-        $transaction_url .= http_build_query($url_args_array, '', '&');
+        $transaction_url = "{$this->policy_url_base}/status/transactions/by_id/{$transaction_id}?";
+        // $url_args_array = array(
+        //     'user' => $this->user_id
+        // );
+        // $transaction_url .= http_build_query($url_args_array, '', '&');
 
         $results = array();
 
@@ -173,6 +182,15 @@ class Status_api_model extends CI_Model
 
     }
 
+    /**
+     *  Add up the total size for files specified in a transaction
+     *
+     *  @param int $transaction_id The transaction id to grab
+     *
+     *  @return int  total size of transaction files
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_total_size_for_transaction($transaction_id)
     {
         $transaction = $this->get_transaction_details($transaction_id);
