@@ -75,7 +75,7 @@ class Test_api extends Baseline_api_controller
     public function get_proposals($search_terms)
     {
         echo "<pre>";
-        $proposals = $this->status->get_proposals_by_name($search_terms, $this->user_id, false);
+        $proposals = $this->status->get_proposals_by_name($search_terms, $this->user_id, FALSE);
         send_json_array($proposals);
         echo "</pre>";
     }
