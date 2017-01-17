@@ -24,7 +24,7 @@ services:
             POSTGRES_DB: pacifica_upload_status
             POSTGRES_USER: pacifica
         ports:
-            - 5432:55432
+            - 55432:5432
 
 
     metadataserver:
@@ -102,83 +102,83 @@ services:
             - 5432:5432
 
 
-    cartrabbit:
-        image: rabbitmq
-        container_name: cartrabbit
-        ports:
-            - 5672:5672
-
-    cartmysql:
-        image: mysql
-        container_name: cartmysql
-        environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: pacifica_cart
-            MYSQL_USER: cartd
-            MYSQL_PASSWORD: cartd
-        ports:
-            - 3306:3306
-
-    archiveinterface:
-        image: pacifica/archiveinterface
-        container_name: archiveinterface
-        ports:
-            - 8080:8080
-        volumes:
-            # - /srv:/srv
-            - /Volumes/Storage/srv:/srv
-
-
-    cartworkers:
-        container_name: cartworkers
-        build:
-            context: ../cartd
-            dockerfile: Dockerfile
-        links:
-            - cartrabbit:amqp
-            - cartmysql:mysql
-            - archiveinterface:archivei
-        volumes:
-            # - /shared:/shared
-            - /Volumes/Storage/shared:/shared
-
-        environment:
-            VOLUME_PATH: /shared/
-            LRU_BUFFER_TIME: 0
-            # ARCHIVE_INTERFACE_URL: http://archivei:8080
-            ARCHIVEI_PORT_8080_TCP_ADDR: archivei
-            ARCHIVEI_PORT_8080_TCP_PORT: 8080
-            AMQP_PORT_5672_TCP_ADDR: amqp
-            AMQP_PORT_5672_TCP_PORT: 5672
-            MYSQL_PORT_3306_TCP_ADDR: mysql
-            MYSQL_PORT_3306_TCP_PORT: 3306
-            MYSQL_ENV_MYSQL_DATABASE: pacifica_cart
-            MYSQL_ENV_MYSQL_USER: cartd
-            MYSQL_ENV_MYSQL_PASSWORD: cartd
-
-    cartserver:
-        container_name: cartserver
-        build:
-            context: ../cartd
-            dockerfile: Dockerfile.wsgi
-        ports:
-            - 8081:8081
-        links:
-            - cartrabbit:amqp
-            - cartmysql:mysql
-            - archiveinterface:archivei
-        volumes:
-            # - /shared:/shared
-            - /Volumes/Storage/shared:/shared
-        environment:
-            VOLUME_PATH: /shared/
-            LRU_BUFFER_TIME: 0
-            ARCHIVEI_PORT_8080_TCP_ADDR: archivei
-            ARCHIVEI_PORT_8080_TCP_PORT: 8080
-            AMQP_PORT_5672_TCP_ADDR: amqp
-            AMQP_PORT_5672_TCP_PORT: 5672
-            MYSQL_PORT_3306_TCP_ADDR: mysql
-            MYSQL_PORT_3306_TCP_PORT: 3306
-            MYSQL_ENV_MYSQL_DATABASE: pacifica_cart
-            MYSQL_ENV_MYSQL_USER: cartd
-            MYSQL_ENV_MYSQL_PASSWORD: cartd
+    # cartrabbit:
+    #     image: rabbitmq
+    #     container_name: cartrabbit
+    #     ports:
+    #         - 5672:5672
+    #
+    # cartmysql:
+    #     image: mysql
+    #     container_name: cartmysql
+    #     environment:
+    #         MYSQL_ROOT_PASSWORD: root
+    #         MYSQL_DATABASE: pacifica_cart
+    #         MYSQL_USER: cartd
+    #         MYSQL_PASSWORD: cartd
+    #     ports:
+    #         - 3306:3306
+    #
+    # archiveinterface:
+    #     image: pacifica/archiveinterface
+    #     container_name: archiveinterface
+    #     ports:
+    #         - 8080:8080
+    #     volumes:
+    #         # - /srv:/srv
+    #         - /Volumes/Storage/srv:/srv
+    #
+    #
+    # cartworkers:
+    #     container_name: cartworkers
+    #     build:
+    #         context: ../cartd
+    #         dockerfile: Dockerfile
+    #     links:
+    #         - cartrabbit:amqp
+    #         - cartmysql:mysql
+    #         - archiveinterface:archivei
+    #     volumes:
+    #         # - /shared:/shared
+    #         - /Volumes/Storage/shared:/shared
+    #
+    #     environment:
+    #         VOLUME_PATH: /shared/
+    #         LRU_BUFFER_TIME: 0
+    #         # ARCHIVE_INTERFACE_URL: http://archivei:8080
+    #         ARCHIVEI_PORT_8080_TCP_ADDR: archivei
+    #         ARCHIVEI_PORT_8080_TCP_PORT: 8080
+    #         AMQP_PORT_5672_TCP_ADDR: amqp
+    #         AMQP_PORT_5672_TCP_PORT: 5672
+    #         MYSQL_PORT_3306_TCP_ADDR: mysql
+    #         MYSQL_PORT_3306_TCP_PORT: 3306
+    #         MYSQL_ENV_MYSQL_DATABASE: pacifica_cart
+    #         MYSQL_ENV_MYSQL_USER: cartd
+    #         MYSQL_ENV_MYSQL_PASSWORD: cartd
+    #
+    # cartserver:
+    #     container_name: cartserver
+    #     build:
+    #         context: ../cartd
+    #         dockerfile: Dockerfile.wsgi
+    #     ports:
+    #         - 8081:8081
+    #     links:
+    #         - cartrabbit:amqp
+    #         - cartmysql:mysql
+    #         - archiveinterface:archivei
+    #     volumes:
+    #         # - /shared:/shared
+    #         - /Volumes/Storage/shared:/shared
+    #     environment:
+    #         VOLUME_PATH: /shared/
+    #         LRU_BUFFER_TIME: 0
+    #         ARCHIVEI_PORT_8080_TCP_ADDR: archivei
+    #         ARCHIVEI_PORT_8080_TCP_PORT: 8080
+    #         AMQP_PORT_5672_TCP_ADDR: amqp
+    #         AMQP_PORT_5672_TCP_PORT: 5672
+    #         MYSQL_PORT_3306_TCP_ADDR: mysql
+    #         MYSQL_PORT_3306_TCP_PORT: 3306
+    #         MYSQL_ENV_MYSQL_DATABASE: pacifica_cart
+    #         MYSQL_ENV_MYSQL_USER: cartd
+    #         MYSQL_ENV_MYSQL_PASSWORD: cartd

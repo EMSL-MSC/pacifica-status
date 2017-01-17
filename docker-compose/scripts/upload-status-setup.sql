@@ -1,14 +1,12 @@
 -- ----------------------------
 --  Sequence structure for cart_items_id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "cart_items_id_seq";
 CREATE SEQUENCE "cart_items_id_seq" INCREMENT 1 START 1 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
 ALTER TABLE "cart_items_id_seq" OWNER TO "pacifica";
 
 -- ----------------------------
 --  Table structure for cart_items
 -- ----------------------------
-DROP TABLE IF EXISTS "cart_items";
 CREATE TABLE "cart_items" (
 	"id" int8 NOT NULL DEFAULT nextval('cart_items_id_seq'::regclass),
 	"file_id" int8 NOT NULL,
@@ -23,7 +21,6 @@ ALTER TABLE "cart_items" OWNER TO "pacifica";
 -- ----------------------------
 --  Table structure for cart
 -- ----------------------------
-DROP TABLE IF EXISTS "cart";
 CREATE TABLE "cart" (
 	"cart_uuid" varchar(64) NOT NULL COLLATE "default",
 	"name" varchar COLLATE "default",
@@ -40,7 +37,6 @@ ALTER TABLE "cart" OWNER TO "pacifica";
 -- ----------------------------
 --  Table structure for cart_download_stats
 -- ----------------------------
-DROP TABLE IF EXISTS "cart_download_stats";
 CREATE TABLE "cart_download_stats" (
 	"cart_uuid" varchar(64) NOT NULL COLLATE "default",
 	"downloader_id" int4 NOT NULL,

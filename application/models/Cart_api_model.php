@@ -154,7 +154,7 @@ class Cart_api_model extends CI_Model
                 'cart_uuid' => $cart_uuid,
                 'relative_local_path' => "{$file_info['filepath']}/{$file_info['filename']}",
                 'file_size_bytes' => $file_info
-            )
+            );
         }
         $this->db->trans_complete();
 
