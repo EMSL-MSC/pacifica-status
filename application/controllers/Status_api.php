@@ -182,9 +182,12 @@ class Status_api extends Baseline_api_controller
             $message = "No data available for this instrument and proposal in the last {$time_period} days";
             //all criteria set, proceed with load
             $now = new DateTime();
-            $end_time = $now->format('Y-m-d');
-            $now->modify("-{$time_period} days");
-            $start_time = $now->format('Y-m-d');
+            $end = clone $now;
+            $end->modify('+1 days');
+            $end_time = $end->format('Y-m-d');
+            $start = clone $now;
+            $start->modify("-{$time_period} days");
+            $start_time = $start->format('Y-m-d');
             $transaction_list = $this->status->get_transactions(
                 $instrument_id, $proposal_id, $start_time, $end_time
             );
