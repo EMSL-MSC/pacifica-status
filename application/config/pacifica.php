@@ -13,15 +13,20 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-$config['application_config_file_path'] = '/etc/myemsl/';
+$config['local_timezone'] = 'America/Los_Angeles';
+
+$config['internal_cart_url']
+    = !empty($_ENV['CART_PORT']) ?
+    str_replace('tcp://', 'http://', $_ENV['CART_PORT']) :
+    'http://cart:8081';
+
+$config['external_cart_url']
+    = !empty($_ENV['CART_PORT']) ?
+    str_replace('tcp://', 'http://', $_ENV['CART_DOWNLOAD_PORT']) :
+    'http://download.my.emsl.pnl.gov';
 
 $config['template'] = 'emsl';
 $config['site_color'] = 'orange';
-
-
-$config['application_config_file_path'] = "/etc/myemsl/";
-
-$config['template'] = "emsl";
 
 $config['application_version'] = "0.99.11";
 ?>
