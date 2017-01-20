@@ -46,7 +46,14 @@ class Cart_api extends Baseline_api_controller
         $this->load->helper(array('url', 'network'));
     }
 
-    public function listing($optional_message = '')
+    /**
+     * Retrieve the list of active carts owned by this user
+     *
+     * @return void sends out JSON text to browser
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function listing()
     {
         $cart_list = $this->cart->get_active_carts();
     }

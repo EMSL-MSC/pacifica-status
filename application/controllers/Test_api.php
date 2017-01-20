@@ -81,6 +81,13 @@ class Test_api extends Baseline_api_controller
         echo "</pre>";
     }
 
+    /**
+     * Test retrieval of cart information
+     *
+     * @return void
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
     public function get_active_carts()
     {
         echo "<pre>";

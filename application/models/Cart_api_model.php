@@ -87,7 +87,7 @@ class Cart_api_model extends CI_Model
     /**
      * [get_active_carts description]
      *
-     * @param  boolean $show_expired [description]
+     * @param boolean $show_expired [description]
      *
      * @return [type] [description]
      *
@@ -100,7 +100,7 @@ class Cart_api_model extends CI_Model
             'cart_uuid', 'name', 'description', 'created', 'updated'
         );
         $this->db->select($select_array);
-        if($show_expired){
+        if($show_expired) {
             $this->db->where('deleted is not null');
         }else{
             $this->db->where('deleted is null');
