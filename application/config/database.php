@@ -61,13 +61,12 @@
 $active_group = 'default';
 // $active_record = TRUE;
 $query_builder = TRUE;
-
 // $ini_file_name = stristr($_SERVER['SERVER_NAME'], 'dev1.my') === FALSE ? 'general.ini' : 'general_dpp.ini';
 $db['default'] = array(
-  'hostname' => $_ENV['CARTDB_ADDR'] || 'cartdb',
-  'username' => $_ENV['CARTDB_USER'],
-  'password' => $_ENV['CARTDB_PASSWORD'],
-  'database' => $_ENV['CARTDB_DB_NAME'],
+  'hostname' => getenv('CARTDB_ADDR'),
+  'username' => getenv('CARTDB_USER'),
+  'password' => getenv('CARTDB_PASSWORD'),
+  'database' => getenv('CARTDB_DB_NAME'),
   'dbdriver' => "postgre",
   'dbprefix' => "",
   'pconnect' => TRUE,
@@ -75,7 +74,6 @@ $db['default'] = array(
   'cache_on' => FALSE,
   'cachedir' => ""
 );
-
 $db['eus_for_myemsl'] = $db['default'];
 $db['eus_for_myemsl']['dbprefix'] = 'eus.';
 

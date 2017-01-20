@@ -83,7 +83,9 @@ class Test_api extends Baseline_api_controller
 
     public function get_active_carts()
     {
+        echo "<pre>";
         $this->cart->get_active_carts();
+        echo "</pre>";
     }
 
 }

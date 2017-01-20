@@ -23,8 +23,8 @@ COPY tests/apache_conf/modules /etc/apache2/conf-enabled/
 COPY tests/apache_conf/sites/myemsl-status.conf /etc/apache2/sites-available/
 RUN ln -s /etc/apache2/sites-available/myemsl-status.conf /etc/apache2/sites-enabled/
 RUN ln -s /var/www/html/application/resources /var/www/html/project_resources
-#RUN cp -f /usr/share/php5/php.ini-development /usr/local/etc/php/php.ini
-#RUN ln -s /usr/share/php5/pgsql/* /usr/local/etc/php/conf.d/
+RUN cp -f /usr/share/php5/php.ini-development /usr/local/etc/php/php.ini
+RUN ln -s /usr/share/php5/pgsql/* /usr/local/etc/php/conf.d/
 RUN ln -s /usr/lib/php5/20131226/p* /usr/local/lib/php/extensions/no-debug-non-zts-20131226/
 RUN rm -rf /etc/apache2/sites-enabled/000-default.conf
 RUN echo 'date.timezone = America/Los_Angeles' | tee "/usr/local/etc/php/conf.d/timezone.ini"
