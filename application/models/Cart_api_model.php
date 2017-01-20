@@ -85,6 +85,34 @@ class Cart_api_model extends CI_Model
     }
 
     /**
+     * [get_active_carts description]
+     *
+     * @param  boolean $show_expired [description]
+     *
+     * @return [type] [description]
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function get_active_carts($show_expired = FALSE)
+    {
+        //get the list of any carts from the database
+        $select_array = array(
+            'cart_uuid', 'name', 'description', 'created', 'updated'
+        );
+        $this->db->select($select_array);
+        if($show_expired){
+            $this->db->where('deleted is not null');
+        }else{
+            $this->db->where('deleted is null');
+        }
+        $query = $this->db->get_where('cart', array('owner' => $this->user_id));
+        foreach($query->result_array() as $row){
+            var_dump($row);
+            extract($row);
+        }
+    }
+
+    /**
      * Retrieve the status for a specified cart entry.
      *
      * @param array $cart_uuid_list simple array list of SHA256 cart uuid's

@@ -45,4 +45,11 @@ class Cart_api extends Baseline_api_controller
         $this->load->model('Cart_api_model', 'cart');
         $this->load->helper(array('url', 'network'));
     }
+
+    public function listing($optional_message = '')
+    {
+        $cart_list = $this->cart->get_active_carts();
+    }
+
+
 }

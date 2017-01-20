@@ -38,6 +38,7 @@ class Test_api extends Baseline_api_controller
     {
         parent::__construct();
         $this->load->model('Status_api_model', 'status');
+        $this->load->model('Cart_api_model', 'cart');
     }
 
     /**
@@ -78,6 +79,11 @@ class Test_api extends Baseline_api_controller
         $proposals = $this->status->get_proposals_by_name($search_terms, $this->user_id, FALSE);
         send_json_array($proposals);
         echo "</pre>";
+    }
+
+    public function get_active_carts()
+    {
+        $this->cart->get_active_carts();
     }
 
 }
