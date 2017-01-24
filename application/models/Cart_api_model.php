@@ -87,6 +87,7 @@ class Cart_api_model extends CI_Model
         } else {
             //return error about not being able to create the cart entry properly
         }
+        return array('cart_uuid' => $cart_uuid);
     }
 
     /**
@@ -358,7 +359,6 @@ class Cart_api_model extends CI_Model
             $insert_data['description'] = $cart_submission_object['description'];
         }
         $this->db->insert('cart', $insert_data);
-        var_dump($file_details);
         $file_insert_data = array();
         foreach ($file_details as $file_entry) {
             $file_entry['cart_uuid'] = $cart_uuid;

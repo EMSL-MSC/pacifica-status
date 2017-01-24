@@ -79,8 +79,8 @@ class Cart_api extends Baseline_api_controller
             echo "Hey! There's no real data here!";
         }
         // var_dump($this->input->request_headers());
-        $this->cart->cart_create($this->input->raw_input_stream);
-
+        $cart_uuid_info = $this->cart->cart_create($this->input->raw_input_stream);
+        transmit_array_with_json_header($cart_uuid_info);
     }
 
 

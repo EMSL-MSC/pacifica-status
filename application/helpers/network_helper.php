@@ -43,7 +43,7 @@ if (!defined('BASEPATH')) exit('No direct script access allowed');
  */
 function transmit_array_with_json_header($response, $statusMessage = '', $operationSuccessful = TRUE)
 {
-    header("Content-type: text/json");
+    header("Content-type: application/json");
     $headerArray = array();
     $headerArray['status'] = $operationSuccessful ? "ok" : "fail";
     $headerArray['message'] = !empty($statusMessage) ? $statusMessage : "";
