@@ -290,7 +290,7 @@ class Cart_api_model extends CI_Model
             'Accept' => 'application/json',
         );
         $query = Requests::post($files_url, $header_list, json_encode($file_id_list));
-        if($query->status_code / 100 != 2){
+        if($query->status_code / 100 != 2) {
             //some kind of error
             return array();
         }
@@ -384,8 +384,7 @@ class Cart_api_model extends CI_Model
      * Submit the cleaned cart object to the cart daemon server for processing.
      *
      * @param string $cart_uuid              SHA256 hash from generate_cart_uuid
-     * @param array $cart_submission_object The cleaned and formatted cart request object
-     *
+     * @param array  $cart_submission_object The cleaned and formatted cart request object
      *
      * @return bool TRUE on successful request
      *

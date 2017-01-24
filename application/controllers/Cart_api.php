@@ -58,15 +58,23 @@ class Cart_api extends Baseline_api_controller
         $cart_list = $this->cart->get_active_carts();
     }
 
-    public function create(){
+    /**
+     *  Create a new download cart
+     *
+     *  @return void
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function create()
+    {
         $req_method = array_key_exists('REQUEST_METHOD', $_SERVER) ? $_SERVER['REQUEST_METHOD'] : "GET";
-        if($req_method != "POST"){
+        if($req_method != "POST") {
             //return info on how to use this function
             echo "That's not how you use this function!!!";
             exit();
         }
         $submit_block = json_decode($this->input->raw_input_stream, TRUE);
-        if(empty($submit_block)){
+        if(empty($submit_block)) {
             //bad json-block or empty post body
             echo "Hey! There's no real data here!";
         }
