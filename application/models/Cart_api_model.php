@@ -60,23 +60,28 @@ class Cart_api_model extends CI_Model
      *  in the cart status database.
      *
      *  @param array $cart_submission_json Cart request JSON, converted to array
-     *  @param array $request_info         Apache request object data
      *
      *  @return string  cart_uuid
      *
      *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function cart_create($cart_submission_json, $request_info)
+    public function cart_create($cart_submission_json)
     {
         $new_submission_info = $this->_clean_cart_submission($cart_submission_json);
         $cart_submission_object = $new_submission_info['cleaned_submisson_object'];
         $cart_uuid = $this->_generate_cart_uuid($cart_submission_object);
-        $cart_submit_response = $this->_submit_to_cartd($cart_submission_object);
+        // echo $cart_uuid;
+        // echo "\n\n";
+        // echo "<pre>";
+        // var_dump($cart_submission_object);
+        // echo "</pre>";
+
+        $cart_submit_response = $this->_submit_to_cartd($cart_uuid, $cart_submission_object);
 
         if ($cart_submit_response->status_code / 100 == 2) {
             $this->_create_cart_entry(
                 $cart_uuid,
-                $new_submission_info['cleaned_submission_object'],
+                $cart_submission_object,
                 $new_submission_info['file_details']
             );
         } else {
@@ -248,14 +253,15 @@ class Cart_api_model extends CI_Model
         if (!$file_list) {
             //throw an error, as this is an incomplete cart object
         }
-        $file_info = $this->_generate_cart_uuid($file_list);
+        $file_info = $this->_check_and_clean_file_list($file_list);
 
         $cleaned_object = array(
             'name' => $name,
-            'files' => $file_info['postable_results'],
+            'files' => $file_info['postable'],
             'submitter' => $this->user_id,
             'submission_timestamp' => $submission_timestamp->getTimestamp(),
         );
+
         if (!empty($description)) {
             $cleaned_object['description'] = $description;
         }
@@ -264,7 +270,6 @@ class Cart_api_model extends CI_Model
             'cleaned_submisson_object' => $cleaned_object,
             'file_details' => $file_info['details'],
         );
-
         return $return_object;
     }
 
@@ -284,8 +289,11 @@ class Cart_api_model extends CI_Model
             'Content-Type' => 'application/json',
             'Accept' => 'application/json',
         );
-        $data_list = array_keys($file_id_list);
-        $query = Requests::post($files_url, $header_list, $data_list);
+        $query = Requests::post($files_url, $header_list, json_encode($file_id_list));
+        if($query->status_code / 100 != 2){
+            //some kind of error
+            return array();
+        }
         $results = json_decode($query->body, TRUE);
 
         $postable_results = array('fileids' => array());
@@ -303,7 +311,6 @@ class Cart_api_model extends CI_Model
             'details' => $results,
             'postable' => $postable_results,
         );
-
         return $clean_results;
     }
 
@@ -338,25 +345,27 @@ class Cart_api_model extends CI_Model
     private function _create_cart_entry($cart_uuid, $cart_submission_object, $file_details)
     {
         $this->db->trans_start();
-
+        $submit_time = new DateTime("@{$cart_submission_object['submission_timestamp']}");
         $insert_data = array(
             'cart_uuid' => strtolower($cart_uuid),
             'name' => $cart_submission_object['name'],
             'owner' => $cart_submission_object['submitter'],
             'json_submission' => json_encode($cart_submission_object),
+            'created' => $submit_time->format('Y-m-d H:i:s'),
+            'updated' => $submit_time->format('Y-m-d H:i:s')
         );
         if (array_key_exists('description', $cart_submission_object) && !empty($cart_submission_object['description'])) {
             $insert_data['description'] = $cart_submission_object['description'];
         }
         $this->db->insert('cart', $insert_data);
-
+        var_dump($file_details);
         $file_insert_data = array();
         foreach ($file_details as $file_entry) {
             $file_entry['cart_uuid'] = $cart_uuid;
             $file_insert_data[] = $file_entry;
         }
 
-        $this->db->insert('cart_items', $file_insert_data);
+        $this->db->insert_batch('cart_items', $file_insert_data);
         $this->db->trans_complete();
 
         if ($this->db->trans_status() === FALSE) {
@@ -374,25 +383,29 @@ class Cart_api_model extends CI_Model
     /**
      * Submit the cleaned cart object to the cart daemon server for processing.
      *
+     * @param string $cart_uuid              SHA256 hash from generate_cart_uuid
      * @param array $cart_submission_object The cleaned and formatted cart request object
+     *
      *
      * @return bool TRUE on successful request
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _submit_to_cartd($cart_submission_object)
+    private function _submit_to_cartd($cart_uuid, $cart_submission_object)
     {
-        $cart_uuid = $cart_submission_object['cart_uuid'];
+        // $cart_uuid = $cart_submission_object['cart_uuid'];
         $cart_url = "{$this->cart_url_base}/{$cart_uuid}";
         $headers_list = array('Content-Type' => 'application/json');
-        $query = Requests::post($cart_url, $headers_list, $cart_submission_object['files']);
-        if ($query->status_code / 100 == 2) {
-            //looks like it went through ok
-            $success = TRUE;
-        } else {
-            $success = FALSE;
-        }
-
-        return $success;
+        $query = Requests::post($cart_url, $headers_list, json_encode($cart_submission_object['files']));
+        return $query;
+        // var_dump($query);
+        // if ($query->status_code / 100 == 2) {
+        //     //looks like it went through ok
+        //     $success = TRUE;
+        // } else {
+        //     $success = FALSE;
+        // }
+        //
+        // return $success;
     }
 }
