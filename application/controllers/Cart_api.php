@@ -43,7 +43,7 @@ class Cart_api extends Baseline_api_controller
     {
         parent::__construct();
         $this->load->model('Cart_api_model', 'cart');
-        $this->load->helper(array('url', 'network'));
+        $this->load->helper(array('url', 'network', 'item'));
     }
 
     /**
@@ -55,7 +55,15 @@ class Cart_api extends Baseline_api_controller
      */
     public function listing()
     {
-        $cart_list = $this->cart->get_active_carts();
+        $accept = $this->input->get_request_header('Accept');
+        $cart_list = $this->cart->cart_status();
+        if(stristr(strtolower($accept), 'json')) {
+            //looks like a json request
+            transmit_array_with_json_header($cart_list);
+        }else{
+            //let's assume that they want html
+            $this->load->view('cart_status_insert_view.html', $cart_list);
+        }
     }
 
     /**

@@ -16,8 +16,7 @@
  * @package Pacifica-upload-status
  * @author  Ken Auberry  <Kenneth.Auberry@pnnl.gov>
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
- *
- * @link http://github.com/EMSL-MSC/pacifica-upload-status
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
 
 /**
@@ -32,12 +31,11 @@
  *  - files (array): list of file IDs and corresponding paths to pull
  *
  * @category CI_Model
+ * @package  Pacifica-upload-status
  *
- * @package Pacifica-upload-status
  * @author  Ken Auberry <kenneth.auberry@pnnl.gov>
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
- *
- * @link http://github.com/EMSL-MSC/pacifica-upload-status
+ * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
 class Cart_api_model extends CI_Model
 {
@@ -53,6 +51,7 @@ class Cart_api_model extends CI_Model
         $this->cart_dl_base = $this->config->item('external_cart_url');
         $this->load->database('default');
         $this->load->library('PHPRequests');
+        $this->load->helper('item');
     }
 
     /**
@@ -70,11 +69,6 @@ class Cart_api_model extends CI_Model
         $new_submission_info = $this->_clean_cart_submission($cart_submission_json);
         $cart_submission_object = $new_submission_info['cleaned_submisson_object'];
         $cart_uuid = $this->_generate_cart_uuid($cart_submission_object);
-        // echo $cart_uuid;
-        // echo "\n\n";
-        // echo "<pre>";
-        // var_dump($cart_submission_object);
-        // echo "</pre>";
 
         $cart_submit_response = $this->_submit_to_cartd($cart_uuid, $cart_submission_object);
 
@@ -86,36 +80,84 @@ class Cart_api_model extends CI_Model
             );
         } else {
             //return error about not being able to create the cart entry properly
+            $this->output->set_status_header(500, 'An error occurred while talking to the cart server');
+
+            return array(
+                'message' => 'cart creation was unsuccessful',
+                'cart_uuid' => FALSE,
+                'success' => FALSE,
+                'retrieval_url' => FALSE,
+            );
         }
-        return array('cart_uuid' => $cart_uuid);
+
+        return array(
+            'cart_uuid' => $cart_uuid,
+            'message' => "A cart named '{$cart_submission_object['name']}' was successfully created",
+            'success' => TRUE,
+            'retrieval_url' => "{$this->cart_dl_base}/{$cart_uuid}",
+        );
     }
 
     /**
-     * [get_active_carts description]
+     * [get_active_carts description].
      *
-     * @param boolean $show_expired [description]
+     * @param array $cart_uuid_list list of cart entities to interrogate
      *
-     * @return [type] [description]
+     * @return array
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function get_active_carts($show_expired = FALSE)
+    private function _get_cart_info($cart_uuid_list)
     {
         //get the list of any carts from the database
         $select_array = array(
-            'cart_uuid', 'name', 'description', 'created', 'updated'
+            'c.cart_uuid as cart_uuid',
+            'MIN(c.name) as name',
+            'MIN(c.description) as description',
+            'MIN(c.created) as created',
+            'MIN(c.updated) as updated',
+            'SUM(ci.file_size_bytes) as total_file_size_bytes',
+            'COUNT(ci.file_id) as total_file_count',
         );
         $this->db->select($select_array);
-        if($show_expired) {
-            $this->db->where('deleted is not null');
-        }else{
-            $this->db->where('deleted is null');
+        $this->db->from('cart c');
+        $this->db->join('cart_items ci', 'c.cart_uuid = ci.cart_uuid', 'INNER');
+        $this->db->group_by('c.cart_uuid');
+        $query = $this->db->where_in('c.cart_uuid', $cart_uuid_list)->get();
+        $return_array = array();
+        foreach ($query->result_array() as $row) {
+            $cart_uuid = $row['cart_uuid'];
+            $return_array[$cart_uuid] = $row;
         }
-        $query = $this->db->get_where('cart', array('owner' => $this->user_id));
-        foreach($query->result_array() as $row){
-            var_dump($row);
-            extract($row);
+
+        return $return_array;
+    }
+
+    /**
+     * Retrieve the list of active carts for this user.
+     *
+     * @param string $filter keyword filter for cart search
+     *
+     * @return array list of available cart_uuid's
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    private function _get_user_cart_list($filter = '')
+    {
+        $this->db->where('deleted is null')->where('owner', $this->user_id);
+        if (!empty($filter)) {
+            $this->db->like('CONCAT(name, description)', $filter);
         }
+        $this->db->order_by('created');
+        $query = $this->db->select('cart_uuid')->get('cart');
+        $cart_uuid_list = array();
+        if ($query && $query->num_rows() > 0) {
+            foreach ($query->result() as $row) {
+                $cart_uuid_list[] = $row->cart_uuid;
+            }
+        }
+
+        return $cart_uuid_list;
     }
 
     /**
@@ -127,36 +169,50 @@ class Cart_api_model extends CI_Model
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function cart_status($cart_uuid_list)
+    public function cart_status($cart_uuid_list = FALSE)
     {
+        if (!$cart_uuid_list) {
+            $cart_uuid_list = $this->_get_user_cart_list();
+        }
+
+        $cart_info = $this->_get_cart_info($cart_uuid_list);
         $status_lookup = array(
-            'waiting' => 'Locating requested files...',
-            'staging' => 'Retrieving files from archival storage...',
-            'bundling' => 'Preparing files for transfer...',
-            'ready' => 'Cart is ready to be downloaded.',
-            'error' => 'An error occurred during the cart generation process.',
+            'waiting' => 'In Preparation',
+            'staging' => 'File Retrieval',
+            'bundling' => 'File Packaging',
+            'ready' => 'Ready for Download',
+            'error' => 'Error Condition',
         );
         $status_return = array();
         foreach ($cart_uuid_list as $cart_uuid) {
             $cart_url = "{$this->cart_url_base}/{$cart_uuid}";
             $response = Requests::head($cart_url);
+            $status = $response->headers['X-Pacifica-Status'];
+            $message = $response->headers['X-Pacifica-Message'];
             if ($response->status_code / 100 == 2 && $status != 'error') {
                 //looks like it went through ok
                 $success = TRUE;
             } else {
                 $success = FALSE;
             }
-            $status = $response->headers['X-Pacifica-Status'];
-            $message = $response->headers['X-Pacifica-Message'];
-            $status_return[$cart_uuid] = array(
+            $status_return['lookup'] = $status_lookup;
+            $status_return['categories'][$status][] = $cart_uuid;
+            $status_return['cart_list'][$cart_uuid] = array(
                 'status' => $status,
+                'friendly_status' => $status_lookup[$status],
                 'message' => $message,
                 'success' => $success,
                 'response_code' => $response->status_code,
+                'name' => $cart_info[$cart_uuid]['name'],
+                'description' => $cart_info[$cart_uuid]['description'],
+                'total_file_size_bytes' => $cart_info[$cart_uuid]['total_file_size_bytes'],
+                'friendly_file_size' => format_bytes($cart_info[$cart_uuid]['total_file_size_bytes']),
+                'total_file_count' => $cart_info[$cart_uuid]['total_file_count'],
+                'created' => $cart_info[$cart_uuid]['created'],
+                'updated' => $cart_info[$cart_uuid]['updated'],
+                'user_download_url' => "{$this->cart_dl_base}/{$cart_uuid}",
             );
         }
-        $this->output->set_header('X-Pacifica-Status: {$status}');
-        $this->output->set_header('X-Pacifica-Message: {$message}');
 
         return $status_return;
     }
@@ -246,7 +302,7 @@ class Cart_api_model extends CI_Model
     private function _clean_cart_submission($cart_submission_json)
     {
         $submission_timestamp = new DateTime();
-        $default_cart_name = "Cart for {$this->fullname} / Created {$submission_timestamp->format('d M Y g:ia')}";
+        $default_cart_name = "Cart for {$this->fullname}";
         $raw_object = json_decode($cart_submission_json, TRUE);
         $description = array_key_exists('description', $raw_object) ? $raw_object['description'] : '';
         $name = array_key_exists('name', $raw_object) ? $raw_object['name'] : $default_cart_name;
@@ -257,7 +313,7 @@ class Cart_api_model extends CI_Model
         $file_info = $this->_check_and_clean_file_list($file_list);
 
         $cleaned_object = array(
-            'name' => $name,
+            'name' => "{$name} ({$submission_timestamp->format('d M Y g:ia')})",
             'files' => $file_info['postable'],
             'submitter' => $this->user_id,
             'submission_timestamp' => $submission_timestamp->getTimestamp(),
@@ -271,6 +327,7 @@ class Cart_api_model extends CI_Model
             'cleaned_submisson_object' => $cleaned_object,
             'file_details' => $file_info['details'],
         );
+
         return $return_object;
     }
 
@@ -291,7 +348,7 @@ class Cart_api_model extends CI_Model
             'Accept' => 'application/json',
         );
         $query = Requests::post($files_url, $header_list, json_encode($file_id_list));
-        if($query->status_code / 100 != 2) {
+        if ($query->status_code / 100 != 2) {
             //some kind of error
             return array();
         }
@@ -312,6 +369,7 @@ class Cart_api_model extends CI_Model
             'details' => $results,
             'postable' => $postable_results,
         );
+
         return $clean_results;
     }
 
@@ -353,7 +411,7 @@ class Cart_api_model extends CI_Model
             'owner' => $cart_submission_object['submitter'],
             'json_submission' => json_encode($cart_submission_object),
             'created' => $submit_time->format('Y-m-d H:i:s'),
-            'updated' => $submit_time->format('Y-m-d H:i:s')
+            'updated' => $submit_time->format('Y-m-d H:i:s'),
         );
         if (array_key_exists('description', $cart_submission_object) && !empty($cart_submission_object['description'])) {
             $insert_data['description'] = $cart_submission_object['description'];
@@ -396,6 +454,7 @@ class Cart_api_model extends CI_Model
         $cart_url = "{$this->cart_url_base}/{$cart_uuid}";
         $headers_list = array('Content-Type' => 'application/json');
         $query = Requests::post($cart_url, $headers_list, json_encode($cart_submission_object['files']));
+
         return $query;
         // var_dump($query);
         // if ($query->status_code / 100 == 2) {
@@ -404,7 +463,7 @@ class Cart_api_model extends CI_Model
         // } else {
         //     $success = FALSE;
         // }
-        //
+
         // return $success;
     }
 }
