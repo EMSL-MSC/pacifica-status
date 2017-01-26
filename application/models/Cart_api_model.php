@@ -66,36 +66,47 @@ class Cart_api_model extends CI_Model
      */
     public function cart_create($cart_submission_json)
     {
+        $return_array = array(
+            'cart_uuid' => NULL,
+            'message' => '',
+            'success' => FALSE,
+            'retrieval_url' => NULL
+        );
+        $local_cart_success = FALSE;
         $new_submission_info = $this->_clean_cart_submission($cart_submission_json);
+        if(!$new_submission_info) {
+            $return_array['message'] = 'No files were located for this submission';
+            $this->output->set_status_header(410);
+            return $return_array;
+        }
         $cart_submission_object = $new_submission_info['cleaned_submisson_object'];
         $cart_uuid = $this->_generate_cart_uuid($cart_submission_object);
 
         $cart_submit_response = $this->_submit_to_cartd($cart_uuid, $cart_submission_object);
 
         if ($cart_submit_response->status_code / 100 == 2) {
-            $this->_create_cart_entry(
+            $local_cart_success = $this->_create_cart_entry(
                 $cart_uuid,
                 $cart_submission_object,
                 $new_submission_info['file_details']
             );
+            if(!$local_cart_success) {
+                $return_array['message'] = "An error occurred while saving changes to the local database";
+                $this->output->set_status_header(500);
+                return $return_array;
+            }
         } else {
             //return error about not being able to create the cart entry properly
-            $this->output->set_status_header(500, 'An error occurred while talking to the cart server');
-
-            return array(
-                'message' => 'cart creation was unsuccessful',
-                'cart_uuid' => FALSE,
-                'success' => FALSE,
-                'retrieval_url' => FALSE,
-            );
+            $this->output->set_status_header($cart_submit_response->status_code, 'An error occurred while talking to the cart server');
+            $return_array['message'] = 'cart creation was unsuccessful';
+            return $return_array;
         }
 
-        return array(
-            'cart_uuid' => $cart_uuid,
-            'message' => "A cart named '{$cart_submission_object['name']}' was successfully created",
-            'success' => TRUE,
-            'retrieval_url' => "{$this->cart_dl_base}/{$cart_uuid}",
-        );
+        $return_array['cart_uuid'] = $cart_uuid;
+        $return_array['message'] = "A cart named '{$cart_submission_object['name']}' was successfully created";
+        $return_array['retrieval_url'] = "{$this->cart_dl_base}/{$cart_uuid}";
+
+        return $return_array;
     }
 
     /**
@@ -326,6 +337,9 @@ class Cart_api_model extends CI_Model
             //throw an error, as this is an incomplete cart object
         }
         $file_info = $this->_check_and_clean_file_list($file_list);
+        if(empty($file_info)) {
+            return FALSE;
+        }
 
         $cleaned_object = array(
             'name' => "{$name} ({$submission_timestamp->format('d M Y g:ia')})",

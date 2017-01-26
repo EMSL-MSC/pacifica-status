@@ -9,7 +9,6 @@
 
 .cart_tree table {
     border-collapse: collapse;
-    border-style: hidden; /* hide standard table (collapsed) border */
     box-shadow: 0 0 0 1px #656565; /* this draws the table border  */
 }
 
