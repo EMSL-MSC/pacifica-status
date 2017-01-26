@@ -175,6 +175,10 @@ class Cart_api_model extends CI_Model
             $cart_uuid_list = $this->_get_user_cart_list();
         }
 
+        if(empty($cart_uuid_list)) {
+            return array();
+        }
+
         $cart_info = $this->_get_cart_info($cart_uuid_list);
         $status_lookup = array(
             'waiting' => 'In Preparation',
@@ -182,6 +186,7 @@ class Cart_api_model extends CI_Model
             'bundling' => 'File Packaging',
             'ready' => 'Ready for Download',
             'error' => 'Error Condition',
+            'deleted' => 'Deleted Cart Entry'
         );
         $status_return = array();
         foreach ($cart_uuid_list as $cart_uuid) {
@@ -192,8 +197,13 @@ class Cart_api_model extends CI_Model
             if ($response->status_code / 100 == 2 && $status != 'error') {
                 //looks like it went through ok
                 $success = TRUE;
+            }elseif($response->status_code / 100 == 4) {
+                continue;
             } else {
                 $success = FALSE;
+            }
+            if($status == 'deleted') {
+                continue;
             }
             $status_return['lookup'] = $status_lookup;
             $status_return['categories'][$status][] = $cart_uuid;
@@ -263,8 +273,13 @@ class Cart_api_model extends CI_Model
         } else {
             $success = FALSE;
         }
-
-        return $success;
+        if($success) {
+            //gone in the cartd, now mark it in ours
+            $nowtime = new DateTime('', new DateTimeZone('UTC'));
+            $this->db->set('deleted', 'now()')->where('cart_uuid', $cart_uuid);
+            $this->db->update('cart');
+        }
+        return $query->status_code;
     }
 
     /**
@@ -456,14 +471,5 @@ class Cart_api_model extends CI_Model
         $query = Requests::post($cart_url, $headers_list, json_encode($cart_submission_object['files']));
 
         return $query;
-        // var_dump($query);
-        // if ($query->status_code / 100 == 2) {
-        //     //looks like it went through ok
-        //     $success = TRUE;
-        // } else {
-        //     $success = FALSE;
-        // }
-
-        // return $success;
     }
 }

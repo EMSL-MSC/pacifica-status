@@ -1,5 +1,7 @@
-var cart_info_url = '/cart_api/listing/';
-var cart_create_url = '/cart_api/create/';
+var cart_url_base = '/cart_api';
+var cart_info_url = cart_url_base + '/listing/';
+var cart_create_url = cart_url_base + '/create/';
+var cart_delete_url = cart_url_base + '/delete/'
 var max_size = 1024 * 1024 * 1024 * 50; //50 GB (base 2)
 var friendly_max_size = '';
 var exceed_max_size_allow = false;
@@ -32,7 +34,9 @@ $(function(){
         },
         close: function() {
         }
+
     });
+    window.setInterval(cart_status, 30000);
 
     cart_create_form = cart_create_dialog.find("form").on("submit", function(event){
         event.preventDefault();
@@ -87,110 +91,24 @@ var create_cart = function(submission_object){
 };
 
 var cart_status = function(){
-    var getter = $.get(cart_info_url, function(data){
+    var getter = $.get(cart_info_url)
+    getter.done(function(data){
         $('#cart_listing').html(data);
-        $('#cart_listing_container').show();
+        if(data.trim().length == 0){
+            $('#cart_listing_container').hide();
+        }else{
+            $('#cart_listing_container').show();
+        }
     });
+    getter.fail(function(jqxhr, status, error){});
 }
 
 
-// var get_token = function(item_id_list, tx_id){
-//     var token_url = token_url_base;
-//     var cart_url = cart_url_base;
-//     var token_getter = $.ajax(
-//         {
-//             url:token_url,
-//             type: 'POST',
-//             data: JSON.stringify({'items' : item_id_list})
-//         }
-//     )
-//     .done(
-//         function(data){
-//             var cart_submitter = $.ajax(
-//                 {
-//                     url: cart_url,
-//                     type: 'POST',
-//                     crossDomain: true,
-//                     xhrFields: {
-//                         withCredentials: true
-//                     },
-//                     data: JSON.stringify(
-//                         {
-//                             'items':item_id_list,
-//                             'auth_token':data
-//                         }
-//                     ),
-//                 dataType: 'json'
-//                 }
-//             )
-//             .done(
-//                 function(data){
-//                     var status_box = $('#status_block_' + tx_id);
-//                     status_box.html(item_id_list.length + " items added to download cart");
-//                     var cart_id = data.cart_id;
-//                     submit_cart_for_download(tx_id,cart_id);
-//                 }
-//             );
-//         }
-//     )
-//     .fail(
-//         function(jq,textStatus,errormsg){
-//
-//         }
-//     );
-// };
-
-
-
-// var submit_cart_for_download = function(tx_id, cart_id){
-//     if(cart_id == null) {
-//         return;
-//     }
-//     var submit_url = cart_url_base + cart_id + '?submit&email_addr=' + email_address;
-//     $.ajax(
-//         {
-//             url:submit_url,
-//             data: JSON.stringify({}),
-//             dataType: 'json',
-//             contentType: 'Content-type: application/json; charset=UTF-8',
-//             type:'POST',
-//             processData:false
-//         }
-//     )
-//     .always(
-//         function(data){
-//             $('#cart_id_' + tx_id).val(cart_id);
-//             var dialog_message = $('<div><p>A new download cart has been created for this data.</p><p>Status info will appear in the Download Queue shortly</p></div>');
-//             $('#dl_button_' + tx_id).fadeOut();
-//             $('#tree_' + tx_id).fancytree('getTree').visit(
-//                 function(node){
-//                     node.setSelected(false);
-//                 }
-//             );
-//             dialog_message.dialog(
-//                 {
-//                     modal:true,
-//                     buttons: {
-//                         Ok: function(){
-//                             check_cart_status(cart_id);
-//                             $(this).dialog("close");
-//                         }
-//                     }
-//                 }
-//             );
-//         }
-//     )
-//     .fail(
-//         function(jq,textStatus,errormsg){
-//         }
-//     );
-// };
-
-var cart_delete = function(cart_id){
-    if (cart_id == null) {
+var cart_delete = function(cart_uuid){
+    if (cart_uuid == null) {
         return;
     }
-    var url = cart_url_base + cart_id;
+    var url = cart_delete_url + cart_uuid;
     $.ajax(
         {
             url : url,
@@ -202,8 +120,8 @@ var cart_delete = function(cart_id){
     .done(
         function(data){
             //check how many rows are left
-            $('#cart_line_' + cart_id).remove();
-            check_cart_status();
+            // $('#cart_line_' + cart_id).remove();
+            cart_status();
         }
     )
     .fail(
@@ -212,6 +130,32 @@ var cart_delete = function(cart_id){
         }
     );
 };
+
+var dead_cart_delete = function(cart_id){
+    if (cart_id == null) {
+        return;
+    }
+    var url = '/cart/delete/' + cart_id;
+    $.get(
+        url, function(data){
+            $('#cart_listing').html(data);
+            get_cart_count();
+        }
+    );
+};
+
+// var check_cart_status = function(tx_id){
+//     if(tx_id == undefined) { tx_id = ''; }
+//     var cart_url = cart_info_url + tx_id;
+//     $.get(
+//         cart_url, function(data){
+//             $('#cart_listing').html(data);
+//             get_cart_count();
+//         }
+//     );
+//
+// };
+
 
 var get_cart_count = function(){
     var cart_count = $('.cart_line').length;
@@ -328,59 +272,6 @@ var update_download_status = function(tree_container, selectCount){
     }
 
 };
-
-// var download_myemsl_item = function(file_object_data) {
-//     //get a download token
-//     var item_id = file_object_data.item_id;
-//
-//     var token_url = token_url_base + item_id;
-//     var token_getter = $.ajax(
-//         {
-//             url: token_url,
-//             method:'get'
-//         }
-//     );
-//     token_getter.done(
-//         function(data){
-//             bearer_token = data;
-//             var token = data;
-//             myemsl_tape_status(token, file_object_data);
-//         }
-//     );
-// };
-
-// var myemsl_tape_status = function(token, file_object_data, cb) {
-//     var item_id = file_object_data.item_id;
-//     var file_name = file_object_data.name;
-//
-//     var ajx = $.ajax(
-//         {
-//             url : "/myemsl/item/foo/bar/" + item_id + "/2.txt/?token=" + token + "&locked",
-//             type : 'HEAD',
-//             processData : false,
-//             success : function(token, status_target) {
-//                 return function(ajaxdata, status, xhr) {
-//                     var custom_header = xhr.getResponseHeader('X-MyEMSL-Locked');
-//                     if (custom_header == "false") {
-//                         //pop up a dialog box regarding the item being on tape
-//                     } else {
-//                         window.location.href = '/myemsl/item/foo/bar/' + item_id + '/' + file_name + "?token=" + token;
-//                     }
-//                 };
-//             }(token, status),
-//             error : function(token, status_target) {
-//                 // return function(xhr, status, error) {
-//                 // if (xhr.status == 503) {
-//                   // cb('slow');
-//                 // } else {
-//                   // cb('error');
-//                 // }
-//                 // };
-//             }//(token, status)
-//         }
-//     );
-//     return ajx;
-// };
 
 
 var myemsl_size_format = function(bytes) {

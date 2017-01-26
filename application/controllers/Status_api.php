@@ -85,6 +85,7 @@ class Status_api extends Baseline_api_controller
             '/resources/scripts/select2-4/dist/css/select2.css',
             '/resources/stylesheets/file_directory_styling.css',
             '/resources/stylesheets/bread_crumbs.css',
+            '/project_resources/stylesheets/cart.css'
         );
         $this->page_data['load_prototype'] = FALSE;
         $this->page_data['load_jquery'] = TRUE;

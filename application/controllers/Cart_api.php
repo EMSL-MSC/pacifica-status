@@ -61,8 +61,11 @@ class Cart_api extends Baseline_api_controller
             //looks like a json request
             transmit_array_with_json_header($cart_list);
         }else{
-            //let's assume that they want html
-            $this->load->view('cart_status_insert_view.html', $cart_list);
+            if(empty($cart_list)) {
+            }else{
+                //let's assume that they want html
+                $this->load->view('cart_status_insert_view.html', $cart_list);
+            }
         }
     }
 
@@ -91,5 +94,33 @@ class Cart_api extends Baseline_api_controller
         transmit_array_with_json_header($cart_uuid_info);
     }
 
+    /**
+     * Deletes existing cart instances
+     *
+     * @param string $cart_uuid SHA256 hash identifier for the cart
+     *
+     * @return void
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function delete($cart_uuid)
+    {
+        $req_method = array_key_exists('REQUEST_METHOD', $_SERVER) ? $_SERVER['REQUEST_METHOD'] : "GET";
+        if($req_method != "DELETE") {
+            echo "That's not how you use this function!!!";
+            exit();
+        }
+        $status_message = $this->cart->cart_delete($cart_uuid);
+        $success = FALSE;
+        if ($status_message / 100 == 2) {
+            //looks like it went through ok
+            $success = TRUE;
+        }
+        $success_message = $success ? "" : " not";
+        $ret_message = array(
+            'message' => "The cart was{$success_message} successfully deleted "
+        );
+        transmit_array_with_json_header($ret_message, "", $success);
+    }
 
 }

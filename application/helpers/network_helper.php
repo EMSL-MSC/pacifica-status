@@ -48,7 +48,9 @@ function transmit_array_with_json_header($response, $statusMessage = '', $operat
     $headerArray['status'] = $operationSuccessful ? "ok" : "fail";
     $headerArray['message'] = !empty($statusMessage) ? $statusMessage : "";
     header("X-JSON: (".json_encode($headerArray).")");
-
+    if(!$operationSuccessful) {
+        $this->output->set_status_header(404);
+    }
     $response = !is_array($response) ? array('results' => $response) : $response;
 
     if(is_array($response) && sizeof($response) > 0) {

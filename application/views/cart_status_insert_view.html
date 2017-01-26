@@ -55,7 +55,7 @@
 			                  type="button"
 			                  id="delete_button_<?= $cart_uuid ?>"
 			                  name="delete_button_<?= $cart_uuid ?>"
-			                  <?php if($status == 'ready'): ?>
+			                  <?php if($status != 'ready'): ?>
 			                  class="cart_delete_button state_<?= $status ?>"
 			                  disabled="disabled"
 			                  title="Delete functionality not enabled until download moves to 'available' state"
@@ -73,3 +73,33 @@
 		</div>
 	<?php endforeach; ?>
 </div>
+<div id="cart_list_messages" class="cart_list_message_container"></div>
+<script type="application/javascript">
+$(function(){
+    var del_buttons = $('.cart_delete_button');
+    $.each(del_buttons, function(index, el){
+      	el = $(el);
+		el.on('click', function(){
+        	var cart_id = el.prop('id').replace('delete_button_','');
+        	var dialog_message = $('<div><p>Really delete this cart?</p></div>');
+        	dialog_message.dialog({
+	          	modal:true,
+	          	buttons: {
+	            	Delete: function(){
+	              		if(el.hasClass('state_ready')){
+	                		cart_delete(cart_id);
+						}else if(el.hasClass('state_error') || el.hasClass('state_building')){
+	                		dead_cart_delete(cart_id);
+	              		}
+	              		$(this).dialog("close");
+	            	},
+	            	Cancel: function(){
+	              		$(this).dialog("close");
+	              		return false;
+	            	}
+	          	}
+        	});
+      	});
+    });
+  });
+</script>
