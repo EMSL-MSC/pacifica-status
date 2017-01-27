@@ -36,7 +36,6 @@ class Baseline_api_controller extends CI_Controller
     public function __construct()
     {
         parent::__construct();
-        date_default_timezone_set($this->config->item('local_timezone'));
         //get user info
         date_default_timezone_set($this->config->item('local_timezone'));
         $this->load->helper(array('url', 'html', 'myemsl_api', 'file_info', 'user'));
