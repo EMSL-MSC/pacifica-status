@@ -19,7 +19,7 @@
  * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
 
- // if (!is_cli()) exit('No URL-based access allowed');
+ if (!is_cli()) exit('No URL-based access allowed');
 
 /**
  * System_setup is an access class for managing initial system setup from the CLI
@@ -47,11 +47,15 @@ class Setup extends CI_Controller
         $this->load->model('System_setup_model', 'sys_model');
     }
 
-    public function index(){
-        echo "Hello world" . PHP_EOL;
-    }
-
-    public function initialize(){
+    /**
+     *  Call the system setup functionality
+     *
+     *  @return [type]   [description]
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function initialize()
+    {
         $this->sys_model->setup_db_structure();
     }
 }

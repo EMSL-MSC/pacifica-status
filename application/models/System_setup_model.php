@@ -34,7 +34,8 @@
  * @license http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
-class System_setup_model extends CI_Model{
+class System_setup_model extends CI_Model
+{
     /**
      *  Class constructor.
      *
@@ -48,14 +49,24 @@ class System_setup_model extends CI_Model{
         $this->global_try_count = 0;
     }
 
-    private function _check_and_create_database($db_name){
+    /**
+     *  Create the initial database entry
+     *
+     *  @param string $db_name The name of the db to create
+     *
+     *  @return [type]   [description]
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    private function _check_and_create_database($db_name)
+    {
         $this->load->database('init_postgres');
         $this->load->dbutil();
         $this->load->dbforge();
 
-        if(!$this->dbutil->database_exists($db_name)){
+        if(!$this->dbutil->database_exists($db_name)) {
             //db doesn't already exist, so make it
-            if($this->dbforge->create_database($db_name)){
+            if($this->dbforge->create_database($db_name)) {
                 echo "Created {$db_name} database instance" . PHP_EOL;
             }else{
                 die("Could not create the {$this->statusdb_name} database instance");
@@ -64,7 +75,15 @@ class System_setup_model extends CI_Model{
         $this->db->close();
     }
 
-    public function setup_db_structure(){
+    /**
+     *  Configure the table structures in the database
+     *
+     *  @return void
+     *
+     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function setup_db_structure()
+    {
         //check for database existence
 
         $this->_check_and_create_database($this->statusdb_name);
@@ -106,10 +125,10 @@ class System_setup_model extends CI_Model{
             )
         );
 
-        if(!$this->db->table_exists('cart')){
+        if(!$this->db->table_exists('cart')) {
             $this->dbforge->add_field($cart_fields);
             $this->dbforge->add_key('cart_uuid', TRUE);
-            if($this->dbforge->create_table('cart')){
+            if($this->dbforge->create_table('cart')) {
                 echo "Created 'cart' table..." . PHP_EOL;
             };
         }
@@ -138,10 +157,10 @@ class System_setup_model extends CI_Model{
             )
         );
 
-        if(!$this->db->table_exists('cart_items')){
+        if(!$this->db->table_exists('cart_items')) {
             $this->dbforge->add_field($cart_items_fields);
             $this->dbforge->add_key(array('file_id', 'cart_uuid'), TRUE);
-            if($this->dbforge->create_table('cart_items')){
+            if($this->dbforge->create_table('cart_items')) {
                 echo "Created 'cart_items' table..." . PHP_EOL;
             };
 
