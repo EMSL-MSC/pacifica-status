@@ -29,6 +29,8 @@ mkdir($my_src_dir);
 system('git archive HEAD | tar -C '.$my_src_dir.' -xf -');
 chdir('websystem');
 system('git archive HEAD | tar -C '.$my_src_dir.' --exclude=application -xf -');
+chdir('../resources');
+system('git archive HEAD | tar -C '.$my_src_dir.'/resources -xf -');
 chdir('..');
 system('tar -C '.dirname($my_src_dir).' -czf '.$dest_tar_path.' '.$my_tar_dir);
 delTree($my_tmp_dir);
