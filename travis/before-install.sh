@@ -8,6 +8,7 @@ sudo curl -L -o /usr/local/bin/docker-compose https://github.com/docker/compose/
 sudo chmod +x /usr/local/bin/docker-compose
 sudo service postgresql stop
 sudo service mysql stop
+sudo service nginx stop
 curl -L -o /tmp/selenium-server.jar http://selenium-release.storage.googleapis.com/3.0/selenium-server-standalone-3.0.1.jar
 java -jar /tmp/selenium-server.jar > /tmp/selenium-server.log 2>&1 &
 echo $! > /tmp/selenium-server.pid
