@@ -1,4 +1,4 @@
 #!/bin/bash -xe
 
 echo "doing unit tests"
-./vendor/bin/phpunit --coverage-text
+./vendor/bin/phpunit --coverage-text tests
