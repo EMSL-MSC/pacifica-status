@@ -109,7 +109,7 @@ services:
 
     cartworkers:
         container_name: cartworkers
-        image: pacifica/cart-backend
+        image: pacifica/cartd-backend
         links:
             - cartrabbit:amqp
             - cartmysql:mysql
@@ -131,7 +131,7 @@ services:
 
     cartserver:
         container_name: cartserver
-        image: pacifica/cart-frontend
+        image: pacifica/cartd-frontend
         ports:
             - 8081:8081
         links:
