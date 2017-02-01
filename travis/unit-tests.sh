@@ -13,3 +13,5 @@ docker-compose stop uploadstatus
 echo "doing unit tests"
 cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php .
 ./vendor/bin/phpunit --coverage-text tests
+
+curl -u dmlb2001:1234 localhost:8192/phpunit_coverage.php
