@@ -8,6 +8,3 @@ sudo curl -L -o /usr/local/bin/docker-compose https://github.com/docker/compose/
 sudo chmod +x /usr/local/bin/docker-compose
 sudo service postgresql stop
 
-if [ -z "$RUN_LINTS" ] ; then
-  
-fi
