@@ -1,3 +1,3 @@
 <?php
-define(BASEPATH, getcwd());
+define('BASEPATH', getcwd());
 require __DIR__ . '/../vendor/autoload.php';
