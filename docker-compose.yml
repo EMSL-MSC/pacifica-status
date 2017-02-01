@@ -5,8 +5,6 @@ services:
         build:
             context: .
             dockerfile: Dockerfile.dev
-        # volumes:
-        #     - ./:/var/www/html
         links:
             - metadataserver:metadata
             - policyserver:policy
@@ -40,18 +38,15 @@ services:
 
 
     metadataserver:
-        build:
-            context: ../metadata
-            dockerfile: Dockerfile
+        image: pacifica/metadata
         container_name: metadataserver
         links:
             - metadatadb:postgres
-            - elasticmaster
-            - elasticlb
+            - elasticdb
         ports:
             - 8121:8121
         environment:
-            ELASTICDB_PORT: tcp://elasticmaster:9200
+            ELASTICDB_PORT: tcp://elasticdb:9200
             POSTGRES_ENV_POSTGRES_DB: pacifica_metadata
             POSTGRES_ENV_POSTGRES_USER: pacifica
             POSTGRES_PORT_5432_TCP_ADDR: postgres
@@ -60,9 +55,7 @@ services:
 
 
     policyserver:
-        build:
-            context: ../policy
-            dockerfile: Dockerfile
+        image: pacifica/policy
         container_name: policyserver
         restart: unless-stopped
         links:
@@ -72,28 +65,9 @@ services:
         environment:
             METADATA_PORT: tcp://metadata:8121
 
-    elasticmaster:
-        build:
-            context: ../metadata
-            dockerfile: docker-compose/Dockerfile.elastic
-        container_name: elasticmaster
-
-    elasticslave:
-        build:
-            context: ../metadata
-            dockerfile: docker-compose/Dockerfile.elastic
-        links:
-            - elasticmaster
-        environment:
-            UNICAST_HOST: elasticmaster
-            EXCLUDE_PORTS: 9300
-
-    elasticlb:
-        image: dockercloud/haproxy
-        links:
-            - elasticslave:elasticslave
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
+    elasticdb:
+        image: elasticsearch:2.4
+        container_name: elasticdb
         ports:
             - 9200:9200
 
@@ -131,27 +105,20 @@ services:
         ports:
             - 8080:8080
         volumes:
-            # - /srv:/srv
-            - /Users/d3k857/Downloads/srv:/srv
-
+            - /srv:/srv
 
     cartworkers:
         container_name: cartworkers
-        build:
-            context: ../cartd
-            dockerfile: Dockerfile
+        image: pacifica/cart-backend
         links:
             - cartrabbit:amqp
             - cartmysql:mysql
             - archiveinterface:archivei
         volumes:
-            # - /shared:/shared
-            - /Users/d3k857/Downloads/shared:/shared
-
+            - /shared:/shared
         environment:
             VOLUME_PATH: /shared/
             LRU_BUFFER_TIME: 0
-            # ARCHIVE_INTERFACE_URL: http://archivei:8080
             ARCHIVEI_PORT_8080_TCP_ADDR: archivei
             ARCHIVEI_PORT_8080_TCP_PORT: 8080
             AMQP_PORT_5672_TCP_ADDR: amqp
@@ -164,9 +131,7 @@ services:
 
     cartserver:
         container_name: cartserver
-        build:
-            context: ../cartd
-            dockerfile: Dockerfile.wsgi
+        image: pacifica/cart-frontend
         ports:
             - 8081:8081
         links:
@@ -174,8 +139,7 @@ services:
             - cartmysql:mysql
             - archiveinterface:archivei
         volumes:
-            # - /shared:/shared
-            - /Users/d3k857/Downloads/shared:/shared
+            - /shared:/shared
         environment:
             VOLUME_PATH: /shared/
             LRU_BUFFER_TIME: 0
