@@ -19,4 +19,4 @@ function tmpl {
         < $1 > $2
 }
 tmpl travis/php-fpm.tmpl.conf travis/php-fpm.conf
-$PHP_FPM_BIN -c travis/php-fpm.conf
+$PHP_FPM_BIN --fpm-config travis/php-fpm.conf
