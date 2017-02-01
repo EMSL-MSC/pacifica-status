@@ -11,6 +11,7 @@ addons:
   apt:
     packages:
       - nginx
+      - realpath
 env:
   DOCKER_COMPOSE_VERSION: 1.9.0
 matrix:
