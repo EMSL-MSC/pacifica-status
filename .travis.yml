@@ -20,7 +20,6 @@ matrix:
 
 before_install: bash -xe travis/before-install.sh
 
-install:
-  - travis_retry composer update --no-interaction --no-ansi --no-progress --no-suggest --optimize-autoloader --prefer-stable
+install: bash -xe travis/install.sh
 
 script: bash -xe travis/test-script.sh
