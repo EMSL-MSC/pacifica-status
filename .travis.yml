@@ -1,3 +1,6 @@
+sudo: required
+services:
+ - docker
 language: php
 php:
   - 5.6
@@ -7,9 +10,7 @@ matrix:
     - php: 5.6
       env: RUN_LINTS=true
 
-before_install:
-  - composer self-update
-  - composer clear-cache
+before_install: bash -xe travis/before-install.sh
 
 install:
   - travis_retry composer update --no-interaction --no-ansi --no-progress --no-suggest --optimize-autoloader --prefer-stable
