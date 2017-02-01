@@ -12,4 +12,3 @@ sudo service nginx stop
 curl -L -o /tmp/selenium-server.jar http://selenium-release.storage.googleapis.com/3.0/selenium-server-standalone-3.0.1.jar
 java -jar /tmp/selenium-server.jar > /tmp/selenium-server.log 2>&1 &
 echo $! > /tmp/selenium-server.pid
-phpenv config-add travis/coverage.ini
