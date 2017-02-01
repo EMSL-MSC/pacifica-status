@@ -4,7 +4,6 @@ services:
         container_name: uploadstatus
         build:
             context: .
-            dockerfile: Dockerfile.dev
         links:
             - metadataserver:metadata
             - policyserver:policy
