@@ -4,8 +4,5 @@
         "phpunit/phpunit-selenium": "^3.0",
         "phpunit/php-code-coverage": "^4.0",
         "squizlabs/php_codesniffer": "*"
-    },
-    "require": {
-        "codeigniter/framework": "3.0.6"
     }
 }
