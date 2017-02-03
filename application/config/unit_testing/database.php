@@ -62,7 +62,7 @@ $self = pathinfo(__FILE__, PATHINFO_DIRNAME);
 
 //myemsl db
 $db['default'] = array(
-    'database' => 'pacifica_cart.sqlite3',
+    'database' => APPPATH.'/pacifica_upload_status.sqlite3',
     'dbdriver' => "sqlite3",
     'pconnect' => TRUE,
     'db_debug' => TRUE,
