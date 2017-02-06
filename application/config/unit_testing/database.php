@@ -62,12 +62,16 @@ $self = pathinfo(__FILE__, PATHINFO_DIRNAME);
 
 //myemsl db
 $db['default'] = array(
-    'database' => APPPATH.'/pacifica_upload_status.sqlite3',
-    'dbdriver' => "sqlite3",
-    'pconnect' => TRUE,
-    'db_debug' => TRUE,
-    'cache_on' => FALSE,
-    'cachedir' => ""
+  'dsn'   => '',
+  'hostname' => '',
+  'username' => '',
+  'password' => '',
+  'database' => APPPATH.'/pacifica_upload_status.sqlite3',
+  'dbdriver' => "sqlite3",
+  'pconnect' => FALSE,
+  'db_debug' => (ENVIRONMENT !== 'production'),
+  'cache_on' => FALSE,
+  'cachedir' => ""
 );
 
 /* End of file database.php */
