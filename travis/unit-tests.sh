@@ -12,6 +12,7 @@ docker run -it --rm --net=pacificauploadstatus_default -e METADATA_URL=http://me
 docker-compose stop uploadstatus
 echo "doing unit tests"
 cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php .
+cp application/config/testing/database.php application/config/database.php
 ./vendor/bin/phpunit --coverage-text tests
 HTTP_CODE=$(curl -sL -w "%{http_code}\\n" -u dmlb2001:1234 localhost:8192/status_api/overview -o /dev/null || true)
 if [[ $HTTP_CODE != 200 ]] ; then
