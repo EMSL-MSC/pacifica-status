@@ -58,8 +58,6 @@
 
 $active_group = 'default';
 $query_builder = TRUE;
-$self = pathinfo(__FILE__, PATHINFO_DIRNAME);
-
 //myemsl db
 $db['default'] = array(
   'dsn'   => '',
