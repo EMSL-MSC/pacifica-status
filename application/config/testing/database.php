@@ -10,6 +10,7 @@
  * @license  http://www.gnu.org/copyleft/gpl.html GNU General Public License
  * @link     http://github.com/EMSL-MSC/pacifica-reporting
  */
+if (! defined('BASEPATH')) exit('No direct script access allowed');
 /*
 | -------------------------------------------------------------------
 | DATABASE CONNECTIVITY SETTINGS
