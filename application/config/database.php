@@ -64,11 +64,12 @@ $query_builder = TRUE;
 // $ini_file_name = stristr($_SERVER['SERVER_NAME'], 'dev1.my') === FALSE ? 'general.ini' : 'general_dpp.ini';
 $db['default'] = array(
   'dsn'   => '',
-  'hostname' => '',
-  'username' => '',
-  'password' => '',
-  'database' => APPPATH.'/pacifica_upload_status.sqlite3',
-  'dbdriver' => "sqlite3",
+  'hostname' => getenv('CARTDB_ADDR'),
+  'username' => getenv('CARTDB_USER'),
+  'password' => getenv('CARTDB_PASSWORD'),
+  'database' => getenv('CARTDB_DB_NAME'),
+  'dbdriver' => getenv('CARTDB_DBDRIVER'),
+  'dbprefix' => "",
   'pconnect' => FALSE,
   'db_debug' => (ENVIRONMENT !== 'production'),
   'cache_on' => FALSE,
