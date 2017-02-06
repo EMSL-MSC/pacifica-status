@@ -15,7 +15,9 @@ cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/phpunit_cov
 ./vendor/bin/phpunit --coverage-text tests
 HTTP_CODE=$(curl -sL -w "%{http_code}\\n" localhost:8192/status_api/overview -o /dev/null || true)
 if [[ $HTTP_CODE != 200 ]] ; then
+  curl localhost:8192/status_api/overview
   cat travis/error.log || true
   cat travis/php-error.log || true
+  cat travis/php-fpm.conf
   exit -1
 fi
