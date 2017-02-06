@@ -45,7 +45,6 @@ class System_setup_model extends CI_Model
     {
         parent::__construct();
 
-        $this->statusdb_name = 'pacifica_upload_status';
         //quickly assess the current system status
         try {
             $this->setup_db_structure();
@@ -95,7 +94,7 @@ class System_setup_model extends CI_Model
         $this->load->dbforge();
         $this->load->dbutil();
 
-        $this->_check_and_create_database($this->statusdb_name);
+        $this->_check_and_create_database($this->db->database);
 
 
         //ok, the database should be there now. Let's make some tables
