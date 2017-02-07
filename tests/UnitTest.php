@@ -3,7 +3,7 @@ use PHPUnit\Framework\TestCase;
 
 class WebTest extends PHPUnit_Extensions_Selenium2TestCase
 {
-    protected $coverageScriptUrl = 'http://dmlb2001:1234@localhost:8192/phpunit_coverage.php';
+    protected $coverageScriptUrl = 'http://localhost:8193/';
 
     protected function setUp()
     {
