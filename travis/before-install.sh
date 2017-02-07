@@ -9,6 +9,8 @@ export PATH=$PATH:/tmp/geckodriver
 sudo rm -f /usr/local/bin/docker-compose
 sudo curl -L -o /usr/local/bin/docker-compose https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-$(uname -s)-$(uname -m)
 sudo chmod +x /usr/local/bin/docker-compose
+export DISPLAY=:99.0
+sh -e /etc/init.d/xvfb start
 sudo service postgresql stop
 sudo service mysql stop
 sudo service nginx stop
