@@ -17,7 +17,7 @@ docker run -it --rm --net=pacificauploadstatus_default -e METADATA_URL=http://me
 docker-compose stop uploadstatus
 ln -s application/resources project_resources
 cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php .
-if ! ./vendor/bin/phpunit --coverage-text tests ; then
+if ! ./vendor/bin/phpunit --verbose --coverage-text tests ; then
   cat /tmp/selenium-server.log || true
   cat travis/error.log || true
   cat travis/access.log || true
