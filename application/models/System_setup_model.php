@@ -58,8 +58,6 @@ class System_setup_model extends CI_Model
     /**
      *  Create the initial database entry
      *
-     *  @param string $db_name The name of the db to create
-     *
      *  @return [type]   [description]
      *
      *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
