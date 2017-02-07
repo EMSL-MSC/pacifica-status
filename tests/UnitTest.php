@@ -12,7 +12,7 @@ class WebTest extends PHPUnit_Extensions_Selenium2TestCase
     public function testTitle()
     {
         $this->url('http://dmlb2001:1234@localhost:8192/status_api/overview');
-        $this->assertEquals('Example WWW Page', $this->title());
+        $this->assertEquals('MyEMSL Status - Overview', $this->title());
     }
 }
 ?>
