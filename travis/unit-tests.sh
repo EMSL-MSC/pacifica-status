@@ -15,6 +15,7 @@ done
 set -x
 docker run -it --rm --net=pacificauploadstatus_default -e METADATA_URL=http://metadataserver:8121 -e PYTHONPATH=/usr/src/app pacifica/metadata python test_files/loadit.py
 docker-compose stop uploadstatus
+ln -s application/resources project_resources
 cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php .
 if ! ./vendor/bin/phpunit --coverage-text tests ; then
   cat /tmp/selenium-server.log || true
