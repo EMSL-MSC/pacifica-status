@@ -7,7 +7,7 @@ class WebTest extends PHPUnit_Extensions_SeleniumTestCase
 
     protected function setUp()
     {
-        $this->setBrowser('firefox');
+        $this->setBrowser('*firefox');
         $this->setBrowserUrl('http://dmlb2001:1234@localhost:8192/status_api/overview');
     }
 
