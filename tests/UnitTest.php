@@ -6,12 +6,15 @@ class WebTest extends PHPUnit_Extensions_Selenium2TestCase
     protected function setUp()
     {
         $this->setBrowser('firefox');
-        $this->setBrowserUrl('http://dmlb2001:1234@localhost:8192/status_api/overview');
+        $this->setBrowserUrl('http://localhost:8192/status_api/overview');
     }
 
     public function testTitle()
     {
-        $this->url('http://dmlb2001:1234@localhost:8192/status_api/overview');
+        $session = $this->prepareSession();
+        $session->cookie()->remove('PHPUNIT_SELENIUM_TEST_ID');
+        $session->cookie()->add('PHPUNIT_SELENIUM_TEST_ID', 'WebTest__testTitle')->set();
+        $this->url('http://localhost:8192/status_api/overview');
         $this->assertEquals('MyEMSL Status - Overview', $this->title());
     }
 }
