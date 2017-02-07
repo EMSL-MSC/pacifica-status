@@ -1,5 +1,5 @@
 <?php
-require_once 'PHPUnit/Extensions/SeleniumTestCase.php';
+require_once 'vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumTestCase.php';
 
 class WebTest extends PHPUnit_Extensions_SeleniumTestCase
 {
