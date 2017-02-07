@@ -3,6 +3,8 @@ use PHPUnit\Framework\TestCase;
 
 class WebTest extends PHPUnit_Extensions_Selenium2TestCase
 {
+    protected $coverageScriptUrl = 'http://dmlb2001:1234@localhost:8192/phpunit_coverage.php';
+
     protected function setUp()
     {
         $this->setBrowser('firefox');
