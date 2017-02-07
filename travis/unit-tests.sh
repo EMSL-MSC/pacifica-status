@@ -23,6 +23,8 @@ if ! ./vendor/bin/phpunit --coverage-text tests ; then
   cat travis/php-error.log || true
   exit -1
 fi
+curl localhost:8193/
+curl 'localhost:8193/?PHPUNIT_SELENIUM_TEST_ID=WebTest__curlTest'
 cat travis/access.log
 cat travis/error.log || true
 cat travis/php-error.log || true
