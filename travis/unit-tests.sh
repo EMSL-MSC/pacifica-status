@@ -18,11 +18,10 @@ docker-compose stop uploadstatus
 cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php .
 if ! ./vendor/bin/phpunit --coverage-text tests ; then
   cat /tmp/selenium-server.log || true
-  curl localhost:8193/
-  curl 'localhost:8193/?PHPUNIT_SELENIUM_TEST_ID=WebTest__curlTest'
   cat travis/error.log || true
   cat travis/access.log || true
   cat travis/php-error.log || true
+  cat travis/php-access.log || true
   exit -1
 fi
 cat travis/access.log
