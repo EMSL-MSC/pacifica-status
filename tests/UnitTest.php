@@ -1,19 +1,18 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-class UnitTest extends TestCase
+class WebTest extends PHPUnit_Extensions_Selenium2TestCase
 {
-    public function testPushAndPop()
+    protected function setUp()
     {
-        $stack = [];
-        $this->assertEquals(0, count($stack));
+        $this->setBrowser('firefox');
+        $this->setBrowserUrl('http://localhost:8192/status_api/overview');
+    }
 
-        array_push($stack, 'foo');
-        $this->assertEquals('foo', $stack[count($stack)-1]);
-        $this->assertEquals(1, count($stack));
-
-        $this->assertEquals('foo', array_pop($stack));
-        $this->assertEquals(0, count($stack));
+    public function testTitle()
+    {
+        $this->url('http://localhost:8192/status_api/overview');
+        $this->assertEquals('Example WWW Page', $this->title());
     }
 }
 ?>
