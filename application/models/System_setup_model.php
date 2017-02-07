@@ -64,9 +64,11 @@ class System_setup_model extends CI_Model
      *
      *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _check_and_create_database($db_name)
+    private function _check_and_create_database()
     {
-        if(!$this->dbutil->database_exists($db_name)) {
+        $db_name = $this->db->database;
+        $dbdriver = $this->db->dbdriver;
+        if($dbdriver !== 'sqlite3' && !$this->dbutil->database_exists($db_name)) {
             log_message('info', 'Attempting to create database structure...');
             //db doesn't already exist, so make it
             if($this->dbforge->create_database($db_name)) {
@@ -94,7 +96,7 @@ class System_setup_model extends CI_Model
         $this->load->dbforge();
         $this->load->dbutil();
 
-        $this->_check_and_create_database($this->db->database);
+        $this->_check_and_create_database();
 
 
         //ok, the database should be there now. Let's make some tables
