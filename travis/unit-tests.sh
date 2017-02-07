@@ -19,6 +19,7 @@ cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/phpunit_cov
 if ! ./vendor/bin/phpunit --coverage-text tests ; then
   cat /tmp/selenium-server.log || true
   cat travis/error.log || true
+  cat travis/access.log || true
   cat travis/php-error.log || true
   exit -1
 fi
