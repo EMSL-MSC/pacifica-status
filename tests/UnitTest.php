@@ -1,7 +1,7 @@
 <?php
 use PHPUnit\Framework\TestCase;
 
-class WebTest extends PHPUnit_Extensions_Selenium2TestCase
+class WebTest extends PHPUnit_Extensions_SeleniumTestCase
 {
     protected $coverageScriptUrl = 'http://localhost:8193/';
 
@@ -13,7 +13,7 @@ class WebTest extends PHPUnit_Extensions_Selenium2TestCase
 
     public function testTitle()
     {
-        $this->url('http://dmlb2001:1234@localhost:8192/status_api/overview');
+        $this->open('http://dmlb2001:1234@localhost:8192/status_api/overview');
         $this->assertEquals('MyEMSL Status - Overview', $this->title());
     }
 }
