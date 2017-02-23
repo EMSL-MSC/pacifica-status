@@ -264,7 +264,7 @@ class Status_api extends Baseline_api_controller
         $transaction_info = $this->status->get_formatted_transaction($id);
         if(sizeof($transaction_info['transactions']) == 0) {
             $last_id = $this->status->get_last_known_transaction();
-            if($id >= $last_id){
+            if($id >= $last_id) {
                 $this->page_data['page_header'] = 'New Transaction';
                 $this->page_data['title'] = 'Transaction Pending';
                 $err_msg = "This transaction is still being processed by the uploader";
