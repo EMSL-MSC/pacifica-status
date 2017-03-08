@@ -95,4 +95,11 @@ class Test_api extends Baseline_api_controller
         echo "</pre>";
     }
 
+    public function get_files_for_transaction($transaction){
+        echo "<pre>";
+        $proposals = $this->status->get_files_for_transaction($transaction);
+        send_json_array($proposals);
+        echo "</pre>";
+    }
+
 }
