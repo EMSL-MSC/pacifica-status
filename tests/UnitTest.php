@@ -1,7 +1,7 @@
 <?php
 class WebTest extends PHPUnit_Extensions_Selenium2TestCase
 {
-    protected $coverageScriptUrl = 'http://localhost:8193/';
+    protected $coverageScriptUrl = 'http://localhost:8193/phpunit_coverage.php';
 
     protected function setUp()
     {
