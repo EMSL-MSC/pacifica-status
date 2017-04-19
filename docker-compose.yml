@@ -2,8 +2,7 @@ version: '2'
 services:
     proxyserver:
         container_name: proxyserver
-        build:
-            context: ../proxy
+        image: pacifica/proxy
         links:
             - metadataserver:metadata
             - archiveinterface:archiveinterface
