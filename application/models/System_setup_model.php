@@ -56,31 +56,6 @@ class System_setup_model extends CI_Model
     }
 
     /**
-     *  Create the initial database entry
-     *
-     *  @return [type]   [description]
-     *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
-     */
-    private function _check_and_create_database()
-    {
-        $db_name = $this->db->database;
-        $dbdriver = $this->db->dbdriver;
-        if($dbdriver !== 'sqlite3' && !$this->dbutil->database_exists($db_name)) {
-            log_message('info', 'Attempting to create database structure...');
-            //db doesn't already exist, so make it
-            if($this->dbforge->create_database($db_name)) {
-                log_message('info', "Created {$db_name} database instance");
-            }else{
-                log_message('error', "Could not create database instance.");
-                $this->output->set_status_header(500);
-            }
-        }else{
-
-        }
-    }
-
-    /**
      *  Configure the table structures in the database
      *
      *  @return void
@@ -94,11 +69,7 @@ class System_setup_model extends CI_Model
         $this->load->dbforge();
         $this->load->dbutil();
 
-        $this->_check_and_create_database();
-
-
-        //ok, the database should be there now. Let's make some tables
-
+        //the database should already be in place. Let's make some tables
         if(!$this->db->table_exists('cart')) {
             $cart_fields = array(
                 'cart_uuid' => array(
@@ -117,7 +88,11 @@ class System_setup_model extends CI_Model
                     'type' => 'INT'
                 ),
                 'json_submission' => array(
-                    'type' => 'json'
+                    'type' => 'VARCHAR'
+                ),
+                'last_known_state' => array(
+                    'type' => 'VARCHAR',
+                    'default' => 'waiting'
                 ),
                 'created' => array(
                     'type' => 'TIMESTAMP',
@@ -142,8 +117,9 @@ class System_setup_model extends CI_Model
         if(!$this->db->table_exists('cart_items')) {
             $cart_items_fields = array(
                 'id' => array(
-                    'type' => 'NUMERIC',
-                    'auto_increment' => TRUE
+                    'type' => 'INTEGER',
+                    'auto_increment' => TRUE,
+                    'unsigned' => TRUE
                 ),
                 'file_id' => array(
                     'type' => 'BIGINT'

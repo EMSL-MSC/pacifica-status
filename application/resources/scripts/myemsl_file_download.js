@@ -40,8 +40,8 @@ $(function(){
 
     cart_create_form = cart_create_dialog.find("form").on("submit", function(event){
         event.preventDefault();
-        // cart_download
     });
+    cart_status();
 });
 
 // var createCart = function(event){
@@ -140,18 +140,18 @@ var cart_delete = function(cart_uuid){
     );
 };
 
-var dead_cart_delete = function(cart_id){
-    if (cart_id == null) {
-        return;
-    }
-    var url = '/cart/delete/' + cart_id;
-    $.get(
-        url, function(data){
-            $('#cart_listing').html(data);
-            get_cart_count();
-        }
-    );
-};
+// var dead_cart_delete = function(cart_id){
+//     if (cart_id == null) {
+//         return;
+//     }
+//     var url = '/cart/delete/' + cart_id;
+//     $.get(
+//         url, function(data){
+//             $('#cart_listing').html(data);
+//             get_cart_count();
+//         }
+//     );
+// };
 
 // var check_cart_status = function(tx_id){
 //     if(tx_id == undefined) { tx_id = ''; }
