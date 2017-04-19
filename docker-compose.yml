@@ -49,7 +49,6 @@ services:
         container_name: uploadstatus
         build:
             context: .
-            dockerfile: Dockerfile.dev
         volumes:
             - ./:/var/www/html
         links:
