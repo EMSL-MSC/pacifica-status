@@ -1,19 +1,21 @@
 <?php
-use PHPUnit\Framework\TestCase;
-
-class UnitTest extends TestCase
+class WebTest extends PHPUnit_Extensions_Selenium2TestCase
 {
-    public function testPushAndPop()
+    protected $coverageScriptUrl = 'http://localhost:8193/';
+
+    protected function setUp()
     {
-        $stack = [];
-        $this->assertEquals(0, count($stack));
+        $this->setBrowser('firefox');
+        $this->setBrowserUrl('http://localhost:8192/status_api/overview');
+    }
 
-        array_push($stack, 'foo');
-        $this->assertEquals('foo', $stack[count($stack)-1]);
-        $this->assertEquals(1, count($stack));
-
-        $this->assertEquals('foo', array_pop($stack));
-        $this->assertEquals(0, count($stack));
+    public function testTitle()
+    {
+        $session = $this->prepareSession();
+        $session->cookie()->remove('PHPUNIT_SELENIUM_TEST_ID');
+        $session->cookie()->add('PHPUNIT_SELENIUM_TEST_ID', 'WebTest__testTitle')->set();
+        $this->url('http://localhost:8192/status_api/overview');
+        $this->assertEquals('MyEMSL Status - Overview', $this->title());
     }
 }
 ?>

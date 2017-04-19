@@ -45,14 +45,7 @@ class System_setup_model extends CI_Model
     {
         parent::__construct();
 
-        $this->statusdb_name = 'pacifica_upload_status';
         //quickly assess the current system status
-        log_message("info", "Loading postgres db instance");
-        $this->load->database('init_postgres');
-        log_message("info", "Loading dbutil");
-        $this->load->dbutil();
-        log_message("info", "Loading forge");
-        $this->load->dbforge();
         try {
             $this->setup_db_structure();
         } catch (Exception $e) {
@@ -60,29 +53,6 @@ class System_setup_model extends CI_Model
             $this->output->set_status_header(500);
         }
         $this->global_try_count = 0;
-    }
-
-    /**
-     *  Create the initial database entry
-     *
-     *  @param string $db_name The name of the db to create
-     *
-     *  @return [type]   [description]
-     *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
-     */
-    private function _check_and_create_database($db_name)
-    {
-        if(!$this->dbutil->database_exists($db_name)) {
-            log_message('info', 'Attempting to create database structure...');
-            //db doesn't already exist, so make it
-            if($this->dbforge->create_database($db_name)) {
-                log_message('info', "Created {$db_name} database instance");
-            }else{
-                log_message('error', "Could not create database instance.");
-                $this->output->set_status_header(500);
-            }
-        }
     }
 
     /**
@@ -95,47 +65,47 @@ class System_setup_model extends CI_Model
     public function setup_db_structure()
     {
         //check for database existence
-
-        $this->_check_and_create_database($this->statusdb_name);
-
         $this->load->database('default');
         $this->load->dbforge();
         $this->load->dbutil();
 
-        //ok, the database should be there now. Let's make some tables
-        $cart_fields = array(
-            'cart_uuid' => array(
-                'type' => 'VARCHAR',
-                'constraint' => '64',
-                'unique' => TRUE
-            ),
-            'name' => array(
-                'type' => 'VARCHAR'
-            ),
-            'description' => array(
-                'type' => 'VARCHAR',
-                'null' => TRUE
-            ),
-            'owner' => array(
-                'type' => 'INT'
-            ),
-            'json_submission' => array(
-                'type' => 'json'
-            ),
-            'created' => array(
-                'type' => 'TIMESTAMP',
-                'default' => 'now()'
-            ),
-            'updated' => array(
-                'type' => 'TIMESTAMP'
-            ),
-            'deleted' => array(
-                'type' => 'TIMESTAMP',
-                'null' => TRUE
-            )
-        );
-
+        //the database should already be in place. Let's make some tables
         if(!$this->db->table_exists('cart')) {
+            $cart_fields = array(
+                'cart_uuid' => array(
+                    'type' => 'VARCHAR',
+                    'constraint' => '64',
+                    'unique' => TRUE
+                ),
+                'name' => array(
+                    'type' => 'VARCHAR'
+                ),
+                'description' => array(
+                    'type' => 'VARCHAR',
+                    'null' => TRUE
+                ),
+                'owner' => array(
+                    'type' => 'INT'
+                ),
+                'json_submission' => array(
+                    'type' => 'VARCHAR'
+                ),
+                'last_known_state' => array(
+                    'type' => 'VARCHAR',
+                    'default' => 'waiting'
+                ),
+                'created' => array(
+                    'type' => 'TIMESTAMP',
+                    'default' => 'now()'
+                ),
+                'updated' => array(
+                    'type' => 'TIMESTAMP'
+                ),
+                'deleted' => array(
+                    'type' => 'TIMESTAMP',
+                    'null' => TRUE
+                )
+            );
             $this->dbforge->add_field($cart_fields);
             $this->dbforge->add_key('cart_uuid', TRUE);
             if($this->dbforge->create_table('cart')) {
@@ -143,31 +113,32 @@ class System_setup_model extends CI_Model
             };
         }
 
-        $cart_items_fields = array(
-            'id' => array(
-                'type' => 'NUMERIC',
-                'auto_increment' => TRUE
-            ),
-            'file_id' => array(
-                'type' => 'BIGINT'
-            ),
-            'cart_uuid' => array(
-                'type' => 'VARCHAR',
-                'constraint' => 64
-            ),
-            'relative_local_path' => array(
-                'type' => 'VARCHAR'
-            ),
-            'file_size_bytes' => array(
-                'type' => 'BIGINT'
-            ),
-            'file_mime_type' => array(
-                'type' => 'VARCHAR',
-                'null' => TRUE
-            )
-        );
 
         if(!$this->db->table_exists('cart_items')) {
+            $cart_items_fields = array(
+                'id' => array(
+                    'type' => 'INTEGER',
+                    'auto_increment' => TRUE,
+                    'unsigned' => TRUE
+                ),
+                'file_id' => array(
+                    'type' => 'BIGINT'
+                ),
+                'cart_uuid' => array(
+                    'type' => 'VARCHAR',
+                    'constraint' => 64
+                ),
+                'relative_local_path' => array(
+                    'type' => 'VARCHAR'
+                ),
+                'file_size_bytes' => array(
+                    'type' => 'BIGINT'
+                ),
+                'file_mime_type' => array(
+                    'type' => 'VARCHAR',
+                    'null' => TRUE
+                )
+            );
             $this->dbforge->add_field($cart_items_fields);
             $this->dbforge->add_key(array('file_id', 'cart_uuid'), TRUE);
             if($this->dbforge->create_table('cart_items')) {

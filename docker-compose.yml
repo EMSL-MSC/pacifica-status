@@ -1,17 +1,62 @@
 version: '2'
 services:
+    proxyserver:
+        container_name: proxyserver
+        image: pacifica/proxy
+        links:
+            - metadataserver:metadata
+            - archiveinterface:archiveinterface
+        ports:
+            - 8180:8180
+        environment:
+            NGINX_ACCEL: 'True'
+            METADATA_PORT: tcp://metadata:8121
+            ARCHIVEI_PORT: tcp://archiveinterface:8080
+
+    uploadauth:
+        container_name: uploadauth
+        build:
+            context: .
+            dockerfile: Dockerfile.auth
+        links:
+            - uploadstatus:status
+            - archiveinterface:archiveinterface
+        ports:
+            - 80:80
+        environment:
+            BACKEND_PORT_80_TCP_ADDR: status
+            BACKEND_PORT_80_TCP_PORT: 80
+            FILE_REDIRECT_ADDR: archiveinterface
+            FILE_REDIRECT_PORT: 8080
+
+    archiveproxy:
+        container_name: archiveproxy
+        build:
+            context: .
+            dockerfile: Dockerfile.archiveproxy
+        links:
+            - proxyserver:proxyserver
+            - archiveinterface:archiveinterface
+        ports:
+            - 8123:8123
+        environment:
+            PROXY_ADDR: proxyserver
+            PROXY_PORT: 8180
+            FILE_REDIRECT_ADDR: archiveinterface
+            FILE_REDIRECT_PORT: 8080
+
     uploadstatus:
         container_name: uploadstatus
         build:
             context: .
+        volumes:
+            - ./:/var/www/html
         links:
             - metadataserver:metadata
             - policyserver:policy
             - cartserver:cart
             - uploadstatusdb:cartdb
             - archiveinterface:archivei
-        ports:
-            - 80:80
         environment:
             METADATA_PORT: tcp://metadata:8121
             POLICY_PORT: tcp://policy:8181
@@ -22,8 +67,9 @@ services:
             CARTDB_USER: pacifica
             CARTDB_PASSWORD: pacifica
             CARTDB_DB_NAME: pacifica_upload_status
-            CART_DOWNLOAD_PORT: tcp://cart.my.emsl.pnl.gov
-            FILE_DOWNLOAD_PORT: tcp://download.my.emsl.pnl.gov
+            CARTDB_DBDRIVER: postgre
+            CART_DOWNLOAD_PORT: tcp://cartng.emsl.pnl.gov:8443
+            FILE_DOWNLOAD_PORT: tcp://filesng.emsl.pnl.gov:8443
 
     uploadstatusdb:
         container_name: uploadstatusdb
@@ -34,7 +80,6 @@ services:
             POSTGRES_USER: pacifica
         ports:
             - 55432:5432
-
 
     metadataserver:
         image: pacifica/metadata
@@ -51,7 +96,6 @@ services:
             POSTGRES_PORT_5432_TCP_ADDR: postgres
             POSTGRES_PORT_5432_TCP_PORT: 5432
             POSTGRES_ENV_POSTGRES_PASSWORD: pacifica
-
 
     policyserver:
         image: pacifica/policy
@@ -79,7 +123,6 @@ services:
             POSTGRES_USER: pacifica
         ports:
             - 5432:5432
-
 
     cartrabbit:
         image: rabbitmq

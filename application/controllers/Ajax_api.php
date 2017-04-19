@@ -76,10 +76,11 @@ class Ajax_api extends Baseline_api_controller
                 $textLength-$max_text_len
             );
 
-            $item['text'] = "<span title='{$item['title']}'>{$result}</span>";
+            // $item['text'] = "<span title='{$item['title']}'>{$result}</span>";
+            $item['text'] = $item['display_name'];
             $results['items'][] = $item;
         }
-        send_json_array($results);
+        transmit_array_with_json_header($results);
     }
 
     /**
@@ -107,6 +108,19 @@ class Ajax_api extends Baseline_api_controller
         // $results_body = $query->body;
 
         print($query->body);
+    }
+
+    /**
+     * Grabs the last known transaction ID
+     *
+     * @return void
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function get_latest_transaction_id()
+    {
+        $last_id = $this->status->get_last_known_transaction();
+        transmit_array_with_json_header(array('last_transaction_id' => $last_id));
     }
 
 }

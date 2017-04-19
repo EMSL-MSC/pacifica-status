@@ -63,26 +63,27 @@ $active_group = 'default';
 $query_builder = TRUE;
 // $ini_file_name = stristr($_SERVER['SERVER_NAME'], 'dev1.my') === FALSE ? 'general.ini' : 'general_dpp.ini';
 $db['default'] = array(
+  'dsn'   => '',
   'hostname' => getenv('CARTDB_ADDR'),
   'username' => getenv('CARTDB_USER'),
   'password' => getenv('CARTDB_PASSWORD'),
   'database' => getenv('CARTDB_DB_NAME'),
-  'dbdriver' => "postgre",
+  'dbdriver' => getenv('CARTDB_DBDRIVER'),
   'dbprefix' => "",
   'pconnect' => FALSE,
-  'db_debug' => TRUE,
+  'db_debug' => (ENVIRONMENT !== 'production'),
   'cache_on' => FALSE,
   'cachedir' => ""
 );
 
-$db['init_postgres'] = $db['default'];
-$db['init_postgres']['database'] = 'postgres';
-
-$db['eus_for_myemsl'] = $db['default'];
-$db['eus_for_myemsl']['dbprefix'] = 'eus.';
-
-$db['website_prefs'] = $db['default'];
-$db['website_prefs']['dbprefix'] = 'website_prefs.';
+// $db['init_postgres'] = $db['default'];
+// $db['init_postgres']['database'] = 'postgres';
+//
+// $db['eus_for_myemsl'] = $db['default'];
+// $db['eus_for_myemsl']['dbprefix'] = 'eus.';
+//
+// $db['website_prefs'] = $db['default'];
+// $db['website_prefs']['dbprefix'] = 'website_prefs.';
 
 /* End of file database.php */
 /* Location: ./application/config/database.php */
