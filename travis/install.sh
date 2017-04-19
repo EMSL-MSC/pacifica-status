@@ -2,6 +2,8 @@
 composer update --no-interaction --no-ansi --no-progress --no-suggest --optimize-autoloader --prefer-stable
 cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/prepend.php .
 cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/append.php .
+cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/phpunit_coverage.php .
+cp vendor/phpunit/phpunit-selenium/PHPUnit/Extensions/SeleniumCommon/ExitHandler.php .
 phpenv config-add travis/coverage.ini
 DIR=$(realpath $(dirname "$0"))
 USER=$(whoami)
