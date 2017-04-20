@@ -25,6 +25,3 @@ if ! ./vendor/bin/phpunit --verbose --coverage-text tests ; then
   cat travis/php-access.log || true
   exit -1
 fi
-cat travis/access.log
-cat travis/error.log || true
-cat travis/php-error.log || true

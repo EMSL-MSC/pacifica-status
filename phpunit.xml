@@ -13,8 +13,9 @@
     </testsuite>
 
     <filter>
-        <whitelist processUncoveredFilesFromWhitelist="true">
+        <whitelist>
             <directory suffix=".php">tests</directory>
+            <directory suffix=".php">application</directory>
         </whitelist>
     </filter>
 </phpunit>
