@@ -31,7 +31,7 @@
                   <div class="logo_container" >
                       <div class="logo_image">&nbsp;</div>
                   </div>
-                  <div class="site_slogan">Environmental Molecular Sciences Laboratory</div>                  
+                  <div class="site_slogan">Environmental Molecular Sciences Laboratory</div>
               </div>
               <div class="text_logo">
                   Pacifica<span class="site_slogan">Data Management for Science</span>

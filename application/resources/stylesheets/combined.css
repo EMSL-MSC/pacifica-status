@@ -26,14 +26,6 @@ body {
     font-style: italic;
 }
 
-/*.spinner {
-    width: 16px;
-    background-image: url("http://status.local/resources/images/spinner-16x16_green.gif");
-    background-repeat: no-repeat;
-    background-position: 0px 4px;
-    height: 16px;
-}*/
-
 .email {
     padding-top: 2pt;
 }
@@ -155,7 +147,7 @@ div.form_container {
     padding-right: 16px;
     margin-left: 6px;
     vertical-align: middle;
-    background-image: url("http://status.local/resources/images/disclosure_sprite.png");
+    background-image: url("/resources/images/disclosure_sprite.png");
     background-repeat: no-repeat;
     background-size: 64px 16px;
     background-size: 64px 16px;
@@ -187,13 +179,13 @@ div.form_container {
 
 @media not all, only screen and (-webkit-min-device-pixel-ratio: 1.25), not all, only screen and (min-resolution: 1.25dppx) {
     .disclosure_button {
-        background-image: url("http://status.local/resources/images/disclosure_sprite@2x.png");
+        background-image: url("/resources/images/disclosure_sprite@2x.png");
     }
 }
 
 @media not all, only screen and (-webkit-min-device-pixel-ratio: 2.25), not all, only screen and (min-resolution: 2.25dppx) {
     .disclosure_button {
-        background-image: url("http://status.local/resources/images/disclosure_sprite@3x.png");
+        background-image: url("/resources/images/disclosure_sprite@3x.png");
     }
 }
 
@@ -409,7 +401,6 @@ dl.metadata_description_list {
     }
 }
 
-
 .site_slogan {
     text-transform: uppercase;
     font-size: 0.45em;
@@ -454,11 +445,6 @@ footer a:hover {
     text-decoration: underline;
 }
 
-
-
-
-/*stylesheet 6/12 | http://status.local/resources/stylesheets/status.css*/
-
 #main h1 {
     color: #fefefe;
     padding: 0.5em;
@@ -479,9 +465,6 @@ footer a:hover {
     position: relative;
 }
 
-
-/*stylesheet 7/12 | http://status.local/resources/stylesheets/status_style.css*/
-
 .tree_holder {
     margin-top: 10px;
 }
@@ -501,7 +484,6 @@ footer a:hover {
 .folder_size_summary {
     font-size: 0.75em;
     font-style: italic;
-}
 
 .transaction_container h3 {
     margin-top: 10px;
@@ -523,8 +505,6 @@ ul.metadata_container li {
 .transaction_container {
     margin-bottom: 1em;
 }
-
-/*stylesheet 9/12 | http://status.local/resources/stylesheets/file_directory_styling.css*/
 
 ul.fancytree-container {
     font-family: inherit;
