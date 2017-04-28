@@ -139,7 +139,8 @@ class Status_api extends Baseline_api_controller
                     $this->page_data['css_uris'],
                     array(
                         '/project_resources/stylesheets/selector.css',
-                ));
+                    )
+                );
             $this->page_data['script_uris']
                 = load_scripts(
                     $this->page_data['script_uris'],
@@ -256,7 +257,8 @@ class Status_api extends Baseline_api_controller
                 $this->page_data['css_uris'],
                 array(
                     '/project_resources/stylesheets/view.css'
-            ));
+                )
+            );
         $this->page_data['script_uris']
             = load_scripts(
                 $this->page_data['script_uris'],

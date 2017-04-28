@@ -26,7 +26,18 @@
 
 if (!defined('BASEPATH')) exit('No direct script access allowed');
 
-function load_scripts($common_collection, $page_specific_collection){
+/**
+ * Load JS files as specified
+ *
+ * @param array $common_collection        collection of JS files shared over the entire site
+ * @param array $page_specific_collection JS files just for this page family
+ *
+ * @return void
+ *
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
+function load_scripts($common_collection, $page_specific_collection)
+{
     $defaults = array_merge($common_collection, $page_specific_collection);
     $output_array = array();
     foreach($defaults as $scriptfile){
@@ -36,8 +47,18 @@ function load_scripts($common_collection, $page_specific_collection){
 }
 
 
-
-function load_stylesheets($common_collection, $page_specific_collection){
+ /**
+ * Load CSS files as specified, folding in theming
+ *
+ * @param array $common_collection        collection of CSS files shared over the entire site
+ * @param array $page_specific_collection CSS files just for this page family
+ *
+ * @return void
+ *
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
+function load_stylesheets($common_collection, $page_specific_collection)
+{
     $CI =& get_instance();
     $my_theme = $CI->config->item('theme_name');
 
@@ -45,7 +66,7 @@ function load_stylesheets($common_collection, $page_specific_collection){
     $theme_dir_array = array("resources", "stylesheets", "themes", $my_theme);
     $theme_url_path_array = array("project_resources", "stylesheets", "themes", $my_theme);
     $theme_path = APPPATH . implode(DIRECTORY_SEPARATOR, $theme_dir_array) . DIRECTORY_SEPARATOR;
-    if(is_dir($theme_path)){
+    if(is_dir($theme_path)) {
         foreach(glob($theme_path . "*.css") as $theme_file){
             $defaults[] = "/". implode("/", $theme_url_path_array) . "/" . basename($theme_file);
         }
