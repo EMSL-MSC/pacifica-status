@@ -17,6 +17,9 @@
 
 .cart_tree thead th {
 	padding:5px;
+    background-color: #656565;
+    color: #efefef;
+    text-align: left;    
 }
 
 .cart_tree .cart_status_left {
