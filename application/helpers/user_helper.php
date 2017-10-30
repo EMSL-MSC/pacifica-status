@@ -42,7 +42,7 @@ function get_user()
     $remote_user = array_key_exists("REMOTE_USER", $_SERVER) ? $_SERVER["REMOTE_USER"] : FALSE;
     $remote_user = !$remote_user && array_key_exists("PHP_AUTH_USER", $_SERVER) ? $_SERVER["PHP_AUTH_USER"] : $remote_user;
 
-    if($remote_user){
+    if($remote_user) {
         //check for email address as username
         $selector = filter_var($remote_user, FILTER_VALIDATE_EMAIL) ? 'email_address' : 'network_id';
         $url_args_array = array(
