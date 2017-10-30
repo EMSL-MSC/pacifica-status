@@ -46,9 +46,15 @@ function get_user()
         $user = str_replace('@PNL.GOV', '', $_SERVER["PHP_AUTH_USER"]);
     }
     $user = strtolower($user);
-    $url_args_array = array(
-        'network_id' => $user
-    );
+    if(strpos($user, '@')) {
+        $url_args_array = array(
+            'email_address' => $user
+        );
+    } else {
+        $url_args_array = array(
+            'network_id' => $user
+        );
+    }
     $query_url = "{$md_url}/users?";
     $query_url .= http_build_query($url_args_array, '', '&');
     $query = Requests::get($query_url, array('Accept' => 'application/json'));
