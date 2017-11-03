@@ -12,7 +12,6 @@
     <meta name="theme-color" content="#ffffff">
 
       <!-- Base jquery -->
-      <!-- <script src="/resources/scripts/jquery/jquery-1.11.2.js" type="text/javascript"></script> -->
     <?php if($_SERVER['CI_ENV'] == 'development') : ?>
       <script src="/resources/scripts/jquery/jquery-3.2.1.js" type="text/javascript"></script>
       <script src="/resources/scripts/jquery-ui/jquery-ui.js" type="text/javascript"></script>
