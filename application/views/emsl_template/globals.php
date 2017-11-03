@@ -10,10 +10,18 @@
     <meta name="theme-color" content="#ffffff">
 
       <!-- Base jquery -->
-      <script src="/resources/scripts/jquery/jquery-1.11.2.js" type="text/javascript"></script>
+      <!-- <script src="/resources/scripts/jquery/jquery-1.11.2.js" type="text/javascript"></script> -->
+    <?php if($_SERVER['CI_ENV'] == 'development'): ?>
+      <script src="/resources/scripts/jquery/jquery-3.2.1.js" type="text/javascript"></script>
+      <script src="/resources/scripts/jquery-ui/jquery-ui.js" type="text/javascript"></script>
+      <link rel="stylesheet" type="text/css" href="/resources/scripts/jquery-ui/jquery-ui.css" />
+      <script src="/resources/scripts/moment.js" type="text/javascript"></script>
+    <?php else: ?>
+      <script src="/resources/scripts/jquery/jquery-3.2.1.min.js" type="text/javascript"></script>
       <script src="/resources/scripts/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
       <link rel="stylesheet" type="text/css" href="/resources/scripts/jquery-ui/jquery-ui.min.css" />
-
+      <script src="/resources/scripts/moment.min.js" type="text/javascript"></script>
+    <?php endif; ?>
       <!-- local JS -->
       <script type="text/javascript" src="/resources/scripts/utility_functions.js"></script>
 
