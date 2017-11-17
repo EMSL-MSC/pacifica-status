@@ -139,7 +139,6 @@ class Status_api extends Baseline_api_controller
             }
         }
 
-
         $view_name = $this->overview_template;
         $this->page_data['page_header'] = 'Status Reporting';
         $this->page_data['title'] = 'Overview';
@@ -228,10 +227,10 @@ class Status_api extends Baseline_api_controller
             return;
         }
 
-
         $this->page_data['proposal_info'] = get_proposal_abstract($proposal_id);
         $this->page_data['instrument_info'] = get_instrument_details($instrument_id);
         $this->page_data['proposal_list'][$proposal_id] = $this->page_data['proposal_info']['title'];
+
 
         $this->page_data['script_uris'][] = '/project_resources/scripts/external.js';
 
