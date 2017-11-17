@@ -158,24 +158,25 @@ class Status_api extends Baseline_api_controller
                     $proposal_list[$prop_id] = $prop_info['title'];
                 }
             }
+            $this->page_data['proposal_list'] = $this->page_data['proposal_list'] + $proposal_list;
         }
-            krsort($proposal_list);
-            $js = "var initial_proposal_id = '{$proposal_id}';
-                    var initial_instrument_id = '{$instrument_id}';
-                    var initial_starting_date = '{$starting_date}';
-                    var initial_ending_date = '{$ending_date}';
-                    var email_address = '{$this->email}';
-                    var lookup_type = 't';
-                    var initial_instrument_list = [];
-                    var cart_access_url_base = '{$this->config->item('external_cart_url')}';
-                    ";
+        ksort($this->page_data['proposal_list']);
 
-            $this->page_data['proposal_list'] = $proposal_list;
-            $this->page_data['selected_proposal'] = $proposal_id;
-            $this->page_data['starting_date'] = $starting_date;
-            $this->page_date['ending_date'] = $ending_date;
-            $this->page_data['instrument_id'] = $instrument_id;
-            $this->page_data['js'] = $js;
+        $js = "var initial_proposal_id = '{$proposal_id}';
+                var initial_instrument_id = '{$instrument_id}';
+                var initial_starting_date = '{$starting_date}';
+                var initial_ending_date = '{$ending_date}';
+                var email_address = '{$this->email}';
+                var lookup_type = 't';
+                var initial_instrument_list = [];
+                var cart_access_url_base = '{$this->config->item('external_cart_url')}';
+                ";
+
+        $this->page_data['selected_proposal'] = $proposal_id;
+        $this->page_data['starting_date'] = $starting_date;
+        $this->page_date['ending_date'] = $ending_date;
+        $this->page_data['instrument_id'] = $instrument_id;
+        $this->page_data['js'] = $js;
 
         $this->overview_worker(
             $proposal_id, $instrument_id,
@@ -224,6 +225,7 @@ class Status_api extends Baseline_api_controller
 
         $this->page_data['proposal_info'] = get_proposal_abstract($proposal_id);
         $this->page_data['instrument_info'] = get_instrument_details($instrument_id);
+        $this->page_data['proposal_list'][$proposal_id] = $this->page_data['proposal_info']['title'];
 
         $this->page_data['script_uris'][] = '/project_resources/scripts/external.js';
 
