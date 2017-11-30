@@ -26,6 +26,15 @@
  */
  if (!defined('BASEPATH')) exit('No direct script access allowed');
 
+/**
+ * Provides a more user friendly version of the status messages from ingest
+ *
+ * @param string $ingest_status The task name from the ingest system
+ * 
+ * @return array object with new status messages for that task type
+ *
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
 function translate_ingest_status_message($ingest_status)
 {
     $status_messages = $this->config->item('ingest_status_messages');

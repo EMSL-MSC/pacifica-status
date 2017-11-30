@@ -126,6 +126,8 @@ class Ajax_api extends Baseline_api_controller
     /**
      * Grabs ingest status information from the ingest subsystem
      *
+     * @param int $transaction_id transaction_id to investigate
+     *
      * @return void
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
@@ -141,5 +143,5 @@ class Ajax_api extends Baseline_api_controller
         $results_obj['overall_percentage'] = $translated_message_obj['percent_complete'];
 
         print json_encode($results_obj);
-     }
+    }
 }
