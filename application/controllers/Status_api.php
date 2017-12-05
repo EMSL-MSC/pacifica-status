@@ -392,7 +392,7 @@ class Status_api extends Baseline_api_controller
                         )
                     )
                 );
-                if($ingest_info['state'] == 'ok'){
+                if($ingest_info['state'] == 'ok') {
                     $this->page_data['page_header'] = 'New Transaction';
                     $this->page_data['title'] = 'Transaction Pending';
                     $err_msg = "This transaction is still being processed by the uploader";

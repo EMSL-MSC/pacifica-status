@@ -265,7 +265,7 @@ class Status_api_model extends CI_Model
     /**
      * Retrieve real transaction in progress status from the ingester
      *
-     * @param  int $transaction_id transaction id to check
+     * @param int $transaction_id transaction id to check
      *
      * @return array doctored results object
      *
