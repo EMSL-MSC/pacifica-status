@@ -356,6 +356,8 @@ class Status_api extends Baseline_api_controller
                 )
             );
 
+        $this->page_data['js'] = "var transaction_id = '{$id}';
+";
         if (!is_numeric($id) || $id < 0) {
             //that doesn't look like a real id
             //send to error page saying so
@@ -363,47 +365,55 @@ class Status_api extends Baseline_api_controller
                     "<strong>{$id}</strong> could be found in the system";
             $this->page_data['page_header'] = "{$lookup_type_description} Not Found";
             $this->page_data['title'] = $this->page_data['page_header'];
-            $this->page_data['error_message'] = $err_msg;
+            // $this->page_data['error_message'] = $err_msg;
             $this->page_data['lookup_type_desc'] = $lookup_type_description;
             $this->page_data['lookup_type'] = $lookup_type;
             $this->load->view('status_error_page.html', $this->page_data);
         }
-
+        $ingest_info = $this->status->get_ingest_status($id);
+        $ingest_completed = $ingest_info['upload_present_on_mds'] ? "true" : "false";
         $transaction_info = $this->status->get_formatted_transaction($id);
-        if(sizeof($transaction_info['transactions']) == 0) {
-            $last_id = $this->status->get_last_known_transaction();
-            if($id >= $last_id) {
-                $this->page_data['page_header'] = 'New Transaction';
-                $this->page_data['title'] = 'Transaction Pending';
-                $err_msg = "This transaction is still being processed by the uploader";
-                $this->page_data['error_message'] = $err_msg;
-                $this->page_data['js'] = "
-var transaction_id = '{$id}';
+        if(!$ingest_info['upload_present_on_mds'] || empty($transaction_info['transactions'])) {
+            if($ingest_info && $id == $ingest_info['job_id']) {
+                $transaction_info = array(
+                    'times' => array(
+                        $ingest_info['updated'] => intval($ingest_info['job_id'])
+                    ),
+                    'transactions' => array(
+                        $id => array(
+                            'status' => array(),
+                            'metadata' => array(
+                                'instrument_id' => -1,
+                                'instrument_name' => ""
+                            ),
+                            'file_size_bytes' => -1,
+                            'informational_message' => "Upload in progress..."
+                        )
+                    )
+                );
+                if($ingest_info['state'] == 'ok') {
+                    $this->page_data['page_header'] = 'New Transaction';
+                    $this->page_data['title'] = 'Transaction Pending';
+                    $err_msg = "This transaction is still being processed by the uploader";
+                }else{
+                    $this->page_data['page_header'] = 'Missing Transaction';
+                    $this->page_data['title'] = 'Transaction not available';
+
+                    $err_msg = "No transaction with an ID of {$id} could be found in the system";
+                    $this->page_data['force_refresh'] = FALSE;
+                }
+                $transaction_info['transactions'][$id]['informational_message'] = $err_msg;
+                $this->page_data['js'] .= "
 $(function(){
     setInterval(function(){
         refresh();
-    }, 5000);
+    }, ingest_check_interval);
 });
 var refresh = function(){
-    var getter = $.get(base_url + 'ajax_api/get_latest_transaction_id', function(data){
-        var last_id = data.last_transaction_id;
-        if(transaction_id <= last_id){
-            location.reload(true);
-        }
-    });
+    display_ingest_status();
 }
 ";
-            }else{
-                $this->page_data['page_header'] = 'Missing Transaction';
-                $this->page_data['title'] = 'Transaction not available';
-                $err_msg = "No transaction with an ID of {$id} could be found in the system";
-                $this->page_data['error_message'] = $err_msg;
-                $this->page_data['force_refresh'] = FALSE;
             }
-            $this->page_data['lookup_type_desc'] = $lookup_type_description;
-            $this->page_data['lookup_type'] = $lookup_type;
-            $this->load->view('status_error_page.html', $this->page_data);
-
         }
 
         $this->page_data['page_header'] = 'Upload Report';
@@ -422,10 +432,11 @@ var refresh = function(){
         );
         $this->page_data['request_type'] = 't';
         $this->page_data['enable_breadcrumbs'] = FALSE;
-        $this->page_data['js'] = "var initial_inst_id = '{$inst_id}';
-                            var lookup_type = 't';
-                            var email_address = '{$this->email}';
-                            var cart_access_url_base = '{$this->config->item('external_cart_url')}';
+        $this->page_data['js'] .= "var initial_inst_id = '{$inst_id}';
+                            var ingest_complete = {$ingest_completed};
+                            var lookup_type = \"t\";
+                            var email_address = \"{$this->email}\";
+                            var cart_access_url_base = \"{$this->config->item('external_cart_url')}\";
                             ";
         $this->page_data['show_instrument_data'] = TRUE;
         $this->load->view('single_item_view.html', $this->page_data);

@@ -95,7 +95,7 @@ class Status_api_model extends CI_Model
      */
     public function get_formatted_transaction($transaction_id)
     {
-        $transactions_url = "{$this->policy_url_base}/status/transactions/search/details?";
+        $transactions_url = "{$this->metadata_url_base}/transactioninfo/search/details?";
         $url_args_array = array(
             // 'user' => $this->user_id,
             'transaction_id' => $transaction_id
@@ -148,12 +148,7 @@ class Status_api_model extends CI_Model
      */
     public function get_transaction_details($transaction_id)
     {
-        $transaction_url = "{$this->policy_url_base}/status/transactions/by_id/{$transaction_id}?";
-        // $url_args_array = array(
-        //     'user' => $this->user_id
-        // );
-        // $transaction_url .= http_build_query($url_args_array, '', '&');
-
+        $transaction_url = "{$this->metadata_url_base}/transactioninfo/by_id/{$transaction_id}?";
         $results = array();
 
         try{
@@ -162,7 +157,9 @@ class Status_api_model extends CI_Model
             if($sc / 100 == 2) {
                 //good data, move along
                 $results = json_decode($query->body, TRUE);
-
+                if(isset($results['status']) && intval($results['status'] / 100) == 4) {
+                    $results = array();
+                }
             }elseif($sc / 100 == 4) {
                 if($sc == 404) {
                     //transaction not found
@@ -171,7 +168,7 @@ class Status_api_model extends CI_Model
                     //some other input error
                 }
             }else{
-
+                $results = array();
             }
         } catch (Exception $e){
             //some other error
@@ -260,6 +257,55 @@ class Status_api_model extends CI_Model
             $last_txn = $results['latest_transaction_id'];
         }
         return $last_txn;
+    }
+
+    /**
+     * Retrieve real transaction in progress status from the ingester
+     *
+     * @param int $transaction_id transaction id to check
+     *
+     * @return array doctored results object
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function get_ingest_status($transaction_id)
+    {
+        $transaction_details = $this->get_transaction_details($transaction_id);
+        $ingester_url = "{$this->ingester_url_base}/get_state/{$transaction_id}";
+        $query = Requests::get($ingester_url, array('Accept' => 'application/json'));
+        $results_obj = json_decode(stripslashes($query->body), TRUE);
+        if(intval($query->status_code / 100) == 2) {
+            $task_topic = strtolower(str_replace(' ', '_', $results_obj['task']));
+        }else{
+            $now = new DateTime();
+            if(intval($query->status_code / 100) == 4) {
+                $task_topic = "no_transaction";
+                $message = $results_obj['message'];
+            }else{
+                $task_topic = "server_error";
+                $message = "a server error has occurred";
+            }
+            $default_results_obj = array(
+                'task_percent' => "0.000",
+                'updated' => local_time_to_utc($now)->format('Y-m-d H:i:s'),
+                'task' => $task_topic,
+                'job_id' => $transaction_id,
+                'created' => local_time_to_utc($now)->format('Y-m-d H:i:s'),
+                'exception' => $results_obj['message'],
+                'state' => 'fail'
+            );
+            $results_obj = $default_results_obj;
+        }
+        $results_obj['upload_present_on_mds'] = !empty($transaction_details) ? TRUE : FALSE;
+        if($task_topic == "ingest_metadata" && !empty($transaction_details)) {
+            $task_topic = "ingest_complete";
+        }
+        $translated_message_obj = $this->ingester_messages[$task_topic];
+        $results_obj['message'] = strtolower($results_obj['state']) == "ok" ?
+            $translated_message_obj['success_message'] : $translated_message_obj['failure_message'];
+        $results_obj['state'] = strtolower($results_obj['state']);
+        $results_obj['overall_percentage'] = $translated_message_obj['percent_complete'];
+        return $results_obj;
     }
 
 }
