@@ -95,7 +95,7 @@ class Status_api_model extends CI_Model
      */
     public function get_formatted_transaction($transaction_id)
     {
-        $transactions_url = "{$this->policy_url_base}/status/transactions/search/details?";
+        $transactions_url = "{$this->metadata_url_base}/transactioninfo/search/details?";
         $url_args_array = array(
             // 'user' => $this->user_id,
             'transaction_id' => $transaction_id
@@ -148,7 +148,7 @@ class Status_api_model extends CI_Model
      */
     public function get_transaction_details($transaction_id)
     {
-        $transaction_url = "{$this->policy_url_base}/status/transactions/by_id/{$transaction_id}?";
+        $transaction_url = "{$this->metadata_url_base}/transactioninfo/by_id/{$transaction_id}?";
         $results = array();
 
         try{
@@ -157,7 +157,7 @@ class Status_api_model extends CI_Model
             if($sc / 100 == 2) {
                 //good data, move along
                 $results = json_decode($query->body, TRUE);
-                if($results['status'] && intval($results['status'] / 100) == 4) {
+                if(isset($results['status']) && intval($results['status'] / 100) == 4) {
                     $results = array();
                 }
             }elseif($sc / 100 == 4) {
