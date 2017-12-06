@@ -299,7 +299,7 @@ class Status_api_model extends CI_Model
             $results_obj = $default_results_obj;
         }
         $results_obj['upload_present_on_mds'] = !empty($transaction_details) ? TRUE : FALSE;
-        if($task_topic == "ingest_metadata" && !empty($transaction_details)){
+        if($task_topic == "ingest_metadata" && !empty($transaction_details)) {
             $task_topic = "ingest_complete";
         }
         $translated_message_obj = $this->ingester_messages[$task_topic];
