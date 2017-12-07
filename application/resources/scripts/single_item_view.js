@@ -8,7 +8,7 @@ var first_load = true;
 var ingest_check_interval = 5000;
 var display_ingest_status = function() {
     if(!ingest_complete){
-        var ingest_url = base_url + "/ajax_api/get_ingest_status/" + transaction_id;
+        var ingest_url = base_url + "ajax_api/get_ingest_status/" + transaction_id;
         $.get(ingest_url, function(data){
             if(!data.upload_present_on_mds || first_load) {
                 format_ingest_status(data);
@@ -25,9 +25,14 @@ var display_ingest_status = function() {
 var format_ingest_status = function(status_object) {
     var ingest_block;
     var pgb;
+    var mb = $("#message_block_" + transaction_id);
     if(status_object.state == "ok"){
-        $("#message_block_" + transaction_id).html("Upload in progress...");
+        mb.html("Upload in progress...");
     }else{
+        if(mb.find("p").length > 0){
+            $("#message_block_" + transaction_id + " .error").remove();
+        }
+        mb.append($("<p>").addClass("error").html(status_object.message));
         return;
     }
     if($("#ingest_status_message_" + transaction_id).length === 0){
