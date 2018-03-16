@@ -223,9 +223,7 @@ class Status_api_model extends CI_Model
             $dirs = array();
             $file_list = array();
             foreach ($results as $item_id => $item_info) {
-                var_dump($item_info);
-                $subdir = preg_replace('|^proposal\s[^/]+/[^/]+/\d{4}\.\d{1,2}\.\d{1,2}/?|i', '', trim($item_info['subdir'], '/'));
-                echo $subdir;
+                $subdir = trim($item_info['subdir'], '/');
                 $filename = $item_info['name'];
                 $path = !empty($subdir) ? "{$subdir}/{$filename}" : $filename;
                 $path_array = explode('/', $path);
