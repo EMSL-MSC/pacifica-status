@@ -155,7 +155,8 @@ function truncate_text($string, $limit, $break = " ", $pad = "...")
  *
  * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function get_current_git_hash() {
+function get_current_git_hash()
+{
     exec("git rev-list --all --max-count=1 --abbrev-commit -- ". APPPATH . " 2>/dev/null", $last_hash);
     $hash = !empty($last_hash) ? array_pop($last_hash) : "";
     return $hash;
