@@ -19,7 +19,7 @@
  *
  * @link http://github.com/EMSL-MSC/pacifica-upload-status
  */
-require_once 'Baseline_api_controller.php';
+require_once 'Baseline_user_api_controller.php';
 
 /**
  * Status API is a CI Controller class that extends Baseline_controller.
@@ -36,7 +36,7 @@ require_once 'Baseline_api_controller.php';
  *
  * @link http://github.com/EMSL-MSC/pacifica-upload-status
  */
-class Status_api extends Baseline_api_controller
+class Status_api extends Baseline_user_api_controller
 {
     /**
      * Constructor.
@@ -49,43 +49,10 @@ class Status_api extends Baseline_api_controller
         parent::__construct();
         $this->load->model('Status_api_model', 'status');
         $this->load->model('Myemsl_api_model', 'myemsl');
-        // $this->load->model('Cart_model', 'cart');
-        $this->load->helper(
-            array(
-                'url', 'html', 'myemsl_api',
-                'file_info', 'theme', 'time'
-            )
-        );
-        $this->load->helper(
-            array(
-                'inflector', 'item', 'form',
-                'network', 'cookie', 'ingest_status'
-            )
-        );
-        $this->load->library(array('table'));
-
-        $this->last_update_time = get_last_update(APPPATH);
-        $this->page_data['site_identifier'] = $this->config->item('site_identifier');
-        $this->page_data['site_slogan'] = $this->config->item('site_slogan');
-        $this->page_data['script_uris'] = array(
-            '/resources/scripts/spinner/spin.min.js',
-            '/resources/scripts/fancytree/dist/jquery.fancytree-all.js',
-            '/resources/scripts/jquery-crypt/jquery.crypt.js',
-            '/project_resources/scripts/myemsl_file_download.js',
-            '/resources/scripts/select2-4/dist/js/select2.js',
-            '/resources/scripts/bootstrap-daterangepicker/daterangepicker.js'
-        );
-        $this->page_data['css_uris'] = array(
-            '/resources/scripts/bootstrap/css/bootstrap.css',
-            '/resources/scripts/bootstrap-daterangepicker/daterangepicker.css',
-            '/resources/scripts/fancytree/dist/skin-lion/ui.fancytree.min.css',
-            '/project_resources/stylesheets/combined.css',
-            '/resources/scripts/select2-4/dist/css/select2.css',
-            '/resources/stylesheets/file_directory_styling.css',
-            '/project_resources/stylesheets/cart.css'
-        );
-        $this->page_data['load_prototype'] = false;
-        $this->page_data['load_jquery'] = true;
+        $this->page_data['script_uris'][] = '/project_resources/scripts/myemsl_file_download.js';
+        $this->page_data['page_header'] = 'Status Reporting';
+        $this->page_data['title'] = 'Status Overview';
+        $this->page_mode = 'cart';
         $this->overview_template = $this->config->item('main_overview_template') ?: "emsl_mgmt_view.html";
     }
 
@@ -97,6 +64,17 @@ class Status_api extends Baseline_api_controller
     public function index()
     {
         redirect('/overview');
+    }
+
+    public function data_transfer($data_identifier = ''){
+        $this->data_identifier = $data_identifier;
+        $this->page_mode = 'transfer';
+        $updated_page_info = [
+            'page_header' => 'DOI Data Selection Interface',
+            'title' => 'DOI Data Selection'
+        ];
+        $this->page_data = array_merge($this->page_data, $updated_page_info);
+        $this->overview('transfer');
     }
 
     /**
@@ -115,29 +93,15 @@ class Status_api extends Baseline_api_controller
         $starting_date = '',
         $ending_date = ''
     ) {
-    
-        $proposal_id = $proposal_id ?: get_cookie('last_proposal_selector');
-        $instrument_id = $instrument_id ?: get_cookie('last_instrument_selector');
-        // $time_period = $time_period ?: get_cookie('last_timeframe_selector');
-        $starting_date = $starting_date ?: get_cookie('last_starting_date_selector');
-        $ending_date = $ending_date ?: get_cookie('last_ending_date_selector');
-        $proposal_id = $proposal_id != 'null' ? $proposal_id : 0;
-        $instrument_id = $instrument_id != 'null' ? $instrument_id : 0;
-
-        if (!$starting_date || !$ending_date) {
-            $today = new DateTime();
-            if (!$ending_date) {
-                $ending_date = $today->format('Y-m-d');
-            }
-            if (!$starting_date) {
-                $today->modify('-30 days');
-                $starting_date = $today->format('Y-m-d');
-            }
-        }
-
+        $defaults = [
+            'proposal_id' => $proposal_id,
+            'instrument_id' => $instrument_id,
+            'starting_date' => $starting_date,
+            'ending_date' => $ending_date
+        ];
+        $defaults = get_selection_defaults($defaults);
+        extract($defaults);
         $view_name = $this->overview_template;
-        $this->page_data['page_header'] = 'Status Reporting';
-        $this->page_data['title'] = 'Overview';
         $this->page_data['informational_message'] = '';
         $this->page_data['css_uris']
             = load_stylesheets(
@@ -154,9 +118,7 @@ class Status_api extends Baseline_api_controller
                 )
             );
 
-        $this->benchmark->mark('get_user_info_from_ws_start');
-        $full_user_info = $this->myemsl->get_user_info();
-        $this->benchmark->mark('get_user_info_from_ws_end');
+        $full_user_info = $this->user_info;
 
         $proposal_list = array();
         if (array_key_exists('proposals', $full_user_info)) {
@@ -188,6 +150,7 @@ class Status_api extends Baseline_api_controller
         $this->page_date['ending_date'] = $ending_date;
         $this->page_data['instrument_id'] = $instrument_id;
         $this->page_data['js'] = $js;
+        $this->page_data['cart_legend'] = "Download Queue";
 
         $this->overview_worker(
             $proposal_id,
@@ -214,7 +177,7 @@ class Status_api extends Baseline_api_controller
         $starting_date = false,
         $ending_date = false
     ) {
-    
+
         if (!$proposal_id || !$instrument_id) {
             $message = "Some parameters missing. Please supply values for: ";
             $criteria_array = array();
@@ -271,7 +234,7 @@ class Status_api extends Baseline_api_controller
         $ending_date = '',
         $view_name = 'upload_item_view.html'
     ) {
-    
+
         $time_period_empty = true;
         if (isset($instrument_id) && intval($instrument_id) != 0
             && isset($proposal_id) && intval($proposal_id) != 0
