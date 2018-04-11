@@ -66,5 +66,9 @@ var loading_spinner = new Spinner(load_spinner_opts).spin(target);
 </script>
 
 </body>
+<?php if($page_mode == 'cart'): ?>
 <?php $this->load->view("cart_create_dialog_view.html"); ?>
+<?php elseif($page_mode == 'transfer'): ?>
+<?php $this->load->view("doi_transfer_cart_table_view.html"); ?>
+<?php endif; ?>
 </html>

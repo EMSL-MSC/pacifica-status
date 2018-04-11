@@ -49,7 +49,6 @@ class Status_api extends Baseline_user_api_controller
         parent::__construct();
         $this->load->model('Status_api_model', 'status');
         $this->load->model('Myemsl_api_model', 'myemsl');
-        $this->page_data['script_uris'][] = '/project_resources/scripts/myemsl_file_download.js';
         $this->page_data['page_header'] = 'Status Reporting';
         $this->page_data['title'] = 'Status Overview';
         $this->page_mode = 'cart';
@@ -73,6 +72,7 @@ class Status_api extends Baseline_user_api_controller
             'page_header' => 'DOI Data Selection Interface',
             'title' => 'DOI Data Selection'
         ];
+        $this->page_data['css_uris'][] = '/project_resources/stylesheets/doi_transfer_cart.css';
         $this->page_data = array_merge($this->page_data, $updated_page_info);
         $this->overview('transfer');
     }
@@ -110,12 +110,18 @@ class Status_api extends Baseline_user_api_controller
                     '/project_resources/stylesheets/selector.css',
                 )
             );
+        $extra_scripts_array = ['/project_resources/scripts/overview.js'];
+        if($this->page_mode == 'transfer'){
+            $extra_scripts_array[] = '/project_resources/scripts/doi_data_transfer.js';
+        }
+        else{
+            $extra_scripts_array[] = '/project_resources/scripts/myemsl_file_download.js';
+        }
+
         $this->page_data['script_uris']
             = load_scripts(
                 $this->page_data['script_uris'],
-                array(
-                    '/project_resources/scripts/overview.js',
-                )
+                $extra_scripts_array
             );
 
         $full_user_info = $this->user_info;
@@ -142,6 +148,10 @@ class Status_api extends Baseline_user_api_controller
                 var email_address = '{$this->email}';
                 var lookup_type = 't';
                 var initial_instrument_list = [];
+                var ui_markup = {
+                    'instrument_selection_desc': '{$this->config->item('ui_instrument_desc')}',
+                    'proposal_selection_desc': '{$this->config->item('ui_proposal_desc')}'
+                };
                 var cart_access_url_base = '{$this->config->item('external_cart_url')}';
                 ";
 
@@ -151,6 +161,7 @@ class Status_api extends Baseline_user_api_controller
         $this->page_data['instrument_id'] = $instrument_id;
         $this->page_data['js'] = $js;
         $this->page_data['cart_legend'] = "Download Queue";
+        $this->page_data['page_mode'] = $this->page_mode;
 
         $this->overview_worker(
             $proposal_id,
