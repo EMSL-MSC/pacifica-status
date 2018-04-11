@@ -70,6 +70,8 @@ $route['view/(:any)'] = "status_api/view/$1";
 $route['view/t/(:any)'] = "status_api/view/$1";
 $route['view/j/(:any)'] = "status_api/view/$1";
 $route['overview'] = "status_api/overview";
+$route['data_transfer'] = "status_api/data_transfer";
+$route['data_transfer/(:any)'] = "status_api/data_transfer/$1";
 
 
 /* End of file routes.php */

@@ -74,7 +74,7 @@ class Status_api extends Baseline_user_api_controller
         ];
         $this->page_data['css_uris'][] = '/project_resources/stylesheets/doi_transfer_cart.css';
         $this->page_data = array_merge($this->page_data, $updated_page_info);
-        $this->overview('transfer');
+        $this->overview();
     }
 
     /**
