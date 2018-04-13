@@ -269,7 +269,7 @@ class Status_api extends Baseline_user_api_controller
             foreach ($transaction_list['transactions'] as $transaction_id => $transaction_info) {
                 $file_size_totals[$transaction_id] = $transaction_info['file_size_bytes'];
                 $message = "";
-                $time_period_emtpy = false;
+                $time_period_empty = false;
             }
             $transaction_list['file_size_totals'] = $file_size_totals;
             $results = array(
@@ -306,7 +306,6 @@ class Status_api extends Baseline_user_api_controller
         }
         $this->page_data['informational_message'] = $results['message'];
         $this->page_data['request_type'] = 't';
-
         $this->load->view($view_name, $this->page_data);
     }
 

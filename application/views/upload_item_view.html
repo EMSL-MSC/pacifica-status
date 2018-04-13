@@ -6,8 +6,7 @@
 </div>
 <?php else: ?>
 <h2 style="text-align:center;font-size:1.5em;"><?= $informational_message ?></h2>
-
-<?php foreach($transaction_data['times'] as $upload_time_string => $transaction_id): ?>
+<?php foreach($transaction_data['times'] as  $transaction_id => $upload_time_string): ?>
   <?php
   $transaction_info = $transaction_data['transactions'][$transaction_id];
   $friendly_upload_time = utc_to_local_time($upload_time_string, 'D, M j Y g:ia T');
