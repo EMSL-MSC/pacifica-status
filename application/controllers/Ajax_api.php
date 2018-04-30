@@ -126,7 +126,7 @@ class Ajax_api extends Baseline_api_controller
         $transaction_list = [];
         if ($this->input->is_ajax_request() || file_get_contents('php://input')) {
             $http_raw_post_data = file_get_contents('php://input');
-            $transaction_list = json_decode($http_raw_post_data, TRUE);
+            $transaction_list = json_decode($http_raw_post_data, true);
         }
         $query = Requests::post($md_url, array(
             'Accept' => 'application/json',
@@ -143,7 +143,8 @@ class Ajax_api extends Baseline_api_controller
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function set_release_state($transaction_id, $release_state){
+    public function set_release_state($transaction_id, $release_state)
+    {
         //This really needs to check permissions
         $release_state_id = $release_state == 'released' ? 1 : 0;
         $content = [

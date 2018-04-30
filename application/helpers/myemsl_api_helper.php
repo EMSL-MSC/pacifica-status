@@ -242,7 +242,8 @@ function array_to_xml($data, &$xml_data)
     }
 }
 
-function get_selection_defaults($incoming){
+function get_selection_defaults($incoming)
+{
     $proposal_id = $incoming['proposal_id'] ?: get_cookie('last_proposal_selector');
     $instrument_id = $incoming['instrument_id'] ?: get_cookie('last_instrument_selector');
     $starting_date = $incoming['starting_date'] ?: get_cookie('last_starting_date_selector');

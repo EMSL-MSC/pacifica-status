@@ -65,7 +65,8 @@ class Status_api extends Baseline_user_api_controller
         redirect('/overview');
     }
 
-    public function data_transfer($data_identifier = ''){
+    public function data_transfer($data_identifier = '')
+    {
         $this->data_identifier = $data_identifier;
         $this->page_mode = 'transfer';
         $updated_page_info = [
@@ -111,10 +112,9 @@ class Status_api extends Baseline_user_api_controller
                 )
             );
         $extra_scripts_array = ['/project_resources/scripts/overview.js'];
-        if($this->page_mode == 'transfer'){
+        if ($this->page_mode == 'transfer') {
             $extra_scripts_array[] = '/project_resources/scripts/doi_data_transfer.js';
-        }
-        else{
+        } else {
             $extra_scripts_array[] = '/project_resources/scripts/myemsl_file_download.js';
         }
 

@@ -42,7 +42,5 @@ class Data_transfer_api_model extends CI_Model
     {
         parent::__construct();
         $this->load->helper(array('item', 'network', 'time'));
-
     }
-
 }
