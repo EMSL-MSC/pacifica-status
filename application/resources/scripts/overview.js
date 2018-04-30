@@ -340,6 +340,9 @@ var update_content = function(event) {
                                         function() {
                                             setup_tree_data();
                                             setup_metadata_disclosure();
+                                            if(typeof setup_staging_buttons == "function"){
+                                                setup_staging_buttons();
+                                            }
                                         }
                                     );
                                 }
