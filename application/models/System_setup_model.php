@@ -45,7 +45,6 @@ class System_setup_model extends CI_Model
     {
         parent::__construct();
 
-        $this->statusdb_name = 'pacifica_upload_status';
         //quickly assess the current system status
         try {
             $this->setup_db_structure();
@@ -67,17 +66,19 @@ class System_setup_model extends CI_Model
      */
     private function _check_and_create_database($db_name)
     {
-        if(!$this->dbutil->database_exists($db_name)) {
-            log_message('info', 'Attempting to create database structure...');
-            //db doesn't already exist, so make it
-            if($this->dbforge->create_database($db_name)) {
-                log_message('info', "Created {$db_name} database instance");
-            }else{
-                log_message('error', "Could not create database instance.");
-                $this->output->set_status_header(500);
+        if ($this->db->platform() != 'sqlite3') {
+            if (!$this->dbutil->database_exists($db_name)) {
+                log_message('info', 'Attempting to create database structure...');
+                //db doesn't already exist, so make it
+                if ($this->dbforge->create_database($db_name)) {
+                    log_message('info', "Created {$db_name} database instance");
+                } else {
+                    log_message('error', "Could not create database instance.");
+                    $this->output->set_status_header(500);
+                }
             }
-        }else{
-
+        } else {
+            log_message('info', 'DB Type is sqlite3, so we don\'t have to explicitly make the db file');
         }
     }
 
@@ -95,30 +96,32 @@ class System_setup_model extends CI_Model
         $this->load->dbforge();
         $this->load->dbutil();
 
-        $this->_check_and_create_database($this->statusdb_name);
+        $this->_check_and_create_database($this->db->database);
 
-
-        //ok, the database should be there now. Let's make some tables
-
-        if(!$this->db->table_exists('cart')) {
+        //the database should already be in place. Let's make some tables
+        if (!$this->db->table_exists('cart')) {
             $cart_fields = array(
                 'cart_uuid' => array(
                     'type' => 'VARCHAR',
                     'constraint' => '64',
-                    'unique' => TRUE
+                    'unique' => true
                 ),
                 'name' => array(
                     'type' => 'VARCHAR'
                 ),
                 'description' => array(
                     'type' => 'VARCHAR',
-                    'null' => TRUE
+                    'null' => true
                 ),
                 'owner' => array(
                     'type' => 'INT'
                 ),
                 'json_submission' => array(
-                    'type' => 'json'
+                    'type' => 'VARCHAR'
+                ),
+                'last_known_state' => array(
+                    'type' => 'VARCHAR',
+                    'default' => 'waiting'
                 ),
                 'created' => array(
                     'type' => 'TIMESTAMP',
@@ -129,22 +132,23 @@ class System_setup_model extends CI_Model
                 ),
                 'deleted' => array(
                     'type' => 'TIMESTAMP',
-                    'null' => TRUE
+                    'null' => true
                 )
             );
             $this->dbforge->add_field($cart_fields);
-            $this->dbforge->add_key('cart_uuid', TRUE);
-            if($this->dbforge->create_table('cart')) {
+            $this->dbforge->add_key('cart_uuid', true);
+            if ($this->dbforge->create_table('cart')) {
                 log_message("info", "Created 'cart' table...");
             };
         }
 
 
-        if(!$this->db->table_exists('cart_items')) {
+        if (!$this->db->table_exists('cart_items')) {
             $cart_items_fields = array(
                 'id' => array(
-                    'type' => 'NUMERIC',
-                    'auto_increment' => TRUE
+                    'type' => 'INTEGER',
+                    'auto_increment' => true,
+                    'unsigned' => true
                 ),
                 'file_id' => array(
                     'type' => 'BIGINT'
@@ -152,6 +156,14 @@ class System_setup_model extends CI_Model
                 'cart_uuid' => array(
                     'type' => 'VARCHAR',
                     'constraint' => 64
+                ),
+                'hashtype' => array(
+                    'type' => 'VARCHAR',
+                    'default' => 'sha1'
+                ),
+                'hashsum' => array(
+                    'type' => 'VARCHAR',
+                    'constraint' => 40
                 ),
                 'relative_local_path' => array(
                     'type' => 'VARCHAR'
@@ -161,16 +173,14 @@ class System_setup_model extends CI_Model
                 ),
                 'file_mime_type' => array(
                     'type' => 'VARCHAR',
-                    'null' => TRUE
+                    'null' => true
                 )
             );
             $this->dbforge->add_field($cart_items_fields);
-            $this->dbforge->add_key(array('file_id', 'cart_uuid'), TRUE);
-            if($this->dbforge->create_table('cart_items')) {
+            $this->dbforge->add_key(array('file_id', 'cart_uuid'), true);
+            if ($this->dbforge->create_table('cart_items')) {
                 log_message("info", "Created 'cart_items' table...");
             };
-
         }
     }
-
 }

@@ -11,7 +11,9 @@
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
 
- if (! defined('BASEPATH')) exit('No direct script access allowed');
+if (! defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
 /*
 | -------------------------------------------------------------------
 | DATABASE CONNECTIVITY SETTINGS
@@ -30,7 +32,7 @@
 | ['password'] The password used to connect to the database
 | ['database'] The name of the database you want to connect to
 | ['dbdriver'] The database type. ie: mysql.  Currently supported:
-				 mysql, mysqli, postgre, odbc, mssql, sqlite, oci8
+                 mysql, mysqli, postgre, odbc, mssql, sqlite, oci8
 | ['dbprefix'] You can add an optional prefix, which will be added
 |        to the table name when using the  Active Record class
 | ['pconnect'] TRUE/FALSE - Whether to use a persistent connection
@@ -60,21 +62,20 @@
 
 $active_group = 'default';
 // $active_record = TRUE;
-$query_builder = TRUE;
+$query_builder = true;
 // $ini_file_name = stristr($_SERVER['SERVER_NAME'], 'dev1.my') === FALSE ? 'general.ini' : 'general_dpp.ini';
 $db['default'] = array(
   'hostname' => getenv('CARTDB_ADDR'),
   'username' => getenv('CARTDB_USER'),
   'password' => getenv('CARTDB_PASSWORD'),
   'database' => getenv('CARTDB_DB_NAME'),
-  'dbdriver' => "postgre",
+  'dbdriver' => getenv('CARTDB_DBDRIVER'),
   'dbprefix' => "",
-  'pconnect' => FALSE,
-  'db_debug' => TRUE,
-  'cache_on' => FALSE,
+  'pconnect' => false,
+  'db_debug' => (ENVIRONMENT !== 'production'),
+  'cache_on' => false,
   'cachedir' => ""
 );
-
 // $db['init_postgres'] = $db['default'];
 // $db['init_postgres']['database'] = 'postgres';
 //

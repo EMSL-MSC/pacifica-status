@@ -24,7 +24,9 @@
  *
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
- if (!defined('BASEPATH')) exit('No direct script access allowed');
+if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
+}
 
 /**
  *  Recursively construct the proper HTML
@@ -40,6 +42,7 @@
  */
 function build_folder_structure(&$dirs, $path_array, $item_info)
 {
+    $CI =& get_instance();
     if (count($path_array) > 1) {
         if (!isset($dirs['folders'][$path_array[0]])) {
             $dirs['folders'][$path_array[0]] = array();
@@ -48,13 +51,14 @@ function build_folder_structure(&$dirs, $path_array, $item_info)
         build_folder_structure($dirs['folders'][$path_array[0]], array_splice($path_array, 1), $item_info);
     } else {
         $size_string = format_bytes($item_info['size']);
-        $m_time = new DateTime($item_info['mtime']);
-        $date_string = $m_time->format('n/j/Y g:ia');
+        $date_string = utc_to_local_time($item_info['mtime'], 'n/j/Y g:ia T');
         $item_id = $item_info['_id'];
-        $url = base_url()."myemsl/itemauth/{$item_id}";
+        $hashsum = $item_info['hashsum'];
+        $url = "{$CI->file_url_base}/files/sha1/{$hashsum}";
         $item_info['url'] = $url;
         $item_info_json = json_encode($item_info);
-        $dirs['files'][$item_id] = "<a class='item_link' id='item_{$item_id}' href='#'>{$path_array[0]}</a> <span class='fineprint'>[File Size: {$size_string}; Last Modified: {$date_string}]</span><span class='item_data_json' id='item_id_{$item_id}' style='display:none;'>{$item_info_json}</span>";
+        $fineprint = "[File Size: {$size_string}; Last Modified: {$date_string}]";
+        $dirs['files'][$item_id] = "<a class='item_link' title='{$fineprint}' id='item_{$item_id}' href='{$url}'>{$path_array[0]}</a> <span class='fineprint'>{$fineprint}</span><span class='item_data_json' id='item_id_{$item_id}' style='display:none;'>{$item_info_json}</span>";
     }
 }
 
@@ -69,23 +73,23 @@ function build_folder_structure(&$dirs, $path_array, $item_info)
  *
  *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function format_folder_object_json($folder_obj,$folder_name)
+function format_folder_object_json($folder_obj, $folder_name)
 {
     $output = array();
-    if(array_key_exists('folders', $folder_obj)) {
-        foreach($folder_obj['folders'] as $folder_entry => $folder_tree){
-            $folder_output = array('title' => $folder_entry, 'folder' => TRUE);
+    if (array_key_exists('folders', $folder_obj)) {
+        foreach ($folder_obj['folders'] as $folder_entry => $folder_tree) {
+            $folder_output = array('title' => $folder_entry, 'folder' => true);
             $children = format_folder_object_json($folder_tree, $folder_entry);
-            if(!empty($children)) {
-                foreach($children as $child){
+            if (!empty($children)) {
+                foreach ($children as $child) {
                     $folder_output['children'][] = $child;
                 }
             }
             $output[] = $folder_output;
         }
     }
-    if(array_key_exists('files', $folder_obj)) {
-        foreach($folder_obj['files'] as $item_id => $file_entry){
+    if (array_key_exists('files', $folder_obj)) {
+        foreach ($folder_obj['files'] as $item_id => $file_entry) {
             $output[] = array('title' => $file_entry, 'key' => "ft_item_{$item_id}");
         }
     }
@@ -104,13 +108,13 @@ function format_folder_object_json($folder_obj,$folder_name)
  */
 function format_folder_object_html($folder_obj, &$output_structure)
 {
-    foreach(array_keys($folder_obj) as $folder_entry){
+    foreach (array_keys($folder_obj) as $folder_entry) {
         $output_structure .= "<li class='folder'>{$folder_entry}<ul>";
-        if(array_key_exists('folders', $folder_obj[$folder_entry])) {
+        if (array_key_exists('folders', $folder_obj[$folder_entry])) {
             $f_obj = $folder_obj[$folder_entry]['folders'];
             format_folder_object_html($f_obj, $output_structure);
         }
-        if(array_key_exists('files', $folder_obj[$folder_entry])) {
+        if (array_key_exists('files', $folder_obj[$folder_entry])) {
             $file_obj = $folder_obj[$folder_entry]['files'];
             format_file_object_html($file_obj, $output_structure);
         }

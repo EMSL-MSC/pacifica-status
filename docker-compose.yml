@@ -1,20 +1,59 @@
 version: '2'
 services:
+# Nginx proxy pass frontends
+    proxyfrontend:
+        container_name: status_proxyfrontend
+        build:
+            context: .
+            dockerfile: Dockerfile.archiveproxy
+        links:
+            - uploadstatus:statusbackend
+            # - reporting:reportingbackend
+            # - archiveinterface:archiveinterface
+            # - proxyserver:proxyserver
+        ports:
+            - 80:80
+            - 443:443
+        environment:
+            UPLOAD_STATUS_ADDR: statusbackend
+            UPLOAD_STATUS_PORT: 80
+            # REPORTING_ADDR: reportingbackend
+            # REPORTING_PORT: 80
+            FILE_REDIRECT_ADDR: archiveinterface
+            FILE_REDIRECT_PORT: 8080
+            # PROXY_ADDR: proxyserver
+            # PROXY_PORT: 8180
+
+    # archiveproxy:
+    #     container_name: status_archiveproxy
+    #     build:
+    #         context: .
+    #         dockerfile: Dockerfile.archiveproxy
+    #     links:
+    #         - proxyserver:proxyserver
+    #         - archiveinterface:archiveinterface
+    #     ports:
+    #         - 8123:8123
+    #     environment:
+    #         PROXY_ADDR: proxyserver
+    #         PROXY_PORT: 8180
+    #         FILE_REDIRECT_ADDR: archiveinterface
+    #         FILE_REDIRECT_PORT: 8080
+
+# Upload status
     uploadstatus:
-        container_name: uploadstatus
+        container_name: status_uploadstatus
         build:
             context: .
             dockerfile: Dockerfile.dev
-        # volumes:
-        #     - ./:/var/www/html
+        volumes:
+            - ./:/var/www/html
         links:
             - metadataserver:metadata
             - policyserver:policy
-            - cartserver:cart
+            # - cartserver:cart
             - uploadstatusdb:cartdb
-            - archiveinterface:archivei
-        ports:
-            - 80:80
+            # - archiveinterface:archivei
         environment:
             METADATA_PORT: tcp://metadata:8121
             POLICY_PORT: tcp://policy:8181
@@ -25,11 +64,12 @@ services:
             CARTDB_USER: pacifica
             CARTDB_PASSWORD: pacifica
             CARTDB_DB_NAME: pacifica_upload_status
-            CART_DOWNLOAD_PORT: tcp://cart.my.emsl.pnl.gov
-            FILE_DOWNLOAD_PORT: tcp://download.my.emsl.pnl.gov
+            CARTDB_DBDRIVER: postgre
+            CART_DOWNLOAD_PORT: tcp://cartng.emsl.pnl.gov:8443
+            FILE_DOWNLOAD_PORT: tcp://filesng.emsl.pnl.gov:8443
 
     uploadstatusdb:
-        container_name: uploadstatusdb
+        container_name: status_uploadstatusdb
         image: postgres
         environment:
             POSTGRES_PASSWORD: pacifica
@@ -38,32 +78,30 @@ services:
         ports:
             - 55432:5432
 
-
+# Metadata and policy servers
     metadataserver:
         build:
             context: ../metadata
             dockerfile: Dockerfile
-        container_name: metadataserver
+        container_name: status_metadataserver
         links:
             - metadatadb:postgres
-            - elasticmaster
-            - elasticlb
+            - elasticdb
         ports:
             - 8121:8121
         environment:
-            ELASTICDB_PORT: tcp://elasticmaster:9200
+            ELASTICDB_PORT: tcp://elasticdb:9200
             POSTGRES_ENV_POSTGRES_DB: pacifica_metadata
             POSTGRES_ENV_POSTGRES_USER: pacifica
             POSTGRES_PORT_5432_TCP_ADDR: postgres
             POSTGRES_PORT_5432_TCP_PORT: 5432
             POSTGRES_ENV_POSTGRES_PASSWORD: pacifica
 
-
     policyserver:
         build:
             context: ../policy
             dockerfile: Dockerfile
-        container_name: policyserver
+        container_name: status_policyserver
         restart: unless-stopped
         links:
             - metadataserver:metadata
@@ -72,34 +110,9 @@ services:
         environment:
             METADATA_PORT: tcp://metadata:8121
 
-    elasticmaster:
-        build:
-            context: ../metadata
-            dockerfile: docker-compose/Dockerfile.elastic
-        container_name: elasticmaster
-
-    elasticslave:
-        build:
-            context: ../metadata
-            dockerfile: docker-compose/Dockerfile.elastic
-        links:
-            - elasticmaster
-        environment:
-            UNICAST_HOST: elasticmaster
-            EXCLUDE_PORTS: 9300
-
-    elasticlb:
-        image: dockercloud/haproxy
-        links:
-            - elasticslave:elasticslave
-        volumes:
-            - /var/run/docker.sock:/var/run/docker.sock
-        ports:
-            - 9200:9200
-
     metadatadb:
         image: postgres
-        container_name: metadatadb
+        container_name: status_metadatadb
         environment:
             POSTGRES_PASSWORD: pacifica
             POSTGRES_DB: pacifica_metadata
@@ -107,84 +120,99 @@ services:
         ports:
             - 5432:5432
 
-
-    cartrabbit:
-        image: rabbitmq
-        container_name: cartrabbit
+    elasticdb:
+        image: elasticsearch:2.4
+        container_name: status_elasticdb
         ports:
-            - 5672:5672
+            - 9200:9200
 
-    cartmysql:
-        image: mysql
-        container_name: cartmysql
-        environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: pacifica_cart
-            MYSQL_USER: cartd
-            MYSQL_PASSWORD: cartd
-        ports:
-            - 3306:3306
+# Archive interface and file downloading
+    # archiveinterface:
+    #     image: pacifica/archiveinterface
+    #     container_name: archiveinterface
+    #     ports:
+    #         - 8080:8080
+    #     volumes:
+    #         # - /srv:/srv
+    #         - /Users/d3k857/Downloads/srv/Data:/srv
+    #
+    # proxyserver:
+    #     container_name: proxyserver
+    #     build:
+    #         context: ../proxy
+    #     links:
+    #         - metadataserver:metadata
+    #         - archiveinterface:archiveinterface
+    #     ports:
+    #         - 8180:8180
+    #     environment:
+    #         NGINX_ACCEL: 'True'
+    #         METADATA_PORT: tcp://metadata:8121
+    #         ARCHIVEI_PORT: tcp://archiveinterface:8080
 
-    archiveinterface:
-        image: pacifica/archiveinterface
-        container_name: archiveinterface
-        ports:
-            - 8080:8080
-        volumes:
-            # - /srv:/srv
-            - /Users/d3k857/Downloads/srv:/srv
-
-
-    cartworkers:
-        container_name: cartworkers
-        build:
-            context: ../cartd
-            dockerfile: Dockerfile
-        links:
-            - cartrabbit:amqp
-            - cartmysql:mysql
-            - archiveinterface:archivei
-        volumes:
-            # - /shared:/shared
-            - /Users/d3k857/Downloads/shared:/shared
-
-        environment:
-            VOLUME_PATH: /shared/
-            LRU_BUFFER_TIME: 0
-            # ARCHIVE_INTERFACE_URL: http://archivei:8080
-            ARCHIVEI_PORT_8080_TCP_ADDR: archivei
-            ARCHIVEI_PORT_8080_TCP_PORT: 8080
-            AMQP_PORT_5672_TCP_ADDR: amqp
-            AMQP_PORT_5672_TCP_PORT: 5672
-            MYSQL_PORT_3306_TCP_ADDR: mysql
-            MYSQL_PORT_3306_TCP_PORT: 3306
-            MYSQL_ENV_MYSQL_DATABASE: pacifica_cart
-            MYSQL_ENV_MYSQL_USER: cartd
-            MYSQL_ENV_MYSQL_PASSWORD: cartd
-
-    cartserver:
-        container_name: cartserver
-        build:
-            context: ../cartd
-            dockerfile: Dockerfile.wsgi
-        ports:
-            - 8081:8081
-        links:
-            - cartrabbit:amqp
-            - cartmysql:mysql
-            - archiveinterface:archivei
-        volumes:
-            # - /shared:/shared
-            - /Users/d3k857/Downloads/shared:/shared
-        environment:
-            VOLUME_PATH: /shared/
-            LRU_BUFFER_TIME: 0
-            ARCHIVEI_PORT_8080_TCP_ADDR: archivei
-            ARCHIVEI_PORT_8080_TCP_PORT: 8080
-            AMQP_PORT_5672_TCP_ADDR: amqp
-            AMQP_PORT_5672_TCP_PORT: 5672
-            MYSQL_PORT_3306_TCP_ADDR: mysql
-            MYSQL_PORT_3306_TCP_PORT: 3306
-            MYSQL_ENV_MYSQL_DATABASE: pacifica_cart
-            MYSQL_ENV_MYSQL_USER: cartd
-            MYSQL_ENV_MYSQL_PASSWORD: cartd
+# Cart serving bits
+    # cartserver:
+    #     container_name: cartserver
+    #     image: pacifica/cartd-frontend
+    #     ports:
+    #         - 8081:8081
+    #     links:
+    #         - cartrabbit:amqp
+    #         - cartmysql:mysql
+    #         - archiveinterface:archivei
+    #     volumes:
+    #         # - /shared:/shared
+    #         - /Users/d3k857/Downloads/shared:/shared
+    #     environment:
+    #         VOLUME_PATH: /shared/
+    #         LRU_BUFFER_TIME: 0
+    #         ARCHIVEI_PORT_8080_TCP_ADDR: archivei
+    #         ARCHIVEI_PORT_8080_TCP_PORT: 8080
+    #         AMQP_PORT_5672_TCP_ADDR: amqp
+    #         AMQP_PORT_5672_TCP_PORT: 5672
+    #         MYSQL_PORT_3306_TCP_ADDR: mysql
+    #         MYSQL_PORT_3306_TCP_PORT: 3306
+    #         MYSQL_ENV_MYSQL_DATABASE: pacifica_cart
+    #         MYSQL_ENV_MYSQL_USER: cartd
+    #         MYSQL_ENV_MYSQL_PASSWORD: cartd
+    #
+    # cartworkers:
+    #     container_name: cartworkers
+    #     image: pacifica/cartd-backend
+    #     links:
+    #         - cartrabbit:amqp
+    #         - cartmysql:mysql
+    #         - archiveinterface:archivei
+    #     volumes:
+    #         # - /shared:/shared
+    #         - /Users/d3k857/Downloads/shared:/shared
+    #
+    #     environment:
+    #         VOLUME_PATH: /shared/
+    #         LRU_BUFFER_TIME: 0
+    #         ARCHIVEI_PORT_8080_TCP_ADDR: archivei
+    #         ARCHIVEI_PORT_8080_TCP_PORT: 8080
+    #         AMQP_PORT_5672_TCP_ADDR: amqp
+    #         AMQP_PORT_5672_TCP_PORT: 5672
+    #         MYSQL_PORT_3306_TCP_ADDR: mysql
+    #         MYSQL_PORT_3306_TCP_PORT: 3306
+    #         MYSQL_ENV_MYSQL_DATABASE: pacifica_cart
+    #         MYSQL_ENV_MYSQL_USER: cartd
+    #         MYSQL_ENV_MYSQL_PASSWORD: cartd
+    #
+    # cartrabbit:
+    #     image: rabbitmq
+    #     container_name: cartrabbit
+    #     ports:
+    #         - 5672:5672
+    #
+    # cartmysql:
+    #     image: mysql
+    #     container_name: cartmysql
+    #     environment:
+    #         MYSQL_ROOT_PASSWORD: root
+    #         MYSQL_DATABASE: pacifica_cart
+    #         MYSQL_USER: cartd
+    #         MYSQL_PASSWORD: cartd
+    #     ports:
+    #         - 3306:3306

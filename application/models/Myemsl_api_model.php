@@ -57,8 +57,5 @@ class Myemsl_api_model extends CI_Model
     {
 
         return get_user_details($this->user_id);
-
     }
-
-
 }

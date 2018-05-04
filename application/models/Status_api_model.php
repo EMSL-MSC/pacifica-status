@@ -42,7 +42,6 @@ class Status_api_model extends CI_Model
     {
         parent::__construct();
         $this->local_timezone = $this->config->item('local_timezone');
-        // $this->load->library('EUS', '', 'eus');
         $this->load->model('Myemsl_api_model', 'myemsl');
         $this->load->helper(array('item', 'network', 'time'));
 
@@ -80,8 +79,7 @@ class Status_api_model extends CI_Model
         );
         $transactions_url .= http_build_query($url_args_array, '', '&');
         $query = Requests::get($transactions_url, array('Accept' => 'application/json'));
-        $results = json_decode($query->body, TRUE);
-
+        $results = json_decode($query->body, true);
         return $results;
     }
 
@@ -96,15 +94,15 @@ class Status_api_model extends CI_Model
      */
     public function get_formatted_transaction($transaction_id)
     {
-        $transactions_url = "{$this->policy_url_base}/status/transactions/search/details?";
+        $transactions_url = "{$this->metadata_url_base}/transactioninfo/search/details?";
         $url_args_array = array(
-            'user' => $this->user_id,
+            // 'user' => $this->user_id,
             'transaction_id' => $transaction_id
         );
         $transactions_url .= http_build_query($url_args_array, '', '&');
 
         $query = Requests::get($transactions_url, array('Accept' => 'application/json'));
-        $results = json_decode($query->body, TRUE);
+        $results = json_decode($query->body, true);
         return $results;
     }
 
@@ -128,11 +126,11 @@ class Status_api_model extends CI_Model
         );
         $proposals_url .= http_build_query($url_args_array, '', '&');
 
-        try{
+        try {
             $query = Requests::get($proposals_url, array('Accept' => 'application/json'));
             // var_dump($query);
-            $results = json_decode($query->body, TRUE);
-        } catch (Exception $e){
+            $results = json_decode($query->body, true);
+        } catch (Exception $e) {
             $results = array();
         }
         return $results;
@@ -149,37 +147,33 @@ class Status_api_model extends CI_Model
      */
     public function get_transaction_details($transaction_id)
     {
-        $transaction_url = "{$this->policy_url_base}/status/transactions/by_id/{$transaction_id}?";
-        // $url_args_array = array(
-        //     'user' => $this->user_id
-        // );
-        // $transaction_url .= http_build_query($url_args_array, '', '&');
-
+        $transaction_url = "{$this->metadata_url_base}/transactioninfo/by_id/{$transaction_id}?";
         $results = array();
 
-        try{
+        try {
             $query = Requests::get($transaction_url, array('Accept' => 'application/json'));
             $sc = $query->status_code;
-            if($sc / 100 == 2) {
+            if ($sc / 100 == 2) {
                 //good data, move along
-                $results = json_decode($query->body, TRUE);
-
-            }elseif($sc / 100 == 4) {
-                if($sc == 404) {
+                $results = json_decode($query->body, true);
+                if (isset($results['status']) && intval($results['status'] / 100) == 4) {
+                    $results = array();
+                }
+            } elseif ($sc / 100 == 4) {
+                if ($sc == 404) {
                     //transaction not found
                     $results = array();
-                }else{
+                } else {
                     //some other input error
                 }
-            }else{
-
+            } else {
+                $results = array();
             }
-        } catch (Exception $e){
+        } catch (Exception $e) {
             //some other error
         }
 
         return $results;
-
     }
 
     /**
@@ -195,7 +189,7 @@ class Status_api_model extends CI_Model
     {
         $transaction = $this->get_transaction_details($transaction_id);
         $total_file_size_bytes = 0;
-        foreach($transaction['files'] as $file_id => $file_info){
+        foreach ($transaction['files'] as $file_id => $file_info) {
             $total_file_size_bytes += $file_info['size'];
         }
         return $total_file_size_bytes;
@@ -218,29 +212,149 @@ class Status_api_model extends CI_Model
         $url_args_array = array(
             'user' => $this->user_id
         );
-        // $files_url .= http_build_query($url_args_array, '', '&');
         $results = array();
-        // try{
-            $query = Requests::get($files_url, array('Accept' => 'application/json'));
-        if($query->status_code / 100 == 2) {
-            $results = json_decode($query->body, TRUE);
+        $query = Requests::get($files_url, array('Accept' => 'application/json'));
+        if (intval($query->status_code / 100) == 2) {
+            $results = json_decode($query->body, true);
         }
-        // } catch (Exception $e){
-        //     $results = array();
-        // }
 
         if ($results && !empty($results) > 0) {
             $dirs = array();
+            $file_list = array();
             foreach ($results as $item_id => $item_info) {
-                $subdir = preg_replace('|^proposal\s[^/]+/[^/]+/\d{4}\.\d{1,2}\.\d{1,2}/?|i', '', trim($item_info['subdir'], '/'));
+                $subdir = trim($item_info['subdir'], '/');
                 $filename = $item_info['name'];
                 $path = !empty($subdir) ? "{$subdir}/{$filename}" : $filename;
+                $path_array = explode('/', $path);
+                $file_list[$path] = $item_id;
+            }
+            ksort($file_list);
+            $temp_list = array_keys($file_list);
+            $first_path = array_shift($temp_list);
+            $temp_list = array_keys($file_list);
+            $last_path = array_pop($temp_list);
+            $common_path_prefix_array = $this->get_common_path_prefix($first_path, $last_path);
+            $common_path_prefix = implode('/', $common_path_prefix_array);
+            foreach ($file_list as $path => $item_id) {
+                $item_info = $results[$item_id];
+                $path = ltrim(preg_replace('/^' . preg_quote($common_path_prefix, '/') . '/', '', $path), '/');
+                $item_info['subdir'] = $path;
                 $path_array = explode('/', $path);
                 build_folder_structure($dirs, $path_array, $item_info);
             }
 
-            return array('treelist' => $dirs, 'files' => $results);
+            return array(
+                'treelist' => $dirs,
+                'files' => $results,
+                'common_path_prefix_array' => $common_path_prefix_array
+            );
         }
     }
 
+    /**
+     * Get the common directory prefix for a set of paths so that we can remove it.
+     *
+     * @param  string $first_path first path to compare
+     * @param  string $last_path second path to compare
+     * @param  string $delimiter path delimiter (defaults to '/')
+     *
+     * @return array array of common path elements
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function get_common_path_prefix($first_path, $last_path, $delimiter = '/')
+    {
+        $shortest_path = sizeof($first_path) < sizeof($last_path) ? $first_path : $last_path;
+        $longest_path = $shortest_path == $first_path ? $last_path : $first_path;
+        $short_path_array = explode($delimiter, dirname($shortest_path));
+        $longest_path_array = explode($delimiter, dirname($longest_path));
+        $common_path_array = array();
+        for ($i=0; $i<sizeof($short_path_array); $i++) {
+            if ($short_path_array[$i] == $longest_path_array[$i]) {
+                $common_path_array[] = $short_path_array[$i];
+            } else {
+                break;
+            }
+        }
+        return $common_path_array;
+    }
+
+    /**
+     * Get the last known transaction number from the md server
+     *
+     * @return int last known transaction number from the metadata db
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function get_last_known_transaction()
+    {
+        $txn_url = "{$this->metadata_url_base}/transactioninfo/last/";
+        $last_txn = -1;
+        $query = Requests::get($txn_url);
+        if (intval($query->status_code / 100) == 2) {
+            $results = json_decode($query->body, true);
+            $last_txn = $results['latest_transaction_id'];
+        }
+        return $last_txn;
+    }
+
+    /**
+     * Retrieve real transaction in progress status from the ingester
+     *
+     * @param int $transaction_id transaction id to check
+     *
+     * @return array doctored results object
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function get_ingest_status($transaction_id)
+    {
+        $now = new DateTime();
+        $default_results_obj = array(
+            'task_percent' => "0.000",
+            'updated' => local_time_to_utc($now)->format('Y-m-d H:i:s'),
+            'task' => '',
+            'job_id' => $transaction_id,
+            'created' => local_time_to_utc($now)->format('Y-m-d H:i:s'),
+            'exception' => '',
+            'state' => 'fail'
+        );
+        $transaction_details = $this->get_transaction_details($transaction_id);
+        $upload_present_on_mds = !empty($transaction_details) ? true : false;
+        $ingester_url = "{$this->ingester_url_base}/get_state/{$transaction_id}";
+        try {
+            $query = Requests::get($ingester_url, array('Accept' => 'application/json'));
+            $results_obj = json_decode(stripslashes($query->body), true);
+            if (intval($query->status_code / 100) == 2 && $results_obj) {
+                $task_topic = strtolower(str_replace(' ', '_', $results_obj['task']));
+            } else {
+                if (intval($query->status_code / 100) == 4) {
+                    $task_topic = "no_transaction";
+                    $message = $results_obj['message'];
+                } else {
+                    $task_topic = "server_error";
+                    $message = "a server error has occurred";
+                }
+            }
+        } catch (\Exception $e) {
+            $results_obj = $default_results_obj;
+            $results_obj['task'] = "server_error";
+            $results_obj['exception'] = "Could not contact ingester service for status";
+            $results_obj['upload_present_on_mds'] = $upload_present_on_mds;
+            return $results_obj;
+        }
+        $results_obj = $default_results_obj;
+        $results_obj['task'] = $task_topic;
+        $results_obj['exception'] = $message;
+        $results_obj['upload_present_on_mds'] = $upload_present_on_mds;
+        if ($task_topic == "ingest_metadata" && !empty($transaction_details)) {
+            $task_topic = "ingest_complete";
+        }
+        $translated_message_obj = $this->ingester_messages[$task_topic];
+        $results_obj['message'] = strtolower($results_obj['state']) == "ok" ?
+            $translated_message_obj['success_message'] : $translated_message_obj['failure_message'];
+        $results_obj['state'] = strtolower($results_obj['state']);
+        $results_obj['overall_percentage'] = $translated_message_obj['percent_complete'];
+        return $results_obj;
+    }
 }

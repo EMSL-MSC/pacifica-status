@@ -6,99 +6,143 @@
 </div>
 <?php else: ?>
 <h2 style="text-align:center;font-size:1.5em;"><?= $informational_message ?></h2>
-<?php foreach($transaction_data['times'] as $upload_time_string => $transaction_id): ?>
-<?php
-      $upload_time = new DateTime($upload_time_string);
-      $transaction_info = $transaction_data['transactions'][$transaction_id];
-      $status_info = $transaction_info['status'];
-      $groups = $transaction_info['groups'];
-      $submitter_id = $groups['submitter_id'];
-      $submitter_name = $groups['submitter_name'];
-      $friendly_upload_time = utc_to_local_time($upload_time_string, 'g:ia \o\n D, M j Y');
-      // $status_steps = !empty($transaction_info['status']) ?
-      // array_pop($transaction_info['status']) :
-      // array('0' => array('trans_id' => $transaction_id, 'step' => '0'));
-      // krsort($status_steps);
-      // $latest_step_obj = array_slice($status_steps, 0,1, true);
-      // $latest_step_info =  array_pop($latest_step_obj); */
-      $latest_step = $status_info['step'];
-?>
-    <fieldset id="fieldset_<?= $transaction_id ?>" class="transaction_container">
-        <legend>Uploaded at
-            <?= $friendly_upload_time ?>
-            <a href="/view/t/<?= $transaction_id ?>">[Upload ID
-                <?= $transaction_id ?>]</a></legend>
-        <?php if($enable_breadcrumbs): ?>
-        <?php
-  $bar_info = array(
-    'latest_step' => $latest_step,
-    'status_list' => $status_list,
-    'transaction_id' => $transaction_id
-  );
-?>
-            <?php $bar_text = trim($this->load->view('status_breadcrumb_insert_view.html',$bar_info, true)); ?>
-            <?php $hash_list[$transaction_id] = sha1($bar_text); ?>
-            <div class="bar_holder" id="bar_holder_<?= $transaction_id ?>">
-                <?= $bar_text ?>
-            </div>
-            <?php endif; ?>
-            <div class="full_width_block">
-                <h3><span>Metadata Uploaded</span><span id='metadata_<?= $transaction_id ?>_dc' class="disclosure_button dc_up"></span></h3>
-                <ul class="metadata_container" style="display:none;">
-                    <div class='left_block'>
-                        <li>
-                            <span class="metadata_term">Transaction ID: </span>
-                            <span class="metadata_def"><?= $transaction_id ?></span>
-                        </li>
-                    </div>
-                    <?php if(!empty($transaction_info['groups'])): ?>
-                    <?php $flipper = 1; ?>
-                    <?php foreach($transaction_info['groups'] as $type => $content): ?>
-                        <?php $flipper++ ?>
-                        <?php $block_type = $flipper % 2 != 0 ? 'left' : 'right'; ?>
-                    <?php $cleaned_type_name = str_ireplace("id","ID", ucwords(str_replace("_"," ",$type))); ?>
-                    <div class='<?= $block_type ?>_block'>
-                        <li class="metadata_item">
-                            <span class="metadata_term"><?= strpos($type,'.') > 0 ? $type : $cleaned_type_name; ?>: </span>
-                            <span class="metadata_def"><?= $content ?></span>
-                        </li>
-                    </div>
+<?php foreach($transaction_data['times'] as  $transaction_id => $upload_time_string): ?>
+  <?php
+  $transaction_info = $transaction_data['transactions'][$transaction_id];
+  $friendly_upload_time = utc_to_local_time($upload_time_string, 'D, M j Y g:ia T');
+  $release_class = $transaction_info['metadata']['release_state'] == 'not_released'
+    ? "" : $transaction_info['metadata']['release_state'];
+  $release_name = empty($release_class) ? "": $transaction_info['metadata']['release_state_display'];
+  $download_url = "";
+  ?>
+  <?php $informational_message = !empty($transaction_info['informational_message']) ? $transaction_info['informational_message'] : ""; ?>
+    <div id="fieldset_container_<?= $transaction_id ?>" class="fieldset_container">
+      <div class="ribbon <?= $release_class ?>"><span><?= $release_name ?></span></div>
+      <fieldset id="fieldset_<?= $transaction_id ?>" class="transaction_container">
+        <input
+            type="hidden"
+            class="transaction_identifier"
+            id="transaction_identifier_<?= $transaction_id ?>"
+            name="transaction_identifier_<?= $transaction_id ?>"
+            value="<?= $transaction_id ?>" />
+        <?php $instrument_id = $transaction_info['metadata']['instrument_id']; ?>
+        <?php $proposal_id = $transaction_info['metadata']['proposal_id']; ?>
+        <?php $submit_time = $transaction_info['metadata']['submitted']; ?>
+        <?php if(!empty($release_class)): ?>
+            <?php $download_url = "<a href=\"https://status.my.emsl.pnnl.gov/view/{$transaction_id}\">Download Link</a>"; ?>
+        <?php endif; ?>
+        <div class="download_link_url"><?= $download_url ?></div>
+        <input
+            type="hidden"
+            class="instrument_identifier"
+            id="instrument_identifier_<?= $transaction_id ?>"
+            name="instrument_identifier_<?= $transaction_id ?>"
+            value="<?= $instrument_id ?>"
+            title="<?= $transaction_info['metadata']['instrument_name'] ?>" />
+        <input
+            type="hidden"
+            class="proposal_identifier"
+            id="proposal_identifier_<?= $transaction_id ?>"
+            name="proposal_identifier_<?= $transaction_id ?>"
+            value="<?= $proposal_id ?>"
+            title="<?= $transaction_info['metadata']['proposal_name'] ?>" />
+        <input
+            type="hidden"
+            class="submit_time_identifier"
+            id="submit_time_<?= $transaction_id ?>", name="submit_time_<?= $transaction_id ?>",
+            value="<?= $submit_time ?>" />
+        <legend>
+          <a href="/view/<?= $transaction_id ?>">Upload ID <?= $transaction_id ?></a>
+          <span class="friendly_upload_time"><?= $friendly_upload_time ?></span>
+        </legend>
+        <h2 id="message_block_<?= $transaction_id ?>" style="text-align:center;font-size:1.5em;"><?= $informational_message ?></h2>
+        <?php $metadata_visibility = !isset($transaction_info['metadata']['files']) ? "display:none;" : ""; ?>
+        <div class="metadata_fieldset" style="<?= $metadata_visibility ?>">
+          <div class="full_width_block">
+            <h3>
+              <span>Metadata Uploaded</span>
+              <span id="metadata_<?= $transaction_id ?>_dc" class="disclosure_button dc_up"></span>
+              <span id="status_block_<?= $transaction_id ?>" class="download_status"></span>
+            </h3>
+            <div class="metadata_container" style="display:none;">
+              <div class="left">
+                <h4>Basic Metadata</h4>
+                <?php ksort($transaction_info['metadata']); ?>
+                <table class="metadata_description_table">
+                  <tbody>
+                    <?php foreach($transaction_info['metadata'] as $md_name => $md_value): ?>
+                      <?php if(stripos($md_name, "file") === 0) continue; ?>
+                      <?php $cleaned_type_name = trim(str_ireplace("id","ID", ucwords(str_replace("_"," ",$md_name)))); ?>
+                    <tr class="metadata_description_list">
+                      <td class="metadata_header"><?= $cleaned_type_name ?></td>
+                      <td class="metadata_item"><?= $md_value ?></td>
+                    </tr>
                     <?php endforeach; ?>
+                  </tbody>
+                </table>
+              </div>
+              <div class="right">
+                <h4>User-Specified Metadata</h4>
+                <table class="metadata_description_table">
+                  <?php ksort($transaction_info['kv_pairs']); ?>
+                  <?php foreach($transaction_info['kv_pairs'] as $md_name => $md_value): ?>
+                  <tr class="metadata_description_list">
+                    <td class="metadata_header"><?= $md_name ?></td>
+                    <?php if(strtolower($md_name) == 'user of record'): ?>
+                      <?php
+                      $md_value_string = get_user_details($md_value)["display_name"] ?: $md_value;
+                      $md_value = $md_value_string;
+                      ?>
                     <?php endif; ?>
-                </ul>
+                    <td class="metadata_item"><?= $md_value ?></td>
+                  </tr>
+                  <?php endforeach; ?>
+                </table>
+              </div>
             </div>
-            <?php if($request_type == 't'): ?>
+          </div>
+          <?php if($request_type == 't'): ?>
             <div class="full_width_block" style="width:95%;float:left;">
-                <h3>File List</h3>
-                <div class="disclosure_block">
-                    <div id="tree_<?= $transaction_id ?>" class="tree_holder">
-                        <ul id="treeData_<?= $transaction_id ?>" style="display:none;">
-                            <li id="treeData_<?= $transaction_id ?>" class="lazy folder"><span>Uploaded Data
-                <?php if(isset($transaction_sizes) && array_key_exists($transaction_id,$transaction_sizes)): ?>
-                <span class='folder_size_summary'>[Total Size: <?= format_bytes($transaction_sizes[$transaction_id]) ?>]</span>
-                                <?php endif; ?>
-                                </span>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class='full_width_block buttons' id="dl_button_container_<?= $transaction_id ?>" style="margin-top:1em;display:none;">
-                        <input type='hidden' id='cart_id_<?= $transaction_id ?>' class='cart_id_storage' value='' />
-                        <div class="left_block" style="width:80%">
-                            <span id="status_block_<?= $transaction_id ?>" class='download_status'>&nbsp;</span>
-                        </div>
-                        <div class="right_block" style="width:15%">
-                            <input type="button" class="dl_button" id="dl_button_<?= $transaction_id ?>" style="position:relative;right:0;bottom:0;" value="Queue Selected Files for Download" />
-                        </div>
-                    </div>
+              <div class="disclosure_block">
+                <div id="tree_<?= $transaction_id ?>" class="tree_holder">
+                  <ul id="treeData_<?= $transaction_id ?>" style="display:none;">
+                    <li id="treeData_<?= $transaction_id ?>" class="lazy folder">
+                      <span>
+                        <span style="font-weight:600;">
+                        <span class="proposal_ident">Proposal <?= $transaction_info['metadata']['proposal_id'] ?></span> /
+                        <span class="instrument_ident"><?= $transaction_info['metadata']['instrument_name'] ?></span>
+                        <?php if(isset($transaction_sizes) && array_key_exists($transaction_id,$transaction_sizes)): ?>
+                          <span class='folder_size_summary'>[Total Size: <?= format_bytes($transaction_sizes[$transaction_id]) ?>]</span>
+                        <?php elseif(isset($transaction_info['file_size_bytes'])): ?>
+                          <span class='folder_size_summary'>[Total Size: <?= format_bytes($transaction_info['file_size_bytes']) ?>]</span>
+                        <?php endif; ?>
+                        </span>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+              <div class='full_width_block buttons' id="dl_button_container_<?= $transaction_id ?>" style="margin-top:1em;display:none;">
+                <input type='hidden' id='cart_id_<?= $transaction_id ?>' class='cart_id_storage' value='' />
+                <div class="right_block button_container">
+                  <input type="button" class="dl_button" id="dl_button_<?= $transaction_id ?>" style="position:relative;right:0;bottom:0;" value="Queue Selected Files for Download" />
                 </div>
+              </div>
             </div>
-            <?php endif; ?>
-            <div class="full_width_block" id="error_msg_container_<?= $transaction_id ?>" style="display:none;">
-                <span class="error" id="error_msg_<?= $transaction_id ?>"></span>
-            </div>
-    </fieldset>
+          </div>
+        </div>
+        <?php endif; ?>
+        <div class="full_width_block" id="error_msg_container_<?= $transaction_id ?>" style="display:none;">
+          <span class="error" id="error_msg_<?= $transaction_id ?>"></span>
+        </div>
+      </fieldset>
+      <div class="ingest_status_block" id="ingest_status_block_<?= $transaction_id ?>" style="display:none;"></div>
+    </div>
+    <div class="publication_status_block" id="pub_status_block_<?= $transaction_id ?>" style="display:none;overflow:hidden;">
+        <div class="publication_left_block"></div>
+        <div class="publication_right_block"></div>
+    </div>
     <?php endforeach; ?>
-    <?php endif; ?>
+  <?php endif; ?>
     <script type="application/javascript">
         var hash_list = <?=  json_encode($hash_list); ?>;
     </script>

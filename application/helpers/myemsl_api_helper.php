@@ -23,11 +23,12 @@
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
 
-if(!defined('BASEPATH')) { exit('No direct script access allowed');
+if (!defined('BASEPATH')) {
+    exit('No direct script access allowed');
 }
 
 /**
- *  Directly retrieves user info from the MyEMSL EUS
+ *  Directly retrieves simplified user info from the MyEMSL EUS
  *  database clone
  *
  *  @param integer $eus_id user id of the person in question
@@ -36,17 +37,116 @@ if(!defined('BASEPATH')) { exit('No direct script access allowed');
  *
  *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
+function get_user_details_simple($eus_id)
+{
+    return get_details('user', $eus_id, 'simple');
+}
+
+/**
+ *  Directly retrieves user info from the MyEMSL EUS
+ *  database clone
+ *
+ * @param integer $eus_id user id of the person in question
+ *
+ * @return array
+ *
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
 function get_user_details($eus_id)
 {
+    return get_details('user', $eus_id);
+}
+
+/**
+ *  Directly retrieves instrument info from md server
+ *
+ * @param integer $instrument_id id of the instrument in question
+ *
+ * @return array
+ *
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
+function get_instrument_details($instrument_id)
+{
+    return get_details('instrument', $instrument_id);
+}
+
+/**
+ *  Directly retrieves proposal info from md server
+ *
+ * @param integer $proposal_id proposal id of the item in question
+ *
+ * @return array
+ *
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
+function get_proposal_details($proposal_id)
+{
+    return get_details('proposal', $proposal_id);
+}
+
+/**
+ *  Worker function for talking to md server
+ *
+ * @param string $object_type type of object to query
+ * @param string $object_id   id of object to query
+ * @param string $option      switch to pass in to md request
+ *
+ * @return array
+ *
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
+function get_details($object_type, $object_id, $option = false)
+{
+    $object_map = array(
+        'instrument' => array('url' => 'instrumentinfo/by_instrument_id'),
+        'proposal' => array('url' => 'proposalinfo/by_proposal_id'),
+        'user' => array('url' => 'userinfo/by_id')
+    );
+    $url = $object_map[$object_type]['url'];
     $CI =& get_instance();
     $CI->load->library('PHPRequests');
     // $md_url = $CI->config->item('metadata_url');
     $md_url = $CI->metadata_url_base;
-    $query_url = "{$md_url}/userinfo/by_id/{$eus_id}";
+    $url_object = array(
+        $md_url, $url, $object_id
+    );
+    if ($option) {
+        $url_object[] = $option;
+    }
+    $query_url = implode('/', $url_object);
     $query = Requests::get($query_url, array('Accept' => 'application/json'));
     $results_body = $query->body;
 
-    return json_decode($results_body, TRUE);
+    return json_decode($results_body, true);
+}
+
+/**
+ * [get_proposal_abstract description]
+ *
+ * @param string $proposal_id [description]
+ *
+ * @return string [description]
+ *
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
+function get_proposal_abstract($proposal_id)
+{
+    $url = "proposals?_id={$proposal_id}";
+    $CI =& get_instance();
+    $CI->load->library('PHPRequests');
+    $md_url = $CI->metadata_url_base;
+    $query_url = "{$md_url}/{$url}";
+    $query = Requests::get($query_url, array('Accept' => 'application/json'));
+    $results_body = $query->body;
+    $results = json_decode($results_body, true);
+    $result = array_pop($results);
+    $ret_array = array(
+        'title' => $result['title'],
+        'abstract' => $result['abstract']
+    );
+
+    return $ret_array;
 }
 
 /**
@@ -64,7 +164,7 @@ function read_myemsl_config_file($file_specifier = 'general')
 {
     $CI =& get_instance();
     $ini_path = $CI->config->item('application_config_file_path');
-    $ini_items = parse_ini_file("{$ini_path}{$file_specifier}.ini", TRUE);
+    $ini_items = parse_ini_file("{$ini_path}{$file_specifier}.ini", true);
     return $ini_items;
 }
 
@@ -81,7 +181,7 @@ function read_myemsl_config_file($file_specifier = 'general')
  *
  *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function generate_cart_token($item_list,$eus_person_id)
+function generate_cart_token($item_list, $eus_person_id)
 {
     $uuid = "huYNwptYEeGzDAAmucepzw";
     $duration = 3600;
@@ -113,7 +213,6 @@ function generate_cart_token($item_list,$eus_person_id)
     $cart_token_b64 = base64_encode($cart_token);
 
     return $cart_token_b64;
-
 }
 
 /**
@@ -130,18 +229,45 @@ function generate_cart_token($item_list,$eus_person_id)
  */
 function array_to_xml($data, &$xml_data)
 {
-    foreach( $data as $key => $value ) {
-        if(is_array($value)) {
-            if(is_numeric($key)) {
+    foreach ($data as $key => $value) {
+        if (is_array($value)) {
+            if (is_numeric($key)) {
                 $key = 'item'.$key; //dealing with <0/>..<n/> issues
             }
             $subnode = $xml_data->addChild($key);
             array_to_xml($value, $subnode);
-        }else{
+        } else {
             $xml_data->addChild("$key", htmlspecialchars("$value"));
         }
     }
 }
 
+function get_selection_defaults($incoming)
+{
+    $proposal_id = $incoming['proposal_id'] ?: get_cookie('last_proposal_selector');
+    $instrument_id = $incoming['instrument_id'] ?: get_cookie('last_instrument_selector');
+    $starting_date = $incoming['starting_date'] ?: get_cookie('last_starting_date_selector');
+    $ending_date = $incoming['ending_date'] ?: get_cookie('last_ending_date_selector');
+    $proposal_id = $proposal_id != 'null' ? $proposal_id : 0;
+    $instrument_id = $instrument_id != 'null' ? $instrument_id : 0;
 
-?>
+    if (!$starting_date || !$ending_date) {
+        $today = new DateTime();
+        if (!$ending_date) {
+            $ending_date = $today->format('Y-m-d');
+        }
+        if (!$starting_date) {
+            $today->modify('-30 days');
+            $starting_date = $today->format('Y-m-d');
+        }
+    }
+
+    $outgoing = [
+        'proposal_id' => $proposal_id,
+        'instrument_id' => $instrument_id,
+        'starting_date' => $starting_date,
+        'ending_date' => $ending_date
+    ];
+
+    return $outgoing;
+}

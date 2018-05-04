@@ -76,7 +76,7 @@ class Test_api extends Baseline_api_controller
     public function get_proposals($search_terms)
     {
         echo "<pre>";
-        $proposals = $this->status->get_proposals_by_name($search_terms, $this->user_id, FALSE);
+        $proposals = $this->status->get_proposals_by_name($search_terms, $this->user_id, false);
         send_json_array($proposals);
         echo "</pre>";
     }
@@ -95,4 +95,20 @@ class Test_api extends Baseline_api_controller
         echo "</pre>";
     }
 
+    /**
+     * Test retrieval of files for a given transaction
+     *
+     * @param int $transaction item to search for files
+     *
+     * @return void
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    public function get_files_for_transaction($transaction)
+    {
+        echo "<pre>";
+        $proposals = $this->status->get_files_for_transaction($transaction);
+        send_json_array($proposals);
+        echo "</pre>";
+    }
 }
