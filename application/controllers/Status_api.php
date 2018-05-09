@@ -333,7 +333,7 @@ class Status_api extends Baseline_user_api_controller
     public function view($id)
     {
         $path_splitter_regex = '/\/?([^\/]+)\/(\d+)$/';
-        if(preg_match($path_splitter_regex, $_SERVER['REQUEST_URI'], $matches)){
+        if (preg_match($path_splitter_regex, $_SERVER['REQUEST_URI'], $matches)) {
             $page_state = $matches[1];
         }
         $this->page_mode = 'cart';
@@ -376,7 +376,7 @@ class Status_api extends Baseline_user_api_controller
         $ingest_completed = $ingest_info['upload_present_on_mds'] ? "true" : "false";
         $transaction_info = $this->status->get_formatted_transaction($id);
         $release_state = $transaction_info['transactions'][$id]['metadata']['release_state'];
-        if($page_state == 'released_data' && $release_state != 'released'){
+        if ($page_state == 'released_data' && $release_state != 'released') {
             $err_msg = 'This data resource has not been made publicly available.';
             $this->page_data['page_header'] = "Data Unavailable";
             $this->page_data['title'] = $this->page_data['page_header'];
