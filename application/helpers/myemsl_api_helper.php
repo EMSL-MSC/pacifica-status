@@ -55,7 +55,7 @@ function get_user_details_simple($eus_id)
 function get_user_details($eus_id)
 {
     $results = get_details('user', $eus_id);
-    if(empty($results)){
+    if (empty($results)) {
         $results = [
             'first_name' => 'Anonymous Stranger',
             'last_name' => '',
@@ -126,7 +126,7 @@ function get_details($object_type, $object_id, $option = false)
     $results_body = "{}";
     $query_url = implode('/', $url_object);
     $query = Requests::get($query_url, array('Accept' => 'application/json'));
-    if($query->status_code == 200){
+    if ($query->status_code == 200) {
         $results_body = $query->body;
     }
     return json_decode($results_body, true);
