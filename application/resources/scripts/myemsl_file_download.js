@@ -1,7 +1,3 @@
-var cart_url_base = base_url + "cart_api";
-var cart_info_url = cart_url_base + "/listing/";
-var cart_create_url = cart_url_base + "/create/";
-var cart_delete_url = cart_url_base + "/delete/";
 var max_size = 1024 * 1024 * 1024 * 50; //50 GB (base 2)
 var friendly_max_size = "";
 var exceed_max_size_allow = false;
@@ -25,7 +21,8 @@ $(function(){
                 }else{
                     //all req'd fields filled out
                     cart_create_dialog.dialog("close");
-                    create_cart(f.serializeFormJSON());
+                    var tree_container = $("#" + f.find("#current_transaction_container").val());
+                    create_cart(f.serializeFormJSON(), tree_container);
                 }
             },
             Cancel: function() {
@@ -65,16 +62,28 @@ var setup_file_download_links = function(parent_item) {
 
 };
 
+var generate_cart_identifier = function(){
+    if(!localStorage.getItem("cart_identifier")){
+        localStorage.setItem("cart_identifier",
+            $().crypt({
+                method: "sha1",
+                source: moment().toISOString() + Math.random().toString()
+            })
+        );
+    }
+    return localStorage.getItem("cart_identifier");
+};
 
 var cart_download = function(transaction_container){
     var selected_files = get_selected_files(transaction_container);
     //check for token
     var item_id_list = Object.keys(selected_files.sizes);
     $("#cart_file_list").val(JSON.stringify(item_id_list));
+    $("#current_transaction_container").val(transaction_container.prop("id"));
     cart_create_dialog.dialog("open");
 };
 
-var create_cart = function(submission_object){
+var create_cart = function(submission_object, transaction_container){
     submission_object["files"] = JSON.parse(submission_object["files"]);
     $.post(
         cart_create_url, JSON.stringify(submission_object)
@@ -92,6 +101,11 @@ var create_cart = function(submission_object){
             function(jqxhr){
                 var msg_string = jqxhr.responseJSON.message;
                 alert("A problem occurred creating your cart.\n[" + msg_string + "]");
+            }
+        )
+        .always(
+            function(){
+                unselect_nodes(transaction_container.fancytree("getTree"));
             }
         );
 };
@@ -114,7 +128,7 @@ var cart_delete = function(cart_uuid){
     if (cart_uuid == null) {
         return;
     }
-    var url = cart_delete_url + cart_uuid;
+    var url = cart_delete_url + "/" + cart_uuid;
     $.ajax(
         {
             url : url,
@@ -181,6 +195,10 @@ var get_selected_files = function(tree_container){
         selFiles = get_file_sizes(tree_container);
         update_download_status(tree_container,selCount);
     }
+};
+
+var unselect_nodes = function(tree_container){
+    tree_container.visit(function(node){ node.setSelected(false); });
 };
 
 var get_file_sizes = function(tree_container){
@@ -309,7 +327,7 @@ var setup_tree_data = function(){
                         lazyLoad: function(event, data){
                             var node = data.node;
                             data.result = {
-                                url: base_url + "status_api/get_lazy_load_folder",
+                                url: base_url + "file_tree",
                                 data: {mode: "children", parent: node.key},
                                 method:"POST",
                                 cache: false,
@@ -344,3 +362,9 @@ var myemsl_size_format = function(bytes) {
     }
     return bytes + " " + suffix;
 };
+
+var cart_url_base = base_url;
+var cart_identifier = generate_cart_identifier();
+var cart_info_url = cart_url_base + "cart/listing/" + cart_identifier;
+var cart_create_url = cart_url_base + "cart/create/" + cart_identifier;
+var cart_delete_url = cart_url_base + "cart/delete/" + cart_identifier;
