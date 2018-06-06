@@ -3,6 +3,7 @@
 ?>
     <!-- start global inserts -->
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- <link rel="shortcut icon" href="/favicon.ico" type="image/vnd.microsoft.icon" /> -->
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
@@ -15,12 +16,14 @@
     <?php if($_SERVER['CI_ENV'] == 'development') : ?>
       <script src="/resources/scripts/jquery/jquery-3.2.1.js" type="text/javascript"></script>
       <script src="/resources/scripts/jquery-ui/jquery-ui.js" type="text/javascript"></script>
+      <script src="/project_resources/scripts/underscore.js" type="text/javascript"></script>
       <link rel="stylesheet" type="text/css" href="/resources/scripts/jquery-ui/jquery-ui.css" />
       <script src="/resources/scripts/moment.js" type="text/javascript"></script>
       <script src="/project_resources/scripts/moment-timezone-with-data-2012-2022.js" type="text/javascript"></script>
     <?php else: ?>
       <script src="/resources/scripts/jquery/jquery-3.2.1.min.js" type="text/javascript"></script>
       <script src="/resources/scripts/jquery-ui/jquery-ui.min.js" type="text/javascript"></script>
+      <script src="/project_resources/scripts/underscore-min.js" type="text/javascript"></script>
       <link rel="stylesheet" type="text/css" href="/resources/scripts/jquery-ui/jquery-ui.min.css" />
       <script src="/resources/scripts/moment.min.js" type="text/javascript"></script>
       <script src="/project_resources/scripts/moment-timezone-with-data-2012-2022.min.js" type="text/javascript"></script>

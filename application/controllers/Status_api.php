@@ -76,8 +76,12 @@ class Status_api extends Baseline_user_api_controller
             'page_header' => 'Data Release Interface',
             'title' => 'Data Release'
         ];
+        $this->page_data['data_identifier'] = $data_identifier;
         $this->page_data['css_uris'][] = '/project_resources/stylesheets/doi_transfer_cart.css';
+        $this->page_data['css_uris'][] = '/project_resources/stylesheets/forms.css';
+        $this->page_data['css_uris'][] = '/project_resources/stylesheets/pure-min.css';
         $this->page_data = array_merge($this->page_data, $updated_page_info);
+        $this->page_data['js'] = "var data_identifier = \"{$data_identifier}\";";
         $this->overview();
     }
 

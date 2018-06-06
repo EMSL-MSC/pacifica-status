@@ -241,6 +241,9 @@ button:hover, .buttons input[type="button"]:hover {
     width: 49%;
 }
 
+.drop_shadow_dialog {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.5);
+}
 
 
 .disclosure_button {

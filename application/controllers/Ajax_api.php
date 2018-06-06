@@ -40,6 +40,7 @@ class Ajax_api extends Baseline_api_controller
         parent::__construct();
         $this->load->model('status_api_model', 'status');
         $this->load->model('Myemsl_api_model', 'myemsl');
+        $this->load->model('Data_transfer_api_model', 'release');
         $this->load->helper('network');
         $this->load->library('PHPRequests');
     }
@@ -122,17 +123,12 @@ class Ajax_api extends Baseline_api_controller
      */
     public function get_release_states()
     {
-        $md_url = "{$this->metadata_url_base}/transactioninfo/release_state";
         $transaction_list = [];
         if ($this->input->is_ajax_request() || file_get_contents('php://input')) {
             $http_raw_post_data = file_get_contents('php://input');
             $transaction_list = json_decode($http_raw_post_data, true);
         }
-        $query = Requests::post($md_url, array(
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-        ), json_encode($transaction_list));
-        print $query->body;
+        print($this->release->get_release_states($transaction_list));
     }
 
     /**
@@ -163,6 +159,17 @@ class Ajax_api extends Baseline_api_controller
         $check_url = "{$this->metadata_url_base}/transactioninfo/release_state/{$transaction_id}";
         $check_query = Requests::get($check_url);
         print $check_query->body;
+    }
+
+    public function publish_resource_to_doi($dataset_id)
+    {
+        if ($this->input->is_ajax_request() || file_get_contents('php://input')) {
+            $http_raw_post_data = file_get_contents('php://input');
+            $publication_data = json_decode($http_raw_post_data, true);
+        }
+        foreach ($publication_data as $pub_item) {
+            $this->release->publish_doi_externally($pub_item, $dataset_id);
+        }
     }
 
     /**
