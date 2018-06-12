@@ -44,27 +44,32 @@ class Data_transfer_api_model extends CI_Model
         $this->config->load('data_release');
         $this->dh_username = getenv('DRHUB_USERNAME') ?: $this->config->item('drhub_username');
         $this->dh_password = getenv('DRHUB_PASSWORD') ?: $this->config->item('drhub_password');
+        $this->drhub_url_base = getenv('DRHUB_URL_BASE') ?: $this->config->item('drhub_url_base');
         $this->load->helper(array('item', 'network', 'time'));
         $this->load->model('Status_api_model', 'status');
         $this->ds_table = 'drhub_data_sets';
         $this->dr_table = 'drhub_data_records';
-        $this->sess = $this->get_drhub_session();
+        $this->sess = false;
+        // $this->sess = $this->get_drhub_session();
     }
 
     private function get_drhub_session(){
-        $sess = new Requests_Session($this->drhub_url_base);
-        $post_data = [
-            'username' => $this->dh_username,
-            'password' => $this->dh_password
-        ];
-        $headers = [
-            'Accept' => 'application/json'
-        ];
-        $response = $sess->post("{$this->drhub_url_base}/dataset/user/login", $headers, $post_data);
-        $response_object = json_decode($response->body);
-        // var_dump($response_object);
-        $sess->headers['X-CSRF-Token'] = $response_object->token;
-        return $sess;
+        if(!$this->sess){
+            $sess = new Requests_Session($this->drhub_url_base);
+            $post_data = [
+                'username' => $this->dh_username,
+                'password' => $this->dh_password
+            ];
+            $headers = [
+                'Accept' => 'application/json'
+            ];
+            $dh_url = "{$this->drhub_url_base}/dataset/user/login";
+            $response = $sess->post("{$this->drhub_url_base}/dataset/user/login", $headers, $post_data);
+            $response_object = json_decode($response->body);
+            // var_dump($response_object);
+            $sess->headers['X-CSRF-Token'] = $response_object->token;
+            $this->sess = $sess;
+        }
     }
 
     /**
@@ -85,7 +90,7 @@ class Data_transfer_api_model extends CI_Model
             'field_link_api' => '',  //release URL
             'field_format' => '',  //data format
             'field_ceii' => 1,  //holdover from DRPower, set to '1'
-            'field_repository_name' => '',  //probably EMSL in this case
+            'field_repository_name' => $this->config->item('drhub_default_repository_name'),
             'field_science_theme' => '',  //pull from proposal info
             'field_instrument_id' => '',  //pull from transaction info
             'field_instrument_name' => '',  //pull from instruments table
@@ -94,15 +99,13 @@ class Data_transfer_api_model extends CI_Model
             'field_data_creator_name' => '',  //pull from user record
             'field_dataset_ref' => $dataset_id
         ];
-
         $stored_release_info = $this->get_release_info($release_info['release_id']);
         $url .= "released_data/{$stored_release_info['transaction_id']}";
         $stored_release_info['field_link_api'] = $url;
         $publishing_data = array_merge($publishing_skeleton, $stored_release_info);
-
         $resource_id = $this->create_new_data_resource($publishing_data);
-        $success = link_resource_to_dataset($dataset_id, $release_info['release_name'], $resource_id);
-        print(json_encode($output_data));
+        $success = $this->link_resource_to_dataset($dataset_id, $resource_id);
+        return $success;
     }
 
     private function get_release_info($release_id)
@@ -171,12 +174,19 @@ class Data_transfer_api_model extends CI_Model
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
         ), json_encode($transaction_list));
-        return $query->body;
+        $results = json_decode($query->body, true);
+        $transient_info = [];
+        foreach($results as $result_item){
+            $transient_info = $this->get_transient_record_for_transaction($result_item['transaction']);
+            $results[$result_item['transaction']]['transient_info'] = $transient_info;
+        }
+        return $results;
     }
 
 
     private function create_new_data_resource($publishing_data)
     {
+        $this->get_drhub_session();
         $lang = 'und';
         $formatted_request = [
             'title' => $publishing_data['title'],
@@ -184,17 +194,15 @@ class Data_transfer_api_model extends CI_Model
             'type' => 'resource',
             'field_link_api' => [
                 $lang => [
-                    'attributes' => [],
-                    'title' => $publishing_data['field_link_api'],
-                    'url' => $publishing_data['field_link_api'],
+                    [
+                        'attributes' => [],
+                        'title' => $publishing_data['field_link_api'],
+                        'url' => $publishing_data['field_link_api'],
+                    ]
                 ]
             ],
             'og_user_permission_inheritance' => [
-                $lang => [
-                    [
-                        'value' => 0
-                    ]
-                ]
+                $lang => ['value' => 0]
             ]
         ];
         unset($publishing_data['field_dataset_ref']);
@@ -214,28 +222,57 @@ class Data_transfer_api_model extends CI_Model
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
         ], json_encode($formatted_request));
-        if ($query->status_code == 200) {
-            $results = json_decode($query->body);
-            if (array_key_exists('nid', $results)) {
-                $resource_id = $results->nid;
-                $success = $resource_id;
-            }
+        switch($query->status_code){
+            case 200:
+                $results = json_decode($query->body);
+                if (array_key_exists('nid', $results)) {
+                    $resource_id = $results->nid;
+                    $success = $resource_id;
+                }
+                break;
+            case 404:
+                break;
+            case 406:
+                $success = false;
+                echo "invalid choice";
+                var_dump($query);
+                break;
         }
         return $success;
     }
 
-    private function link_resource_to_dataset($dataset_id, $resource_title, $resource_id, $lang = "und")
+    private function link_resource_to_dataset($dataset_id, $resource_id, $lang = "und")
     {
-        $formatted_target = "{$resource_title} ({strval($resource_id)})";
+        $this->get_drhub_session();
+        $ds_data = $this->get_drhub_node($dataset_id);
+        $existing_ids = [];
+        if(array_key_exists('field_resources', $ds_data) && !empty($ds_data['field_resources'])){
+            $existing_links = $ds_data['field_resources']['und'];
+            foreach($existing_links as $link_object){
+                $existing_ids[] = $link_object['target_id'];
+            }
+        }
+        if(in_array($resource_id, $existing_ids)){
+            return true;
+        }
+        $existing_links[] = ['target_id' => $resource_id];
+        $field_resources = [];
+        foreach($existing_links as $link_object){
+            $dr_data = $this->get_drhub_node($link_object['target_id']);
+            $str_resource_id = strval($link_object['target_id']);
+
+            $formatted_target = "{$dr_data['title']} ({$str_resource_id})";
+            $field_resources[] = ['target_id' => $formatted_target];
+        }
         $formatted_request = [
             'field_resources' => [
-                $lang => [
-                    ['target_id' => $formatted_target]
-                ]
+                $lang => $field_resources
             ]
         ];
         $dh_url = "{$this->drhub_url_base}/dataset/node/{$dataset_id}";
         $success = false;
+        // echo $dh_url;
+        // echo json_encode($formatted_request);
         $query = $this->sess->put($dh_url, array(
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
@@ -246,42 +283,48 @@ class Data_transfer_api_model extends CI_Model
                 $success = true;
             }
         }
+        foreach($field_resources as $field_link){
+            $this->store_transient_data_record($field_link['target_id'], $dataset_id);
+        }
         return $success;
     }
 
-    public function store_transient_data_set($dataset_id, $title, $description="")
+    public function store_transient_data_set($dataset_id)
     {
         $success = false;
-        if($this->drhub_node_exists($dataset_id)){
+        $ds_data = $this->get_drhub_node($dataset_id);
+        var_dump($ds_data);
+        if(boolval($ds_data) && $ds_data['type'] == 'dataset'){
             $insert_data = [
                 'node_id' => $dataset_id,
-                'title' => $title
+                'title' => $ds_data['title']
             ];
-            if(!empty($description)){
-                $insert_data['description'] = $description;
+            if($ds_data['body']){
+                $insert_data['description'] = $ds_data['body']['und'][0]['value'];
             }
-            $check_query = $this->db->get_where($this->ds_table, ['node_id' => $dataset_id]);
             if(!$this->transient_record_exists($this->ds_table, $dataset_id)){
                 $this->db->insert($this->ds_table, $insert_data);
                 $success = boolval($this->db->affected_rows());
             }else{
                 $success = true;
+
             }
         }
         return $success;
     }
 
-    public function store_transient_data_record($record_id, $dataset_id, $access_url="")
+    public function store_transient_data_record($record_id, $dataset_id, $release_id, $lang="und")
     {
+        $this->store_transient_data_set($dataset_id);
         $success = false;
-        if($this->drhub_node_exists($record_id) && $this->drhub_node_exists($dataset_id)){
+        $dr_data = $this->get_drhub_node($record_id);
+        if($dr_data && $this->get_drhub_node($dataset_id)){
             $insert_data = [
                 'node_id' => $record_id,
-                'data_set_node_id' => $dataset_id
+                'data_set_node_id' => $dataset_id,
+                'release_id' => $release_id,
+                'accessible_url' => $dr_data['field_link_api'][$lang][0]['url']
             ];
-            if(!empty($access_url)){
-                $insert_data['accessible_url'] = $access_url;
-            }
             if(!$this->transient_record_exists($this->dr_table, $record_id)){
                 $this->db->insert($this->dr_table, $insert_data);
                 $success = boolval($this->db->affected_rows());
@@ -292,18 +335,44 @@ class Data_transfer_api_model extends CI_Model
         return $success;
     }
 
+    public function get_transient_record_for_transaction($transaction_id){
+        $md_url = "{$this->metadata_url_base}/transaction_release?";
+        $url_args_array = [
+            'transaction' => $transaction_id
+        ];
+        $resource_results = [];
+        $md_url .= http_build_query($url_args_array, '', '&');
+        $query = Requests::get($md_url, ['Accept' => 'application/json']);
+        $results = json_decode($query->body, true);
+        if ($results) {
+            $results = array_pop($results);
+            //go look for these release id values
+            $release_id = $results['_id'];
+            $resource_query = $this->db->get_where($this->dr_table, ['release_id' => $release_id]);
+            if($resource_query->num_rows() > 0){
+                $resource_results = $resource_query->row_array();
+            }
+        }
+        return $resource_results;
+    }
+
     private function transient_record_exists($table_name, $record_id)
     {
         $check_query = $this->db->get_where($table_name, ['node_id' => $record_id]);
         return boolval($check_query->num_rows());
     }
 
-    public function drhub_node_exists($data_set_id)
+    public function get_drhub_node($node_id)
     {
-        $dh_url = "{$this->drhub_url_base}/dataset/node/{$data_set_id}";
+        $this->get_drhub_session();
+        $dh_url = "{$this->drhub_url_base}/dataset/node/{$node_id}";
         // $sess = $this->get_drhub_session();
         $response = $this->sess->get($dh_url, ['Accept' => 'application/json']);
-        $results = json_decode($response->body);
-        return array_key_exists('body', $results);
+        $results = json_decode($response->body, true);
+        if(!array_key_exists('body', $results)){
+            return false;
+        }else{
+            return $results;
+        }
     }
 }

@@ -30,7 +30,7 @@
     margin-bottom: 3px;
 }
 
-.transfer_cart_action_buttons_container {
+.transfer_cart_action_buttons_container, .submission_cart_action_buttons_container {
     background-color: rgb(255, 255, 255);
     border: 2px solid rgb(42, 70, 103);
     border-top: 2px solid rgb(200, 200, 200);

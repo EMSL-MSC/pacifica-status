@@ -44,6 +44,9 @@ var setup_tree_data = function(){ // eslint-disable-line no-unused-vars
     );
 };
 
+/*
+    data staging logic
+ */
 var build_staging_button = function(transaction_id){
     var content =
         $("<div>", {
@@ -59,6 +62,56 @@ var build_staging_button = function(transaction_id){
     });
     content.append(staging_button);
     return content;
+};
+
+var submit_submission_selections = function(){
+    var submit_url = base_url + "ajax_api/publish_resource_to_doi/" + data_identifier;
+    var submit_data = [];
+    var session_data = JSON.parse(sessionStorage.getItem("items_to_publish"));
+    $.each(session_data, function(index, item){
+        submit_data.push({
+            "release_id": item.release_id,
+            "release_name": item.release_name,
+            "release_description": item.release_description
+        });
+    });
+    // sessionStorage.removeItem("items_to_publish");
+    $.post(
+        submit_url, JSON.stringify(submit_data)
+    )
+        .done(
+            function(data){
+                set_release_state_banners(JSON.parse(data), ".fieldset_container");
+            }
+        )
+        .fail(
+            function(jqxhr, error, message){
+                alert("A problem occurred creating your cart.\n[" + message + "]");
+            }
+        );
+
+    update_publishing_view();
+};
+
+var submit_release_selections = function(event){
+    var el = $(event.target);
+    var table_rows = el.parents(".transfer_cart").find("table > tbody > tr");
+    table_rows.each(function(index, item){
+        var transaction_id = parseInt($(item).find(".upload_id").text(), 10);
+        var release_url = base_url + "ajax_api/set_release_state/" + transaction_id + "/released";
+        $.get(release_url, function(data){
+            var ribbon = $("#fieldset_container_" + transaction_id + " .ribbon");
+            ribbon.removeClass().addClass("ribbon").addClass(data.release_state);
+            ribbon.find("span").text(data.display_state);
+            set_staged_transaction_completed(transaction_id);
+            update_staged_transactions_view();
+        });
+    });
+};
+
+var clear_release_selections = function(){
+    sessionStorage.removeItem("staged_releases");
+    update_staged_transactions_view();
 };
 
 var set_release_state_banners = function(release_states, selector){
@@ -130,6 +183,90 @@ var set_release_state_banners = function(release_states, selector){
     });
 };
 
+var set_staged_transaction_completed = function(upload_id){
+    var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
+    delete current_session_contents[upload_id];
+    sessionStorage.setItem("staged_releases", JSON.stringify(current_session_contents));
+    update_staged_transactions_view();
+};
+
+var unstage_transaction = function(el){
+    el = $(el);
+    var txn_id = parseInt($(el).parents("tr").find(".upload_id").text(),10);
+    var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
+    delete current_session_contents[txn_id];
+    sessionStorage.setItem("staged_releases", JSON.stringify(current_session_contents));
+    var container = $("#fieldset_" + txn_id).parents(".fieldset_container");
+    var banner = container.find(".ribbon");
+    banner.removeClass().addClass("ribbon").addClass("not_released");
+    banner.find("span").text("Not Released");
+    if(!_.size(current_session_contents)){
+        clear_release_selections();
+    }
+    update_staged_transactions_view();
+};
+
+var stage_transaction = function(el){
+    var container = el.parents(".transaction_container");
+    var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
+    var txn_id = container.find(".transaction_identifier").val();
+    var new_info = {
+        "upload_id": txn_id,
+        "proposal_id": container.find(".proposal_identifier").val(),
+        "proposal_name": container.find(".proposal_identifier").prop("title"),
+        "instrument_id": container.find(".instrument_identifier").val(),
+        "instrument_name": container.find(".instrument_identifier").prop("title"),
+        "date_uploaded": moment(container.find(".submit_time_identifier").val()).toISOString()
+    };
+    if(current_session_contents == null){
+        current_session_contents = {};
+    }
+    current_session_contents[txn_id] = new_info;
+    sessionStorage.setItem("staged_releases", JSON.stringify(current_session_contents));
+    update_staged_transactions_view();
+    var banner = container.parents(".fieldset_container").find(".ribbon");
+    banner.removeClass().addClass("ribbon").addClass("staged");
+    banner.find("span").text("Staged");
+    container.find(".staging_button").remove();
+};
+
+var update_staged_transactions_view = function(){
+    var tbody_el = $(".transfer_cart_container table tbody");
+    var current_session_data = JSON.parse(sessionStorage.getItem("staged_releases"));
+    tbody_el.empty();
+    $.each(current_session_data, function(index, el){
+        var row = $("<tr>", {"id": "upload_row_" + el.upload_id, "class": "upload_row"});
+        row.append($("<td>", {"text": el.upload_id, "class": "upload_id"}));
+        row.append($("<td>", {"text": el.proposal_id + " ", "class": "proposal_name", "title": el.proposal_name})
+            .append($("<span>", {
+                "class": "fa fa-lg fa-info-circle info_icon",
+                "title": el.proposal_name,
+                "aria-hidden": "true"
+            }))
+        );
+        row.append($("<td>", {"text": el.instrument_name, "title": el.instrument_id, "class": "instrument_name"}));
+        row.append($("<td>", {"text": moment(el.date_uploaded).format("LLL"), "class": "date_uploaded"}));
+        row.append($("<td>", {"class": "transfer_item_controls" })
+            .append($("<span>", {
+                "class": "fa fa-2x fa-minus-circle transfer_item_delete_button",
+                "aria-hidden": "true",
+                "title": "Unstage this transaction"
+            }))
+        );
+        tbody_el.append(row);
+        tbody_el.find(".transfer_item_delete_button").off().on("click", function(){
+            unstage_transaction(this);
+        });
+    });
+    if(!$.isEmptyObject(current_session_data)){
+        $("#doi_transfer_cart").show();
+    }else{
+        $("#doi_transfer_cart").hide();
+    }
+    setup_staging_buttons();
+};
+
+/* doi staging setup code */
 var setup_doi_staging_button = function(el) {
     var current_session_contents = JSON.parse(sessionStorage.getItem("items_to_publish"));
     var release_id = el.find(".release_identifier").val();
@@ -182,72 +319,9 @@ var setup_staging_buttons = function(){
 
 };
 
-var clear_release_selections = function(){
-    sessionStorage.removeItem("staged_releases");
-    update_staged_transactions_view();
-};
-
-var submit_release_selections = function(event){
-    var el = $(event.target);
-    var table_rows = el.parents(".transfer_cart").find("table > tbody > tr");
-    table_rows.each(function(index, item){
-        var transaction_id = parseInt($(item).find(".upload_id").text(),10);
-        var release_url = base_url + "ajax_api/set_release_state/" + transaction_id + "/released";
-        $.get(release_url, function(data){
-            var ribbon = $("#fieldset_container_" + transaction_id + " .ribbon");
-            ribbon.removeClass().addClass("ribbon").addClass(data.release_state);
-            ribbon.find("span").text(data.display_state);
-            set_staged_transaction_completed(transaction_id);
-            update_staged_transactions_view();
-        });
-    });
-};
-
-var set_staged_transaction_completed = function(upload_id){
-    var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
-    delete current_session_contents[upload_id];
-    sessionStorage.setItem("staged_releases", JSON.stringify(current_session_contents));
-    update_staged_transactions_view();
-};
-
-var unstage_transaction = function(el){
-    el = $(el);
-    var txn_id = parseInt($(el).parents("tr").find(".upload_id").text(),10);
-    var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
-    delete current_session_contents[txn_id];
-    sessionStorage.setItem("staged_releases", JSON.stringify(current_session_contents));
-    var container = $("#fieldset_" + txn_id).parents(".fieldset_container");
-    var banner = container.find(".ribbon");
-    banner.removeClass().addClass("ribbon").addClass("not_released");
-    banner.find("span").text("Not Released");
-    if(!_.size(current_session_contents)){
-        clear_release_selections();
-    }
-    update_staged_transactions_view();
-};
-
-var stage_transaction = function(el){
-    var container = el.parents(".transaction_container");
-    var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
-    var txn_id = container.find(".transaction_identifier").val();
-    var new_info = {
-        "upload_id": txn_id,
-        "proposal_id": container.find(".proposal_identifier").val(),
-        "proposal_name": container.find(".proposal_identifier").prop("title"),
-        "instrument_id": container.find(".instrument_identifier").val(),
-        "instrument_name": container.find(".instrument_identifier").prop("title"),
-        "date_uploaded": moment(container.find(".submit_time_identifier").val()).toISOString()
-    };
-    if(current_session_contents == null){
-        current_session_contents = {};
-    }
-    current_session_contents[txn_id] = new_info;
-    sessionStorage.setItem("staged_releases", JSON.stringify(current_session_contents));
-    update_staged_transactions_view();
-    var banner = container.parents(".fieldset_container").find(".ribbon");
-    banner.removeClass().addClass("ribbon").addClass("staged");
-    banner.find("span").text("Staged");
-    container.find(".staging_button").remove();
+var clear_submission_selections = function(){
+    sessionStorage.removeItem("items_to_publish");
+    update_publishing_view();
 };
 
 var create_doi_data_resource = function(el) {
@@ -342,41 +416,6 @@ var update_publishing_view = function(){
     }
 };
 
-var update_staged_transactions_view = function(){
-    var tbody_el = $(".transfer_cart_container table tbody");
-    var current_session_data = JSON.parse(sessionStorage.getItem("staged_releases"));
-    tbody_el.empty();
-    $.each(current_session_data, function(index, el){
-        var row = $("<tr>", {"id": "upload_row_" + el.upload_id, "class": "upload_row"});
-        row.append($("<td>", {"text": el.upload_id, "class": "upload_id"}));
-        row.append($("<td>", {"text": el.proposal_id + " ", "class": "proposal_name", "title": el.proposal_name})
-            .append($("<span>", {
-                "class": "fa fa-lg fa-info-circle info_icon",
-                "title": el.proposal_name,
-                "aria-hidden": "true"
-            }))
-        );
-        row.append($("<td>", {"text": el.instrument_name, "title": el.instrument_id, "class": "instrument_name"}));
-        row.append($("<td>", {"text": moment(el.date_uploaded).format("LLL"), "class": "date_uploaded"}));
-        row.append($("<td>", {"class": "transfer_item_controls" })
-            .append($("<span>", {
-                "class": "fa fa-2x fa-minus-circle transfer_item_delete_button",
-                "aria-hidden": "true",
-                "title": "Unstage this transaction"
-            }))
-        );
-        tbody_el.append(row);
-        tbody_el.find(".transfer_item_delete_button").off().on("click", function(){
-            unstage_transaction(this);
-        });
-    });
-    if(!$.isEmptyObject(current_session_data)){
-        $("#doi_transfer_cart").show();
-    }else{
-        $("#doi_transfer_cart").hide();
-    }
-    setup_staging_buttons();
-};
 
 var myemsl_size_format = function(bytes) {
     var suffixes = ["B", "KB", "MB", "GB", "TB", "EB"];
@@ -398,6 +437,12 @@ $(function(){
     });
     $(".transfer_cart_action_buttons_container input.submit").off().on("click", function(event){
         submit_release_selections(event);
+    });
+    $(".submission_cart_action_buttons_container input.cancel").off().on("click", function(){
+        clear_submission_selections();
+    });
+    $(".submission_cart_action_buttons_container input.submit").off().on("click", function(event){
+        submit_submission_selections(event);
     });
     doi_resource_edit_dialog = $("#doi-resource-edit-form").dialog({
         autoOpen: false,

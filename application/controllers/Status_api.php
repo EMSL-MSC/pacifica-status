@@ -54,6 +54,7 @@ class Status_api extends Baseline_user_api_controller
         $this->page_data['external_release_base_url'] = $this->config->item('external_release_base_url');
         $this->page_mode = 'cart';
         $this->page_data['view_mode'] = 'multiple';
+        $this->page_data['js'] = "";
         $this->overview_template = $this->config->item('main_overview_template') ?: "emsl_mgmt_view.html";
     }
 
@@ -81,7 +82,7 @@ class Status_api extends Baseline_user_api_controller
         $this->page_data['css_uris'][] = '/project_resources/stylesheets/forms.css';
         $this->page_data['css_uris'][] = '/project_resources/stylesheets/pure-min.css';
         $this->page_data = array_merge($this->page_data, $updated_page_info);
-        $this->page_data['js'] = "var data_identifier = \"{$data_identifier}\";";
+        $this->page_data['js'] .= "var data_identifier = \"{$data_identifier}\";";
         $this->overview();
     }
 
@@ -168,7 +169,7 @@ class Status_api extends Baseline_user_api_controller
         $this->page_data['starting_date'] = $starting_date;
         $this->page_data['ending_date'] = $ending_date;
         $this->page_data['instrument_id'] = $instrument_id;
-        $this->page_data['js'] = $js;
+        $this->page_data['js'] .= $js;
         $this->page_data['cart_legend'] = "Download Queue";
         $this->page_data['page_mode'] = $this->page_mode;
 
@@ -364,7 +365,7 @@ class Status_api extends Baseline_user_api_controller
                 )
             );
         $this->page_data['view_mode'] = 'single';
-        $this->page_data['js'] = "var transaction_id = '{$id}';
+        $this->page_data['js'] .= "var transaction_id = '{$id}';
 ";
         if (!is_numeric($id) || $id < 0) {
             //that doesn't look like a real id
