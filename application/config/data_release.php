@@ -11,7 +11,7 @@
  * @link     http://github.com/EMSL-MSC/pacifica-reporting
  */
 
-defined('BASEPATH') OR exit('No direct script access allowed');
+defined('BASEPATH') or exit('No direct script access allowed');
 
 $config['drhub_url_base'] = 'https://lampdev02.pnl.gov/drhub/drhub/api';
 $config['drhub_username'] = 'svcDataHub';

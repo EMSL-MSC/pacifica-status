@@ -172,7 +172,6 @@ class Ajax_api extends Baseline_api_controller
         foreach ($publication_data as $pub_item) {
             $new_resource_id_list[] = $this->release->publish_doi_externally($pub_item, $dataset_id);
         }
-
     }
 
     /**
