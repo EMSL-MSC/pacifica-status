@@ -202,4 +202,15 @@ class Ajax_api extends Baseline_api_controller
         $results_obj = $this->status->get_ingest_status($transaction_id);
         transmit_array_with_json_header($results_obj);
     }
+
+    public function assign_doi_to_data_set()
+    {
+        $this->load->model('Data_transfer_api_model', 'release');
+        if ($this->input->is_ajax_request() || file_get_contents('php://input')) {
+            $http_raw_post_data = file_get_contents('php://input');
+            $doi_info = json_decode($http_raw_post_data, true);
+            $success = $this->release->set_doi_info($doi_info);
+        }
+        transmit_array_with_json_header($this->release->get_release_states($transaction_list));
+    }
 }

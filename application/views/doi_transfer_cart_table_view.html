@@ -1,3 +1,18 @@
+<div id="data_set_info_from_drhub" class="data_set_info">
+    <div class="disclosure_circle">&nbsp;</div>
+    <h4>Info about the Selected Data Set from DRHub</h4>
+    <dl>
+        <dt>Title:</dt>
+        <dd><?= $drhub_data_set_info['title']?></dd>
+        <dt>Description:</dt>
+        <dd><?= $drhub_data_set_info['description'] ?></dd>
+    </dl>
+    <ul>
+        <?php foreach($drhub_data_set_info['linked_resources'] as $linked_resource): ?>
+        <li><a href="<?= $linked_resource['release_url'] ?>"><?= $linked_resource['title'] ?></a></li>
+        <?php endforeach; ?>
+    </ul>
+</div>
 <div id="doi_transfer_cart" class="transfer_cart" style="display:none;">
     <h3>Staged Datasets for Release</h3>
     <div id="doi_cart_content" class="transfer_cart_headers transfer_cart_container">

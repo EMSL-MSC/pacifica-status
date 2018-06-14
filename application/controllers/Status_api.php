@@ -77,7 +77,9 @@ class Status_api extends Baseline_user_api_controller
             'page_header' => 'Data Release Interface',
             'title' => 'Data Release'
         ];
+        $this->load->model('Data_transfer_api_model', 'release');
         $this->page_data['data_identifier'] = $data_identifier;
+        $this->page_data['drhub_data_set_info'] = $this->release->get_data_set_summary($data_identifier);
         $this->page_data['css_uris'][] = '/project_resources/stylesheets/doi_transfer_cart.css';
         $this->page_data['css_uris'][] = '/project_resources/stylesheets/forms.css';
         $this->page_data['css_uris'][] = '/project_resources/stylesheets/pure-min.css';

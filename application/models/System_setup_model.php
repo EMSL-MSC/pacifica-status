@@ -250,7 +250,7 @@ class System_setup_model extends CI_Model
                     'type' => 'VARCHAR',
                     'null' => true
                 ),
-                'release_id' => array(
+                'transaction_id' => array(
                     'type' => 'INTEGER'
                 ),
                 'created' => array(

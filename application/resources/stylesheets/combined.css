@@ -685,7 +685,7 @@ div.form_container td {
     opacity: 1.0;
 }
 
-.minted span {
+.doi_pending span, .minted span {
     background:rgb(67, 110, 185);
     display:block;
     opacity: 1.0;

@@ -70,18 +70,18 @@ var submit_submission_selections = function(){
     var session_data = JSON.parse(sessionStorage.getItem("items_to_publish"));
     $.each(session_data, function(index, item){
         submit_data.push({
-            "release_id": item.release_id,
+            "transaction_id": item.upload_id,
             "release_name": item.release_name,
             "release_description": item.release_description
         });
     });
-    // sessionStorage.removeItem("items_to_publish");
+    sessionStorage.removeItem("items_to_publish");
     $.post(
         submit_url, JSON.stringify(submit_data)
     )
         .done(
             function(data){
-                set_release_state_banners(JSON.parse(data), ".fieldset_container");
+                setup_staging_buttons();
             }
         )
         .fail(
@@ -120,7 +120,7 @@ var set_release_state_banners = function(release_states, selector){
         var txn_id = el.find(".transaction_identifier").val();
         var ribbon_el = el.find(".ribbon");
         var release_info = release_states[txn_id];
-        var release_id = release_info.release_id;
+        var transaction_id = release_info.transaction;
         if(release_info.release_state == "not_released"){
             var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
             if(!$.isEmptyObject(current_session_contents) && txn_id in current_session_contents){
@@ -151,7 +151,7 @@ var set_release_state_banners = function(release_states, selector){
                         "title": "DOI Reference: " + item.doi_reference
                     }));
                 });
-                pub_status_block.show();
+                // pub_status_block.show();
             }
             if(release_info.release_citations != null){
                 var rb = pub_status_block.find(".publication_right_block");
@@ -164,16 +164,16 @@ var set_release_state_banners = function(release_states, selector){
                         "text": item.title + " " + item.title + " " + item.title,
                     }));
                 });
-                pub_status_block.show();
+                // pub_status_block.show();
             }
-            var release_identifier_row =
-                $("<tr>", {"class": "metadata_description_list"});
-            $("<td>", {"class": "metadata_header release_id", "text": "Release ID"}).appendTo(release_identifier_row);
-            $("<td>", {"class": "metadata_item", "text": release_id}).appendTo(release_identifier_row);
-            release_identifier_row.appendTo(el.find("td.transaction_id").parents("tbody"));
-            el.find(".release_identifier").val(release_id);
             el.find(".release_date").val(release_info.release_date);
-            setup_doi_staging_button(el, release_id);
+            if(release_info.transient_info.node_id && release_info.transient_info.data_set_node_id == data_identifier){
+                release_info["release_state"] = "doi_pending";
+                release_info["display_state"] = "DOI Pending";
+                el.remove(".doi_staging_button");
+            }else{
+                setup_doi_staging_button(el, transaction_id);
+            }
         }
         el.find(".release_state").next("td.metadata_item").text(release_info.release_state);
         el.find(".release_state_display").next("td.metadata_item").text(release_info.display_state);
@@ -308,7 +308,9 @@ var setup_staging_buttons = function(){
     )
         .done(
             function(data){
-                set_release_state_banners(JSON.parse(data), ".fieldset_container");
+                if(data){
+                    set_release_state_banners(data, ".fieldset_container");
+                }
             }
         )
         .fail(
@@ -333,9 +335,8 @@ var create_doi_data_resource = function(el) {
 var publish_released_data = function(el, form_data) {
     var container = el.parents(".transaction_container");
     var current_session_contents = JSON.parse(sessionStorage.getItem("items_to_publish"));
-    var release_id = parseInt(container.find(".release_identifier").val(), 10);
+    var upload_id = parseInt(container.find(".transaction_identifier").val(), 10);
     var new_info = {
-        "release_id": release_id,
         "upload_id": container.find(".transaction_identifier").val(),
         "release_name": form_data.doi_rsrc_name,
         "release_date": moment(container.find(".release_date").val()).toISOString(),
@@ -346,7 +347,7 @@ var publish_released_data = function(el, form_data) {
     if(current_session_contents == null){
         current_session_contents = {};
     }
-    current_session_contents[release_id] = new_info;
+    current_session_contents[upload_id] = new_info;
     sessionStorage.setItem("items_to_publish", JSON.stringify(current_session_contents));
     setup_doi_staging_button(container);
     update_publishing_view();
@@ -354,10 +355,9 @@ var publish_released_data = function(el, form_data) {
 
 var unstage_publish_data = function(el) {
     el = $(el.target);
-    var release_id = parseInt(el.parents("tr").find(".release_id").text(), 10);
     var txn_id = parseInt(el.parents("tr").find(".upload_id").text(), 10);
     var current_session_contents = JSON.parse(sessionStorage.getItem("items_to_publish"));
-    delete current_session_contents[release_id];
+    delete current_session_contents[txn_id];
     sessionStorage.setItem("items_to_publish", JSON.stringify(current_session_contents));
     var container = $("#fieldset_" + txn_id);
     setup_doi_staging_button(container);
@@ -366,13 +366,13 @@ var unstage_publish_data = function(el) {
 
 var edit_published_data = function(event) {
     var el = $(event.target);
-    var release_id = parseInt(el.parents("tr").find(".release_id").text(), 10);
+    var txn_id = parseInt(el.parents("tr").find(".upload_id").text(), 10);
     var current_session_data = JSON.parse(sessionStorage.getItem("items_to_publish"));
     var item_data = current_session_data[release_id];
     doi_resource_edit_dialog
         .data("resource_name", item_data["release_name"])
         .data("resource_desc", item_data["release_description"])
-        .data("release_id", release_id)
+        .data("transaction_id", txn_id)
         .dialog("open");
 };
 
@@ -381,7 +381,7 @@ var update_publishing_view = function(){
     var current_session_data = JSON.parse(sessionStorage.getItem("items_to_publish"));
     tbody_el.empty();
     $.each(current_session_data, function(index, el){
-        var row = $("<tr>", {"id": "publish_row_" + el.release_id, "class": "publish_row"});
+        var row = $("<tr>", {"id": "publish_row_" + el.upload_id, "class": "publish_row"});
         el.file_stats = el.file_count + " files (" + myemsl_size_format(el.file_size) + ")";
         var desc = el["release_description"];
         el.release_date = moment(el.release_date).fromNow() + " (" + moment(el.release_date).format("LL") + ")";
@@ -460,9 +460,9 @@ $(function(){
                     return false;
                 }else{
                     var current_session_data = JSON.parse(sessionStorage.getItem("items_to_publish"));
-                    var release_id = $(this).data("release_id");
-                    current_session_data[release_id]["release_name"] = $("#doi_rsrc_name").val();
-                    current_session_data[release_id]["release_description"] = $("#doi_rsrc_desc").val();
+                    var transaction_id = $(this).data("transaction_id");
+                    current_session_data[transaction_id]["release_name"] = $("#doi_rsrc_name").val();
+                    current_session_data[transaction_id]["release_description"] = $("#doi_rsrc_desc").val();
                     sessionStorage.setItem("items_to_publish", JSON.stringify(current_session_data));
                     $(this).dialog("close");
                     update_publishing_view();
