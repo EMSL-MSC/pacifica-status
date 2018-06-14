@@ -272,5 +272,4 @@ class System_setup_model extends CI_Model
             };
         }
     }
-
 }
