@@ -120,7 +120,7 @@ class Ajax_api extends Baseline_api_controller
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function get_release_states($data_set_id='')
+    public function get_release_states($data_set_id = '')
     {
         $this->load->model('Data_transfer_api_model', 'release');
         $transaction_list = [];
