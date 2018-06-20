@@ -365,14 +365,14 @@ class Data_transfer_api_model extends CI_Model
 
     public function remove_transient_data_records($record_id_list, $data_set_id)
     {
-        if($record_id_list){
+        if ($record_id_list) {
             $this->db->where('data_set_node_id', $data_set_id);
             $this->db->where_in('node_id', $record_id_list);
             $this->db->delete($this->dr_table);
         }
         //check for remaining records
         $check_query = $this->db->get_where($this->dr_table, ['data_set_node_id' => $data_set_id]);
-        if($check_query->num_rows() == 0){
+        if ($check_query->num_rows() == 0) {
             //no records left, so remove the data set entry too
             $this->db->delete($this->ds_table, ['node_id' => $data_set_id]);
         }
