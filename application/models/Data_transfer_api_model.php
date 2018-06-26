@@ -505,7 +505,7 @@ class Data_transfer_api_model extends CI_Model
             if (array_key_exists('field_associated_doi_request', $full_data_set_info) && $full_data_set_info['field_associated_doi_request']) {
                 //if this field is present, then we've sent off the minting request
                 $doi_requests = $full_data_set_info['field_associated_doi_request']['und'];
-                foreach($doi_requests as $request_object) {
+                foreach ($doi_requests as $request_object) {
                     $request_id = $request_object['target_id'];
                     $request_info = $this->extract_doi_request_info($request_id);
                     $data_set_info['doi_requests'][$request_id] = $request_info;
@@ -526,7 +526,7 @@ class Data_transfer_api_model extends CI_Model
             'doi' => $doi_string,
             'name' => $full_request_info['title']
         ];
-        if(!empty($osti_id)){
+        if (!empty($osti_id)) {
             $results['osti_id'] = $osti_id;
         }
         return $results;
@@ -539,7 +539,7 @@ class Data_transfer_api_model extends CI_Model
         $doi_transaction_doi_update_url = "{$this->metadata_url_base}/doitransaction";
         if (array_key_exists('field_associated_doi_request', $ds_info) && $ds_info['field_associated_doi_request']) {
             $doi_requests = $full_data_set_info['field_associated_doi_request']['und'];
-            foreach($doi_requests as $request_object) {
+            foreach ($doi_requests as $request_object) {
                 $request_id = $request_object['target_id'];
                 $request_info = $this->extract_doi_request_info($request_id);
                 $doi_string = $request_info['doi'];
@@ -555,13 +555,14 @@ class Data_transfer_api_model extends CI_Model
         }
     }
 
-    private function insert_doi_dataset_entries($request_info){
+    private function insert_doi_dataset_entries($request_info)
+    {
         //check if it's already in the system
         $insert_url = "{$this->metadata_url_base}/doidatasets";
         $check_request = Requests::get($insert_url, $this->json_headers);
         $check_results = json_decode($check_request, true);
-        if($check_results){
-            if($request_info['name'] != $check_results['name']){
+        if ($check_results) {
+            if ($request_info['name'] != $check_results['name']) {
                 $update_object = [
                     'name' => $request_info['name']
                 ];
@@ -584,25 +585,26 @@ class Data_transfer_api_model extends CI_Model
             ]
         ];
         $insert_request = Requests::put($insert_url, $this->json_headers, $insert_object);
-        if($insert_request->status_code == 200){
+        if ($insert_request->status_code == 200) {
             $success = true;
         }
         return $success;
     }
 
-    private function insert_doi_transaction_entries($request_info, $data_set_id){
+    private function insert_doi_transaction_entries($request_info, $data_set_id)
+    {
         $this->db->where('node_id', $data_set_id)->update($this->ds_table, ['doi_reference_string' => $request_info['doi']]);
         $transaction_id_query = $this->db->get_where($this->dr_table, ['data_set_node_id' => $data_set_id]);
         $transaction_list = [];
-        if($transaction_id_query && $transaction_id_query->num_rows() > 0){
-            foreach($transaction_id_query->rows() as $row){
+        if ($transaction_id_query && $transaction_id_query->num_rows() > 0) {
+            foreach ($transaction_id_query->rows() as $row) {
                 $transaction_list[] = $row->transaction_id;
             }
         }
         $doi_transaction_insert_url = "{$this->metadata_url_base}/doitransaction";
         $insert_objects = [];
         $success = false;
-        foreach($transaction_list as $transaction_id){
+        foreach ($transaction_list as $transaction_id) {
             $insert_object = [
                 'doi_id' => $request_info['doi'],
                 'transaction_id' => $transaction_id
@@ -610,7 +612,7 @@ class Data_transfer_api_model extends CI_Model
             $insert_objects[] = $insert_object;
         }
         $insert_request = Requests::post($doi_transaction_insert_url, $this->json_headers, $insert_objects);
-        if($insert_request->status_code == 200){
+        if ($insert_request->status_code == 200) {
             $success = true;
         }
         return $success;
