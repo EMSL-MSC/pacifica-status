@@ -50,6 +50,11 @@ class Data_transfer_api_model extends CI_Model
         $this->ds_table = 'drhub_data_sets';
         $this->dr_table = 'drhub_data_records';
         $this->sess = false;
+        $this->json_headers = [
+            'Accept' => 'application/json',
+            'Content-Type' => 'application/json'
+        ];
+
         // $this->sess = $this->get_drhub_session();
     }
 
@@ -61,11 +66,11 @@ class Data_transfer_api_model extends CI_Model
                 'username' => $this->dh_username,
                 'password' => $this->dh_password
             ];
-            $headers = [
-                'Accept' => 'application/json'
-            ];
+            // $headers = [
+            //     'Accept' => 'application/json'
+            // ];
             $dh_url = "{$this->drhub_url_base}/dataset/user/login";
-            $response = $sess->post("{$this->drhub_url_base}/dataset/user/login", $headers, $post_data);
+            $response = $sess->post("{$this->drhub_url_base}/dataset/user/login", $this->json_headers, $post_data);
             $response_object = json_decode($response->body);
             // var_dump($response_object);
             $sess->headers['X-CSRF-Token'] = $response_object->token;
@@ -289,23 +294,6 @@ class Data_transfer_api_model extends CI_Model
             ]
         ];
         $success = $this->update_resource($dataset_id, $formatted_request);
-
-        // $dh_url = "{$this->drhub_url_base}/dataset/node/{$dataset_id}";
-        // $success = false;
-        // // echo $dh_url;
-        // // echo json_encode($formatted_request);
-        // $query = $this->sess->put($dh_url, array(
-        //     'Accept' => 'application/json',
-        //     'Content-Type' => 'application/json'
-        // ), json_encode($formatted_request));
-        // if ($query->status_code == 200) {
-        //     $results = json_decode($query->body);
-        //     if ($results->nid == strval($dataset_id)) {
-        //         $success = true;
-        //     }
-        // }
-
-
         $this->update_transient_data_records($dataset_id);
         return $success;
     }
@@ -470,10 +458,9 @@ class Data_transfer_api_model extends CI_Model
     {
         $this->get_drhub_session();
         $dh_url = "{$this->drhub_url_base}/dataset/node/{$node_id}";
-        // $sess = $this->get_drhub_session();
         $response = $this->sess->get($dh_url, ['Accept' => 'application/json']);
         $results = json_decode($response->body, true);
-        if (!array_key_exists('body', $results)) {
+        if (!array_key_exists('type', $results)) {
             return false;
         } else {
             return $results;
