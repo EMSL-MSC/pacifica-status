@@ -371,39 +371,39 @@ $(function(){
     $(".submission_cart_action_buttons_container input.submit").off().on("click", function(event){
         submit_submission_selections(event);
     });
-    doi_resource_edit_dialog = $("#doi-resource-edit-form").dialog({
-        autoOpen: false,
-        width: "40%",
-        dialogClass: "drop_shadow_dialog",
-        modal: true,
-        buttons: {
-            "OK": function() {
-                f = $(this).find("form");
-                var empty_req_fields = f.find("input:invalid, textarea:invalid");
-                if(empty_req_fields.length > 0){
-                    $.each(empty_req_fields, function(index, item){
-                        $(item).next(".pure-form-message-inline").fadeIn("fast");
-                    });
-                    return false;
-                }else{
-                    var current_session_data = JSON.parse(sessionStorage.getItem("items_to_publish"));
-                    var transaction_id = $(this).data("transaction_id");
-                    current_session_data[transaction_id]["release_name"] = $("#doi_rsrc_name").val();
-                    current_session_data[transaction_id]["release_description"] = $("#doi_rsrc_desc").val();
-                    sessionStorage.setItem("items_to_publish", JSON.stringify(current_session_data));
-                    $(this).dialog("close");
-                    update_publishing_view();
-                }
-            },
-            "Cancel": function() {
-                $(this).dialog("close");
-            }
-        },
-        open: function() {
-            $("#doi_rsrc_name").val($(this).data("resource_name"));
-            $("#doi_rsrc_desc").val($(this).data("resource_desc"));
-        }
-    });
+    // doi_resource_edit_dialog = $("#doi-resource-edit-form").dialog({
+    //     autoOpen: false,
+    //     width: "40%",
+    //     dialogClass: "drop_shadow_dialog",
+    //     modal: true,
+    //     buttons: {
+    //         "OK": function() {
+    //             f = $(this).find("form");
+    //             var empty_req_fields = f.find("input:invalid, textarea:invalid");
+    //             if(empty_req_fields.length > 0){
+    //                 $.each(empty_req_fields, function(index, item){
+    //                     $(item).next(".pure-form-message-inline").fadeIn("fast");
+    //                 });
+    //                 return false;
+    //             }else{
+    //                 var current_session_data = JSON.parse(sessionStorage.getItem("items_to_publish"));
+    //                 var transaction_id = $(this).data("transaction_id");
+    //                 current_session_data[transaction_id]["release_name"] = $("#doi_rsrc_name").val();
+    //                 current_session_data[transaction_id]["release_description"] = $("#doi_rsrc_desc").val();
+    //                 sessionStorage.setItem("items_to_publish", JSON.stringify(current_session_data));
+    //                 $(this).dialog("close");
+    //                 update_publishing_view();
+    //             }
+    //         },
+    //         "Cancel": function() {
+    //             $(this).dialog("close");
+    //         }
+    //     },
+    //     open: function() {
+    //         $("#doi_rsrc_name").val($(this).data("resource_name"));
+    //         $("#doi_rsrc_desc").val($(this).data("resource_desc"));
+    //     }
+    // });
 
     doi_resource_info_dialog = $("#doi-resource-info-form").dialog({
         autoOpen: false,
@@ -435,10 +435,7 @@ $(function(){
             }
         },
         open: function() {
-            // var entry_button = $(this).data("entry_button");
             var cf = $(this).data("upload_item");
-            // var pd = cf.find(".proposal_identifier");
-            // $("#doi_proposal_id").text("[ID: " + pd.val() + "] " + pd.attr("title"));
             var display_metadata = build_metadata_for_display(cf);
             var display_element = $(this).find(".readonly-display-grouping ul");
             $.each(display_metadata, function(index, item){
