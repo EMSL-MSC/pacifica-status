@@ -82,7 +82,8 @@ class Status_api extends Baseline_user_api_controller
         $this->overview();
     }
 
-    public function data_release_single_item($transaction_id){
+    public function data_release_single_item($transaction_id)
+    {
         $this->overview_template = "page_layouts/data_release_page_view.html";
         $updated_page_info = [
             'page_header' => 'Data Release Interface',
@@ -127,8 +128,6 @@ class Status_api extends Baseline_user_api_controller
             $extra_scripts_array
         );
         $this->load->view('page_layouts/data_release_single_page_view.html', $this->page_data);
-
-
     }
 
     /**
