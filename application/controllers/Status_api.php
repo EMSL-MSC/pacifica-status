@@ -316,7 +316,7 @@ class Status_api extends Baseline_user_api_controller
         if (get_cookie('myemsl_status_page_mode')) {
             $this->page_mode = get_cookie('myemsl_status_page_mode');
         }
-        $this->referring_page = str_replace(base_url(), '',  $this->input->server('HTTP_REFERER'));
+        $this->referring_page = str_replace(base_url(), '', $this->input->server('HTTP_REFERER'));
         $time_period_empty = true;
         if (isset($instrument_id) && intval($instrument_id) != 0
             && isset($proposal_id) && intval($proposal_id) != 0
@@ -337,9 +337,9 @@ class Status_api extends Baseline_user_api_controller
                 $end_time
             );
             $transactions = $transaction_list;
-            if ($this->referring_page == 'doi_minting'){
-                foreach ($transaction_list['transactions'] as $transaction_id => $transaction_info){
-                    if ($transaction_info['metadata']['release_state'] == 'not_released'){
+            if ($this->referring_page == 'doi_minting') {
+                foreach ($transaction_list['transactions'] as $transaction_id => $transaction_info) {
+                    if ($transaction_info['metadata']['release_state'] == 'not_released') {
                         unset($transactions['transactions'][$transaction_id]);
                         unset($transactions['times'][$transaction_id]);
                     }
