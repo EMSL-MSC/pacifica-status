@@ -337,7 +337,8 @@ class Status_api extends Baseline_user_api_controller
                 $end_time
             );
             $transactions = $transaction_list;
-            if ($this->referring_page == 'doi_minting') {
+            if (in_array($this->referring_page, ['doi_minting', 'released_data'])) {
+            // if ($this->referring_page == 'doi_minting') {
                 foreach ($transaction_list['transactions'] as $transaction_id => $transaction_info) {
                     if ($transaction_info['metadata']['release_state'] == 'not_released') {
                         unset($transactions['transactions'][$transaction_id]);
@@ -407,10 +408,10 @@ class Status_api extends Baseline_user_api_controller
      */
     public function view($id)
     {
-        $path_splitter_regex = '/\/?([^\/]+)\/(\d+)$/';
-        if (preg_match($path_splitter_regex, $_SERVER['REQUEST_URI'], $matches)) {
-            $page_state = $matches[1];
-        }
+        $page_state = array_values(array_intersect(
+            ['released_data', 'view'], $this->uri->segment_array()
+        ))[0] ?: false;
+
         $this->page_mode = 'cart';
         $lookup_type_description = 'Transaction';
         $lookup_type = 'transaction';

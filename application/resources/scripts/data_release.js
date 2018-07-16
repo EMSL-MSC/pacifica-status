@@ -55,18 +55,10 @@ var clear_release_selections = function(){
     update_staged_transactions_view();
 };
 
-// var set_staged_transaction_completed = function(upload_id){
-//     var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
-//     delete current_session_contents[upload_id];
-//     sessionStorage.setItem("staged_releases", JSON.stringify(current_session_contents));
-// };
-
 var unstage_transaction = function(el){
     el = $(el);
     var txn_id = parseInt($(el).parents("tr").find(".upload_id").text(),10);
-    var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
-    delete current_session_contents[txn_id];
-    sessionStorage.setItem("staged_releases", JSON.stringify(current_session_contents));
+    remove_transaction_from_staging(txn_id);
     var container = $("#fieldset_" + txn_id).parents(".fieldset_container");
     var banner = container.find(".ribbon");
     banner.removeClass().addClass("ribbon").addClass("not_released");
@@ -126,25 +118,26 @@ var set_release_state_banners = function(release_states, selector){
         }else{
             el.find(".upload_url").attr({"href": external_release_base_url + "released_data/" + txn_id});
             el.find(".release_date").val(release_info.release_date);
+            remove_transaction_from_staging(txn_id);
         }
         el.find(".release_state").next("td.metadata_item").text(release_info.release_state);
         el.find(".release_state_display").next("td.metadata_item").text(release_info.display_state);
-        var release_date_line = $("<tr/>", {"class": "metadata_description_list"})
-            .append($("<td/>", {
-                "class": "metadata_header release_date",
-                "text": "Release Date"
-            }))
-            .append($("<td/>", {
-                "class": "metadata_item",
-                "text": moment(release_info.release_date).format("YYYY-MM-DDTHH:mm:ss")
-            }));
-        el.find(".release_state_display").parents("tr").after(release_date_line);
         ribbon_el.removeClass().addClass("ribbon").addClass(release_info.release_state);
         ribbon_el.find("span").text(release_info.display_state);
 
     });
 };
 
+var remove_transaction_from_staging = function(transaction_id){
+    var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
+    if(current_session_contents){
+        delete current_session_contents[transaction_id];
+        sessionStorage.setItem("staged_releases", JSON.stringify(current_session_contents));
+    }
+    if(!_.size(current_session_contents)){
+        sessionStorage.removeItem("staged_releases");
+    }
+};
 
 var update_staged_transactions_view = function(){
     var tbody_el = $(".transfer_cart_container table tbody");

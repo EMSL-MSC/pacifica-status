@@ -265,17 +265,6 @@ var set_release_state_banners = function(release_states, selector){
             }else{
                 setup_doi_staging_button(el, transaction_id);
             }
-            var release_date_line = $("<tr/>", {"class": "metadata_description_list"})
-                .append($("<td/>", {
-                    "class": "metadata_header release_date",
-                    "text": "Release Date"
-                }))
-                .append($("<td/>", {
-                    "class": "metadata_item",
-                    "text": moment(release_info.release_date).format("YYYY-MM-DDTHH:mm:ss")
-                }));
-            el.find(".release_state_display").parents("tr").after(release_date_line);
-
         }
         el.find(".release_state").next("td.metadata_item").text(release_info.release_state);
         el.find(".release_state_display").next("td.metadata_item").text(release_info.display_state);

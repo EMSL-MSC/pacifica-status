@@ -67,6 +67,7 @@ $route['404_override'] = '';
 
 $route['view/overview'] = "status_api/overview";
 $route['view/(:any)'] = "status_api/view/$1";
+$route['released_data'] = "status_api/overview";
 $route['released_data/(:any)'] = "status_api/view/$1";
 $route['view/t/(:any)'] = "status_api/view/$1";
 $route['view/j/(:any)'] = "status_api/view/$1";
