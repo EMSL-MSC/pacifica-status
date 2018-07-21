@@ -44,7 +44,9 @@ class System_setup_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
-
+        if(file_exists(APPPATH."db_create_completed.txt")){
+            return;
+        }
         //quickly assess the current system status
         try {
             $this->setup_db_structure();
@@ -95,16 +97,17 @@ class System_setup_model extends CI_Model
         $this->load->database('default');
         $this->load->dbforge();
         $this->load->dbutil();
-
         $this->_check_and_create_database($this->db->database);
 
         //the database should already be in place. Let's make some tables
         $table_list = ['cart', 'cart_items', 'drhub_data_sets', 'drhub_data_records'];
         foreach($table_list as $table_name){
             if(!$this->table_exists($table_name)){
-                $this->generate_cart_table($table_name);
+                $call_fn = "generate_{$table_name}_table";
+                $this->$call_fn($table_name);
             }
         }
+        touch(APPPATH."db_create_completed.txt");
     }
 
     private function table_exists($table_name){
@@ -199,7 +202,7 @@ class System_setup_model extends CI_Model
         };
     }
 
-    private function generate_transient_dataset_table($table_name)
+    private function generate_drhub_data_sets_table($table_name)
     {
         $fields = array(
             'node_id' => array(
@@ -238,7 +241,7 @@ class System_setup_model extends CI_Model
         };
     }
 
-    private function generate_transient_data_resource_table($table_name)
+    private function generate_drhub_data_records_table($table_name)
     {
         $fields = array(
             'node_id' => array(
