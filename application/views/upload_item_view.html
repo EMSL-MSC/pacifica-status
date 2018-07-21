@@ -60,7 +60,7 @@
             class="total_file_count"
             id="total_file_count_<?= $transaction_id ?>", name="total_file_count_<?= $transaction_id ?>",
             value="<?= $transaction_info['file_count'] ?>" />
-        <?php if($page_mode == 'release' && $release_class == 'released'): ?>
+        <?php if($release_class == 'released'): ?>
         <input
             type="hidden"
             class="release_identifier"

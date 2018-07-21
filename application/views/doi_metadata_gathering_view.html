@@ -1,0 +1,543 @@
+<div id="doi-resource-info-form" title="Describe this data resource" style="display:none;">
+  <form class="pure-form">
+    <div class="pure-control-group">
+      <label for="doi_dataset_type" class="select-dropdown-label-internal">Dataset Type</label>
+      <select
+        id="doi_dataset_type"
+        name="doi_dataset_type"
+        style="width:85%;"
+        required
+      ><option /></select>
+      <span class="pure-form-message-inline" style="margin-left: 0.5em;">Required</span>
+    </div>
+    <div class="pure-control-group">
+      <label for="doi_dataset_title" class="select-dropdown-label-internal">Dataset Title</label>
+      <input
+        id="doi_dataset_title"
+        name="doi_dataset_title"
+        style="width:85%;"
+        placeholder="Enter a descriptive title for the data product itself"
+        required
+      />
+      <span class="pure-form-message-inline" style="margin-left: 0.5em;">Required</span>
+    </div>
+    <div class="pure-control-group">
+      <label for="doi_dataset_description" class="select-dropdown-label-internal">Description / Abstract</label>
+      <textarea
+        placeholder="Provide a clear, concise summary of the content of the dataset"
+        id="doi_dataset_description"
+        name="doi_dataset_description"
+        style="width:85%;"
+      ></textarea>
+    </div>
+    <div class="pure-control-group">
+      <label for="doi_sponsor_organizations" class="select-dropdown-label-internal">Sponsoring Organizations</label>
+      <select
+        id="doi_sponsor_organizations"
+        name="doi_sponsor_organizations"
+        style="width: 85%;"
+        required
+      ></select>
+      <span class="pure-form-message-inline" style="margin-left: 0.5em;">Required</span>
+    </div>
+    <div class="readonly-display-grouping">
+        <p class="select-dropdown-label-internal">Other Metadata</p>
+        <ul/>
+    </div>
+  </form>
+</div>
+<script type='text/javascript'>
+//<![CDATA[
+
+var datatypes = {
+  "list": [
+    {
+      "code": "AS",
+      "name": "Animations/Simulations"
+    },
+    {
+      "code": "FP",
+      "name": "Figures/Plots"
+    },
+    {
+      "code": "GD",
+      "name": "Genome/Genetics Data"
+    },
+    {
+      "code": "IM",
+      "name": "Interactive Data Map(s)"
+    },
+    {
+      "code": "IP",
+      "name": "Still Images or Photos"
+    },
+    {
+      "code": "MM",
+      "name": "Multimedia"
+    },
+    {
+      "code": "ND",
+      "name": "Numeric Data"
+    },
+    {
+      "code": "SM",
+      "name": "Specialized Mix"
+    }
+  ],
+  "type": "types"
+};
+
+var sponsors = {
+  "list": [
+    {
+      "code": "ARPA-E",
+      "name": "USDOE Advanced Research Projects Agency - Energy (ARPA-E)"
+    },
+    {
+      "code": "AU",
+      "name": "USDOE Office of Environment, Health, Safety and Security (AU)"
+    },
+    {
+      "code": "AU-10",
+      "name": "USDOE Office of Environment, Health, Safety and Security (AU), Office of Health and Safety (AU-10)"
+    },
+    {
+      "code": "AU-20",
+      "name": "USDOE Office of Environment, Health, Safety and Security (AU), Office of Environmental Protection, Sustainability Support and Analysis (AU-20)"
+    },
+    {
+      "code": "AU-30",
+      "name": "USDOE Office of Environment, Health, Safety and Security (AU), Office of Nuclear Safety  (AU-30)"
+    },
+    {
+      "code": "AU-50",
+      "name": "USDOE Office of Environment, Health, Safety and Security (AU), Office of Security (AU-50)"
+    },
+    {
+      "code": "AU-60",
+      "name": "USDOE Office of Environment, Health, Safety and Security (AU), Office of Classification (AU-60)"
+    },
+    {
+      "code": "CI",
+      "name": "USDOE Office of Congressional and Intergovernmental Affairs (CI)"
+    },
+    {
+      "code": "CI-30",
+      "name": "USDOE Office of Congressional and Intergovernmental Affairs (CI), Energy Policy (CI-30)"
+    },
+    {
+      "code": "EE",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE)"
+    },
+    {
+      "code": "EE-3B",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Bioenergy Technologies Office (EE-3B)"
+    },
+    {
+      "code": "EE-3F",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Fuel Cell Technologies Office (EE-3F)"
+    },
+    {
+      "code": "EE-3V",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Vehicle Technologies Office (EE-3V)"
+    },
+    {
+      "code": "EE-4G",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Geothermal Technologies Office (EE-4G)"
+    },
+    {
+      "code": "EE-4S",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Solar Energy Technologies Office (EE-4S)"
+    },
+    {
+      "code": "EE-4WE",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Wind Energy Technologies Office (EE-4WE)"
+    },
+    {
+      "code": "EE-4WP",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Water Power Technologies Office (EE-4WP)"
+    },
+    {
+      "code": "EE-5A",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Advanced Manufacturing Office (EE-5A)"
+    },
+    {
+      "code": "EE-5B",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Building Technologies Office (EE-5B)"
+    },
+    {
+      "code": "EE-5F",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Federal Energy Management Program Office (EE-5F)"
+    },
+    {
+      "code": "EE-5S",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Sustainability Performance Office (EE-5S)"
+    },
+    {
+      "code": "EE-5W",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Weatherization and Intergovernmental Programs Office (EE-5W)"
+    },
+    {
+      "code": "EE-61",
+      "name": "USDOE Office of Energy Efficiency and Renewable Energy (EERE), Strategic Priorities and Impact Analysis (EE-61)"
+    },
+    {
+      "code": "EI",
+      "name": "USDOE Energy Information Administration (EIA)"
+    },
+    {
+      "code": "EI-20",
+      "name": "USDOE Energy Information Administration (EIA), Office of Energy Statistics (EI-20)"
+    },
+    {
+      "code": "EI-30",
+      "name": "USDOE Energy Information Administration (EIA), Office of Energy Analysis (EI-30)"
+    },
+    {
+      "code": "EM",
+      "name": "USDOE Office of Environmental Management (EM)"
+    },
+    {
+      "code": "EM-12",
+      "name": "USDOE Office of Environmental Management (EM), Office of Soil/Ground Water Remediation (EM-12)"
+    },
+    {
+      "code": "EM-40",
+      "name": "USDOE Office of Environmental Management (EM), Safety, Security and Quality Programs (EM-40)"
+    },
+    {
+      "code": "EM-50",
+      "name": "USDOE Office of Environmental Management (EM), Acquisition and Project Management (EM-50)"
+    },
+    {
+      "code": "FE",
+      "name": "USDOE Office of Fossil Energy (FE)"
+    },
+    {
+      "code": "FE-20",
+      "name": "USDOE Office of Fossil Energy (FE), Clean Coal and Carbon (FE-20)"
+    },
+    {
+      "code": "FE-30",
+      "name": "USDOE Office of Fossil Energy (FE), Oil and Natural Gas (FE-30)"
+    },
+    {
+      "code": "FE-40",
+      "name": "USDOE Office of Fossil Energy (FE), Petroleum Reserves (FE-40)"
+    },
+    {
+      "code": "GC",
+      "name": "USDOE Office of General Counsel (GC)"
+    },
+    {
+      "code": "GC-50",
+      "name": "USDOE Office of General Counsel (GC), Environmental and Nuclear Programs (GC-50)"
+    },
+    {
+      "code": "GC-54",
+      "name": "USDOE Office of General Counsel (GC), Office of NEPA Policy and Compliance (GC-54)"
+    },
+    {
+      "code": "GC-60",
+      "name": "USDOE Office of General Counsel (GC), Technology Transfer and Procurement (GC-60)"
+    },
+    {
+      "code": "GC-70",
+      "name": "USDOE Office of General Counsel (GC), Energy Policy (GC-70)"
+    },
+    {
+      "code": "IA",
+      "name": "USDOE Office of International Affairs (IA)"
+    },
+    {
+      "code": "IA-40",
+      "name": "USDOE Office of International Affairs (IA), Climate Change Policy and Technology (IA-40)"
+    },
+    {
+      "code": "IE",
+      "name": "USDOE The Office of Indian Energy Policy and Programs (IE)"
+    },
+    {
+      "code": "IG",
+      "name": "USDOE Office of Inspector General (IG)"
+    },
+    {
+      "code": "IG-30",
+      "name": "USDOE Office of Inspector General (IG), Audits and Inspections (IG-30)"
+    },
+    {
+      "code": "IM",
+      "name": "USDOE Office of Chief Information Officer (IM)"
+    },
+    {
+      "code": "IM-20",
+      "name": "USDOE Office of Chief Information Officer (IM), IT Policy and Governance (IM-20)"
+    },
+    {
+      "code": "IN",
+      "name": "USDOE Office of Intelligence and Counterintelligence (IN)"
+    },
+    {
+      "code": "IN-10",
+      "name": "USDOE Office of Intelligence and Counterintelligence (IN), Office of Intelligence (IN-10)"
+    },
+    {
+      "code": "IN-20",
+      "name": "USDOE Office of Intelligence and Counterintelligence (IN), Office of Counterintelligence (IN-20)"
+    },
+    {
+      "code": "LM",
+      "name": "USDOE Office of Legacy Management (LM)"
+    },
+    {
+      "code": "LM-20",
+      "name": "USDOE Office of Legacy Management (LM), Office of Site Operations (LM-20)"
+    },
+    {
+      "code": "NA",
+      "name": "USDOE National Nuclear Security Administration (NNSA)"
+    },
+    {
+      "code": "NA-10",
+      "name": "USDOE National Nuclear Security Administration (NNSA), Office of Defense Programs (DP) (NA-10)"
+    },
+    {
+      "code": "NA-20",
+      "name": "USDOE National Nuclear Security Administration (NNSA), Office of Defense Nuclear Nonproliferation (NA-20)"
+    },
+    {
+      "code": "NA-26",
+      "name": "USDOE National Nuclear Security Administration (NNSA), Office of Fissile Materials Disposition (NA-26)"
+    },
+    {
+      "code": "NA-30",
+      "name": "USDOE National Nuclear Security Administration (NNSA), Office of Naval Reactors (NA-30)"
+    },
+    {
+      "code": "NA-40",
+      "name": "USDOE National Nuclear Security Administration (NNSA), Office of Emergency Operations (NA-40)"
+    },
+    {
+      "code": "NA-70",
+      "name": "USDOE National Nuclear Security Administration (NNSA), Office of Defense Nuclear Security (NA-70)"
+    },
+    {
+      "code": "NE",
+      "name": "USDOE Office of Nuclear Energy (NE)"
+    },
+    {
+      "code": "NE-3",
+      "name": "USDOE Office of Nuclear Energy (NE), Nuclear Facility Operations (NE-3)"
+    },
+    {
+      "code": "NE-5",
+      "name": "USDOE Office of Nuclear Energy (NE), Fuel Cycle Technologies (NE-5)"
+    },
+    {
+      "code": "NE-6",
+      "name": "USDOE Office of Nuclear Energy (NE), International Nuclear Energy Policy and Cooperation (NE-6)"
+    },
+    {
+      "code": "NE-7",
+      "name": "USDOE Office of Nuclear Energy (NE), Nuclear Reactor Technologies (NE-7)"
+    },
+    {
+      "code": "NE-75",
+      "name": "USDOE Office of Nuclear Energy (NE), Office of Space and Defense Power Systems (NE-75)"
+    },
+    {
+      "code": "OE",
+      "name": "USDOE Office of Electricity Delivery and Energy Reliability (OE)"
+    },
+    {
+      "code": "OE-10",
+      "name": "USDOE Office of Electricity Delivery and Energy Reliability (OE), Power Systems Engineering Research and Development (R&D) (OE-10)"
+    },
+    {
+      "code": "OE-30",
+      "name": "USDOE Office of Electricity Delivery and Energy Reliability (OE), Infrastructure Security and Energy Restoration (ISER) (OE-30)"
+    },
+    {
+      "code": "PA",
+      "name": "USDOE Office of Public Affairs (PA)"
+    },
+    {
+      "code": "PA-40",
+      "name": "USDOE Office of Public Affairs (PA), Public Information (PA-40)"
+    },
+    {
+      "code": "S ",
+      "name": "USDOE Office of Secretary of Energy (S)"
+    },
+    {
+      "code": "SC",
+      "name": "USDOE Office of Science (SC)"
+    },
+    {
+      "code": "SC-21",
+      "name": "USDOE Office of Science (SC), Advanced Scientific Computing Research (ASCR) (SC-21)"
+    },
+    {
+      "code": "SC-22",
+      "name": "USDOE Office of Science (SC), Basic Energy Sciences (BES) (SC-22)"
+    },
+    {
+      "code": "SC-22.1",
+      "name": "USDOE Office of Science (SC), Basic Energy Sciences (BES) (SC-22). Chemical Sciences, Geosciences & Biosciences Division"
+    },
+    {
+      "code": "SC-22.2",
+      "name": "USDOE Office of Science (SC), Basic Energy Sciences (BES) (SC-22). Materials Sciences & Engineering Division"
+    },
+    {
+      "code": "SC-22.3",
+      "name": "USDOE Office of Science (SC), Basic Energy Sciences (BES) (SC-22). Scientific User Facilities Division"
+    },
+    {
+      "code": "SC-23",
+      "name": "USDOE Office of Science (SC), Biological and Environmental Research (BER) (SC-23)"
+    },
+    {
+      "code": "SC-23.1",
+      "name": "USDOE Office of Science (SC), Biological and Environmental Research (BER) (SC-23). Climate and Environmental Sciences Division"
+    },
+    {
+      "code": "SC-23.2",
+      "name": "USDOE Office of Science (SC), Biological and Environmental Research (BER) (SC-23). Biological Systems Science Division"
+    },
+    {
+      "code": "SC-24",
+      "name": "USDOE Office of Science (SC), Fusion Energy Sciences (FES) (SC-24)"
+    },
+    {
+      "code": "SC-25",
+      "name": "USDOE Office of Science (SC), High Energy Physics (HEP) (SC-25)"
+    },
+    {
+      "code": "SC-26",
+      "name": "USDOE Office of Science (SC), Nuclear Physics (NP) (SC-26)"
+    },
+    {
+      "code": "SC-27",
+      "name": "USDOE Office of Science (SC), Workforce Development for Teachers and Scientists (WDTS) (SC-27)"
+    },
+    {
+      "code": "US",
+      "name": "USDOE Office of Under Secretary for Science and Energy (US)"
+    }
+  ],
+  "type": "sponsor-orgs"
+};
+
+clean_datatypes = $.map(datatypes.list, function(obj) {
+    obj.id = obj.id || obj.code;
+    obj.text = obj.text || obj.name;
+    return obj;
+});
+$("#doi_dataset_type").select2({
+    data: clean_datatypes,
+    escapeMarkup: function(markup){ return markup; },
+    placeholder: "What best describes this content?",
+    templateResult: function(item){
+      if(item.loading){
+        return item.text;
+      }
+      var markup = $("<div/>", {
+        "style": "position: relative;"
+      });
+
+      markup.append($("<div/>", {
+        "style": "text-transform: uppercase;font-size: 1.1em;",
+        "text": item.name
+      }));
+
+
+      markup.append($("<div/>", {
+        "style": "position: absolute; right: 5px; top: 0;"
+      })
+        .append($("<span/>", {
+          "text": "(" + item.id + ")",
+          "style": "font-weight: bold; font-size: 0.9em;"
+        })));
+
+      return markup;
+
+    },
+    templateSelection: function(item){
+      if (!item.id){
+        return item.text;
+      }
+      var markup = item.text;
+      return markup;
+    }
+});
+
+
+var clean_sponsors = $.map(sponsors.list, function(obj) {
+  obj.id = obj.id || obj.code;
+  obj.text = obj.text || obj.name;
+  return obj;
+});
+
+$("#doi_sponsor_organizations").select2({
+  data: clean_sponsors,
+  escapeMarkup: function(markup){ return markup; },
+  placeholder: "List sponsoring organizations for this work",
+  multiple: true,
+  templateResult: function(item){
+    if(item.loading){
+      return item.text;
+    }
+    item_class = item.id.match(/-\d+/i) ? "doi_sponsor_item" : "doi_sponsor_org_group";
+    var markup = $("<div/>", {
+      "style": "position: relative;",
+      "class": item_class
+    });
+    if(typeof(tl_org_list) === "undefined"){
+      tl_org_list = {};
+    }
+    sub_org = false;
+    point_org = false;
+    if(tl_org_matcher = /([A-Za-z]+)-([A-Za-z0-9]+)\.?(\d*)/i.exec(item.id)){
+      tl_org = tl_org_matcher[1];
+      sub_org = tl_org_matcher[2];
+      point_org = tl_org_matcher[3];
+      // if(point_org){
+      //   debugger;
+      // }
+      // if(point_org_matcher = /([A-Za-z0-9]+)\.(\d+)/i.exec(sub_org)){
+      //   debugger;
+      //   sub_org = point_org_matcher[1];
+      //   point_org = point_org_matcher[2];
+      // }
+    }else{
+      tl_org = item.id;
+    }
+    clean_name = item.text.replace(" (" + tl_org + ")", "");
+
+    if(item_class == "doi_sponsor_org_group"){
+      tl_org_list[item.id] = clean_name;
+    }else{
+      clean_name = clean_name.replace(tl_org_list[tl_org] + ", ", "").replace("(" + item.id + ")", "").trim();
+    }
+
+    markup.append($("<div/>", {
+      "class": "item_identifier",
+      "text": item.id
+    }));
+    markup.append($("<div/>", {
+      "class": "item_descriptor",
+      "text": clean_name
+    }))
+    return markup;
+  },
+  templateSelection: function(item){
+    return item.id;
+  }
+});
+
+
+
+
+//]]>
+</script>

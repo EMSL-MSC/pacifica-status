@@ -56,6 +56,7 @@ class Status_api extends Baseline_user_api_controller
         $this->page_data['view_mode'] = 'multiple';
         $this->page_data['js'] = "";
         $this->overview_template = $this->config->item('main_overview_template') ?: "page_layouts/status_page_view.html";
+        $this->config->load('data_release');
     }
 
     /**
@@ -338,7 +339,6 @@ class Status_api extends Baseline_user_api_controller
             );
             $transactions = $transaction_list;
             if (in_array($this->referring_page, ['doi_minting', 'released_data'])) {
-            // if ($this->referring_page == 'doi_minting') {
                 foreach ($transaction_list['transactions'] as $transaction_id => $transaction_info) {
                     if ($transaction_info['metadata']['release_state'] == 'not_released') {
                         unset($transactions['transactions'][$transaction_id]);

@@ -87,6 +87,7 @@ var clear_submission_selections = function(){
 var create_doi_data_resource = function(el) {
     doi_resource_info_dialog
         .data("entry_button", $(el))
+        .data("upload_item", $(el).parents("fieldset"))
         .dialog("open");
 };
 
@@ -300,6 +301,67 @@ var setup_staging_buttons = function(){
 
 };
 
+var build_metadata_for_display = function(el) {
+    el = $(el);
+    var display_elements = {};
+    var item_list = el.find("[title]");
+    item_list.each(function(index, item){
+        item = $(item);
+        display_elements[item.prop("class")] = {
+            "display_name": item.prop("class").replace(/_/g, " "),
+            "value": item.prop("title") + " (ID #" + item.val() + ")"
+        };
+    });
+
+    item_list = el.find("input[class*='time']");
+    item_list.each(function(index, item){
+        item = $(item);
+        display_elements[item.prop("class")] = {
+            "display_name": item.prop("class").replace(/_/g, " "),
+            "value": moment(item.val()).format("MMMM Do YYYY, h:mm:ss a")
+        };
+    });
+
+    var file_size = myemsl_size_format(el.find(".total_file_size_bytes").val());
+    var file_count = el.find(".total_file_count").val();
+    var count_pluralizer = file_count == 1 ? "" : "s";
+    display_elements["file_size"] = {
+        "display_name": "Total File Size",
+        "value": file_count + " file" + count_pluralizer + " (" + file_size + ")"
+    };
+    var rd = el.find(".release_date").val();
+    display_elements["release_date"] = {
+        "display_name": "Release Date",
+        "value": moment(rd).format("MMMM Do YYYY")
+    };
+
+    var output_elements = [];
+    $.each(display_elements, function(index, item) {
+        var new_item = $("<li/>", {
+            "class": "doi_" + index,
+            "id": "doi_" + index
+        })
+            .append($("<span/>", {
+                "style": "text-transform: capitalize;font-weight: bold;",
+                "text": item.display_name + ": "
+            }))
+            .append(item.value);
+        output_elements.push(new_item);
+    });
+    return output_elements;
+};
+
+var myemsl_size_format = function(bytes) {
+    var suffixes = ["B", "KB", "MB", "GB", "TB", "EB"];
+    if (bytes == 0) {
+        suffix = "B";
+    } else {
+        var order = Math.floor(Math.log(bytes) / Math.log(10) / 3);
+        bytes = (bytes / Math.pow(1024, order)).toFixed(1);
+        suffix = suffixes[order];
+    }
+    return bytes + " " + suffix;
+};
 
 $(function(){
     update_publishing_view();
@@ -345,7 +407,7 @@ $(function(){
 
     doi_resource_info_dialog = $("#doi-resource-info-form").dialog({
         autoOpen: false,
-        width: "40%",
+        width: "640px",
         dialogClass: "drop_shadow_dialog",
         modal: true,
         buttons: {
@@ -373,16 +435,16 @@ $(function(){
             }
         },
         open: function() {
-            var req_fields = $(this).find("input:required, textarea:required");
-            req_fields.on("keyup", function(event){
-                var el = $(event.target);
-                var req_notifier = el.next(".pure-form-message-inline");
-                if(el.is(":invalid") && req_notifier.is(":hidden")){
-                    req_notifier.fadeIn("fast");
-                }else if(el.is(":valid") && req_notifier.is(":visible")) {
-                    req_notifier.fadeOut("fast");
-                }
+            // var entry_button = $(this).data("entry_button");
+            var cf = $(this).data("upload_item");
+            // var pd = cf.find(".proposal_identifier");
+            // $("#doi_proposal_id").text("[ID: " + pd.val() + "] " + pd.attr("title"));
+            var display_metadata = build_metadata_for_display(cf);
+            var display_element = $(this).find(".readonly-display-grouping ul");
+            $.each(display_metadata, function(index, item){
+                display_element.append(item);
             });
+
         },
         close: function() {
 
