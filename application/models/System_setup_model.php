@@ -44,7 +44,7 @@ class System_setup_model extends CI_Model
     public function __construct()
     {
         parent::__construct();
-        if(file_exists(APPPATH."db_create_completed.txt")){
+        if (file_exists(APPPATH."db_create_completed.txt")) {
             return;
         }
         //quickly assess the current system status
@@ -101,8 +101,8 @@ class System_setup_model extends CI_Model
 
         //the database should already be in place. Let's make some tables
         $table_list = ['cart', 'cart_items', 'drhub_data_sets', 'drhub_data_records'];
-        foreach($table_list as $table_name){
-            if(!$this->table_exists($table_name)){
+        foreach ($table_list as $table_name) {
+            if (!$this->table_exists($table_name)) {
                 $call_fn = "generate_{$table_name}_table";
                 $this->$call_fn($table_name);
             }
@@ -110,7 +110,8 @@ class System_setup_model extends CI_Model
         touch(APPPATH."db_create_completed.txt");
     }
 
-    private function table_exists($table_name){
+    private function table_exists($table_name)
+    {
         $query = $this->db->query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '{$table_name}';");
         return $query->num_rows() == 1;
     }
