@@ -45,7 +45,7 @@ var setup_doi_staging_button = function(el) {
     var current_session_contents = JSON.parse(sessionStorage.getItem("items_to_publish"));
     var transaction_id = el.find(".transaction_identifier").val();
     var doi_staging_button = el.find(".doi_staging_button");
-    var should_be_disabled = _.keys(current_session_contents).includes(transaction_id);
+    // var should_be_disabled = _.keys(current_session_contents).includes(transaction_id);
 
     if(!doi_staging_button.length){
         var doi_staging_button_container = $("<div/>", {
@@ -54,7 +54,7 @@ var setup_doi_staging_button = function(el) {
         doi_staging_button = $("<input>", {
             "value": "Submit DOI",
             "class": "doi_staging_button",
-            "style": "display: none;z-index: 4;"
+            "style": "z-index: 4;"
         }).attr({
             "type": "button"
         });
@@ -65,11 +65,11 @@ var setup_doi_staging_button = function(el) {
         el.find("legend").after(doi_staging_button_container);
         // doi_staging_button_container.appendTo(el.find("fieldset"));
     }
-    if(should_be_disabled){
-        doi_staging_button.attr("disabled", "disabled").addClass("disabled");
-    }else{
-        doi_staging_button.removeAttr("disabled").removeClass("disabled");
-    }
+    // if(should_be_disabled){
+    //     doi_staging_button.attr("disabled", "disabled").addClass("disabled");
+    // }else{
+    //     doi_staging_button.removeAttr("disabled").removeClass("disabled");
+    // }
     if(!doi_staging_button.is(":visible")){
         doi_staging_button.fadeIn("slow");
     }

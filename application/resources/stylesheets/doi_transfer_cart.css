@@ -23,6 +23,11 @@
     margin: 1.25rem auto 0 auto;
 }
 
+select.multi-select + span.select2 ul > li.select2-search,
+select.multi-select + span.select2 ul > li.select2-search > input {
+    width:100% !important;
+}
+
 .transfer_cart h3 {
     font-size: 1rem;
     font-weight: 600;
