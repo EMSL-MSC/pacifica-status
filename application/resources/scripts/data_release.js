@@ -94,40 +94,6 @@ var stage_transaction = function(el){
     container.find(".staging_button").remove();
 };
 
-var set_release_state_banners = function(release_states, selector){
-    $(selector).each(function(index, el){
-        el = $(el);
-        var txn_id = el.find(".transaction_identifier").val();
-        var ribbon_el = el.find(".ribbon");
-        var release_info = release_states[txn_id];
-        // var transaction_id = release_info.transaction;
-        if(release_info.release_state == "not_released"){
-            var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
-            if(!$.isEmptyObject(current_session_contents) && txn_id in current_session_contents){
-                release_info.release_state = "staged";
-                release_info.display_state = "Staged";
-            }else{
-                release_info.release_state = "not_released";
-                release_info.display_state = "Not Released";
-                var content = build_staging_button(txn_id);
-                el.find("legend").after(content);
-                el.find(".staging_button").off().on("click", function(event){
-                    stage_transaction($(event.target));
-                });
-            }
-        }else{
-            el.find(".upload_url").attr({"href": external_release_base_url + "released_data/" + txn_id});
-            el.find(".release_date").val(release_info.release_date);
-            remove_transaction_from_staging(txn_id);
-        }
-        el.find(".release_state").next("td.metadata_item").text(release_info.release_state);
-        el.find(".release_state_display").next("td.metadata_item").text(release_info.display_state);
-        ribbon_el.removeClass().addClass("ribbon").addClass(release_info.release_state);
-        ribbon_el.find("span").text(release_info.display_state);
-
-    });
-};
-
 var remove_transaction_from_staging = function(transaction_id){
     var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
     if(current_session_contents){

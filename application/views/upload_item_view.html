@@ -60,6 +60,44 @@
             class="total_file_count"
             id="total_file_count_<?= $transaction_id ?>", name="total_file_count_<?= $transaction_id ?>",
             value="<?= $transaction_info['file_count'] ?>" />
+        <input
+            type="hidden"
+            class="contact_first_name"
+            id="contact_first_name_<?= $transaction_id ?>",
+            name="contact_first_name_<?= $transaction_id ?>",
+            value="<?= $this->user_info["first_name"] ?>" />
+        <input
+            type="hidden"
+            class="contact_last_name"
+            id="contact_last_name_<?= $transaction_id ?>",
+            name="contact_last_name_<?= $transaction_id ?>",
+            value="<?= $this->user_info["last_name"] ?>" />
+        <input
+            type="hidden"
+            class="contact_email"
+            id="contact_email_<?= $transaction_id ?>",
+            name="contact_email_<?= $transaction_id ?>",
+            value="<?= $this->user_info["email_address"] ?>" />
+        <input
+            type="hidden"
+            class="contact_org"
+            id="contact_org_<?= $transaction_id ?>"
+            name="contact_org_<?= $transaction_id ?>"
+            value="EMSL" />
+        <input
+            type="hidden"
+            class="contract_numbers"
+            id="contract_numbers_<?= $transaction_id ?>"
+            name=contract_numbers_<?= $transaction_id ?>"
+            value="<?= str_replace('DE-', '', $this->config->item('default_contract_number')) ?>" />
+        <input
+            type="hidden"
+            class="site_url_identifier"
+            name="site_url_identifier"
+            id="site_url_identifier"
+            value="<?= $download_url ?>" />
+
+
         <?php if($release_class == 'released'): ?>
         <input
             type="hidden"
