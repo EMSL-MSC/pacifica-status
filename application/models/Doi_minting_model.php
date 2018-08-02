@@ -79,6 +79,4 @@ class Doi_minting_model extends CI_Model
         $resource_results = $resource_query->num_rows() > 0 ? $resource_query->result_array() : [];
         return $resource_results;
     }
-
-
 }

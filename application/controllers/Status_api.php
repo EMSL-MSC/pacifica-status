@@ -412,7 +412,8 @@ class Status_api extends Baseline_user_api_controller
     public function view($id)
     {
         $page_state = array_values(array_intersect(
-            ['released_data', 'view'], $this->uri->segment_array()
+            ['released_data', 'view'],
+            $this->uri->segment_array()
         ))[0] ?: false;
 
         $this->page_mode = 'cart';

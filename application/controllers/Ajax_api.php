@@ -169,11 +169,10 @@ class Ajax_api extends Baseline_api_controller
             $publication_data = json_decode($http_raw_post_data, true);
         }
         $success = $this->doi->store_transient_details($publication_data);
-        if($success) {
+        if ($success) {
             $results = "Updated Records Successfully...";
         }
         transmit_array_with_json_header($results);
-
     }
 
     /**
