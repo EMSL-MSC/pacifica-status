@@ -235,12 +235,12 @@ class System_setup_model extends CI_Model
 
     private function generate_table($table_name, $field_collection, $key_collection = false)
     {
-        if($this->table_exists($table_name)){
+        if ($this->table_exists($table_name)) {
             return false;
         }
         $this->dbforge->add_field($field_collection);
-        if($key_collection) {
-            if(!is_array($key_collection)) {
+        if ($key_collection) {
+            if (!is_array($key_collection)) {
                 $key_collection = [$key_collection];
             }
             $this->dbforge->add_key($key_collection, true);
@@ -249,5 +249,4 @@ class System_setup_model extends CI_Model
             log_message("info", "Created table => '{$table_name}'...");
         }
     }
-
 }
