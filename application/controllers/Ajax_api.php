@@ -156,10 +156,12 @@ class Ajax_api extends Baseline_api_controller
         $md_url = "{$this->metadata_url_base}/transaction_release";
         if ($release_state == 'released') {
             $query = Requests::put(
-                $md_url, array(
+                $md_url,
+                array(
                 'Accept' => 'application/json',
                 'Content-Type' => 'application/json'
-                ), json_encode($content)
+                ),
+                json_encode($content)
             );
         }
         $check_url = "{$this->metadata_url_base}/transactioninfo/release_state/{$transaction_id}";
