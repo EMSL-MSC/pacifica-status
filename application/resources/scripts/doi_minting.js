@@ -2,10 +2,43 @@
 // var doi_url_base = "https://demoext2.datahub.pnl.gov/";
 
 /* doi staging setup code */
+var setup_doi_linking_button = function(el) {
+    var transaction_id = el.find(".transaction_identifier").val();
+    var data_release_link = el.find(".upload_url");
+    var doi_linking_button = el.find(".doi_linking_button");
+    if(!doi_linking_button.length){
+        doi_linking_button = $("<button>", {
+            "class": "doi_linking_button fa fa-clipboard",
+            "style": "z-index: 4; margin-right: 6px;padding: 4px 4px 1px 7px;",
+            "id": "doi_linking_button_" + transaction_id,
+            "alt": "Copy data release link to clipboard",
+            "title": "Copy data release link to clipboard",
+            "name": "doi_linking_button_" + transaction_id,
+            "data-clipboard-text": data_release_link.attr("href"),
+            "data-clipboard-action": "copy"
+        });
+    }
+    return doi_linking_button;
+};
+
+var setup_doi_copied_notification = function(el) {
+    var copied_notification = el.find(".copied_notification");
+    var transaction_id = el.find(".transaction_identifier").val();
+    if(!copied_notification.length){
+        copied_notification = $("<button>", {
+            "class": "copied_notification",
+            "id": "copied_notification_" + transaction_id,
+            "name": "copied_notification_" + transaction_id,
+            "text": "Link Copied!",
+            "style": "margin-right: 6px; display:none; transition: none;"
+        });
+    }
+    return copied_notification;
+};
 var setup_doi_staging_button = function(el) {
     var transaction_id = el.find(".transaction_identifier").val();
     var doi_staging_button = el.find(".doi_staging_button");
-    var data_release_link = el.find(".upload_url");
+    // var data_release_link = el.find(".upload_url");
     if(!doi_staging_button.length){
         var doi_staging_button_container = $("<div/>", {
             "class": "staging_buttons buttons"
@@ -20,31 +53,13 @@ var setup_doi_staging_button = function(el) {
         }).attr({
             "type": "button"
         });
-        var doi_linking_button = el.find(".doi_linking_button");
-        if(!doi_linking_button.length){
-            doi_linking_button = $("<button>", {
-                "class": "doi_linking_button fa fa-clipboard",
-                "style": "z-index: 4; margin-right: 6px;padding: 4px 4px 1px 7px;",
-                "id": "doi_linking_button_" + transaction_id,
-                "alt": "Copy data release link to clipboard",
-                "title": "Copy data release link to clipboard",
-                "name": "doi_linking_button_" + transaction_id,
-                "data-clipboard-text": data_release_link.attr("href"),
-                "data-clipboard-action": "copy"
-            });
-        }
-        var copied_notification = el.find(".copied_notification");
-        if(!copied_notification.length){
-            copied_notification = $("<button>", {
-                "class": "copied_notification",
-                "id": "copied_notification_" + transaction_id,
-                "name": "copied_notification_" + transaction_id,
-                "text": "Link Copied!",
-                "style": "margin-right: 6px; display:none; transition: none;"
-            });
-        }
+
         doi_staging_button_container.append(doi_staging_button);
+
+        var doi_linking_button = setup_doi_linking_button(el);
         doi_staging_button_container.append(doi_linking_button);
+
+        var copied_notification = setup_doi_copied_notification(el);
         doi_staging_button_container.append(copied_notification);
         doi_staging_button.on("click", function(event){
             create_doi_data_resource($(event.target));
@@ -283,57 +298,84 @@ var set_release_state_banners = function(release_states, selector){
         var ribbon_el = el.find(".ribbon");
         var release_info = release_states[txn_id];
         var transaction_id = release_info.transaction;
-
+        var doi_release_state = "";
         if(release_info.release_state == "released"){
             //add doi staging button
+            doi_release_state = "released";
+            doi_display_state = "Released";
             el.find(".upload_url").attr({"href": external_release_base_url + "released_data/" + txn_id});
             el.find(".release_date").val(release_info.release_date);
-            var pub_status_block = el.next(".publication_status_block");
-            if(release_info.transient_info.length > 0){
-                var lb = pub_status_block.find(".publication_left_block");
-                var rb = pub_status_block.find(".publication_right_block");
-                lb.empty();
-                rb.empty();
-                lb.append($("<div>", {"class": "reference_header", "text": "Pending DOI Requests"}));
-                rb.append($("<div>", {"class": "reference_header", "text": "Published DOI Entries"}));
-                var pending_list = $("<ul/>").appendTo(lb);
-                var completed_list = $("<ul/>").appendTo(rb);
-                rb.hide();
-                lb.hide();
+            // var pub_status_block = el.next(".publication_status_block");
+            if(release_info.release_doi_entries && release_info.release_doi_entries.length > 0){
+                // var lb = pub_status_block.find(".publication_left_block");
+                // var rb = pub_status_block.find(".publication_right_block");
+                // lb.empty();
+                // rb.empty();
+                // lb.append($("<div>", {"class": "reference_header", "text": "Pending DOI Requests"}));
+                // rb.append($("<div>", {"class": "reference_header", "text": "Published DOI Entries"}));
+                // var pending_list = $("<ul/>").appendTo(lb);
+                // var completed_list = $("<ul/>").appendTo(rb);
+                // rb.hide();
+                // lb.hide();
+                item = release_info.release_doi_entries[0];
+                // $.each(release_info.release_doi_entries, function(index, item){
+                if (item.doi_status == "saved") {
+                    doi_release_state = "doi_pending";
+                    doi_display_state = "DOI Pending";
+                    link_text = "Submitted (Pending Release)";
+                    link = doi_ui_base + "registrations/" + item.metadata.minting_api_id;
+                } else if (item.doi_status == "pending") {
+                    doi_release_state = "doi_pending";
+                    doi_display_state = "DOI Pending";
+                    link_text = "Awaiting Approval at Datacite";
+                } else {
+                    doi_release_state = "minted";
+                    doi_display_state = "DOI Minted";
+                    link = format_doi_ref(item.doi_reference);
+                    link_text = item.doi_reference;
+                }
 
-                $.each(release_info.transient_info, function(index, item){
-                    if (item.doi_reference === null) {
-                        link_text = "pending";
-                        link = doi_ui_base + "registrations/" + item.registration_id;
-                        list_selection = pending_list;
-                    } else {
-                        link_text = item.doi_reference;
-                        link = format_doi_ref(item.doi_reference);
-                        list_selection = completed_list;
-                    }
-                    list_item = $("<li/>", {"title": item.description});
-                    list_item.append($("<span/>", {"text": item.title + " / "}));
-                    list_item.append($("<a/>", {"href": link, "text": link_text}));
-                    list_item.appendTo(list_selection);
-                });
-                pub_status_block.show();
-                if (lb.find("ul > li").length > 0) {
-                    lb.show();
-                }else{
-                    lb.hide();
-                }
-                if (rb.find("ul > li").length > 0) {
-                    rb.show();
-                    if (lb.find("ul > li").length == 0){
-                        rb.css("float", "left");
-                    }
-                }else{
-                    rb.hide();
-                }
+                // list_item = $("<li/>", {"title": link});
+                // list_item.append($("<span/>", {"text": item.metadata.title + " | "}));
+                // list_item.append($("<a/>", {"href": link, "text": link_text}));
+                // list_item.appendTo(list_selection);
+                // });
+                // pub_status_block.show();
+                // if (lb.find("ul > li").length > 0) {
+                //     lb.show();
+                // }else{
+                //     lb.hide();
+                // }
+                // if (rb.find("ul > li").length > 0) {
+                //     rb.show();
+                //     if (lb.find("ul > li").length == 0){
+                //         rb.css("float", "left");
+                //     }
+                // }else{
+                //     rb.hide();
+                // }
             }
 
             if (typeof setup_doi_staging_button === "function") {
-                setup_doi_staging_button(el, transaction_id);
+                if (doi_release_state == "released"){
+                    setup_doi_staging_button(el, transaction_id);
+                }else{
+                    var doi_staging_button_container = el.find(".doi_staging_button_container");
+                    if(!doi_staging_button_container.length){
+                        doi_staging_button_container = $("<div/>", {
+                            "class": "staging_buttons buttons"
+                        });
+                    }
+                    var doi_linking_button = setup_doi_linking_button(el);
+                    doi_staging_button_container.append(doi_linking_button);
+                    var doi_copied_notification = setup_doi_copied_notification(el);
+                    doi_staging_button_container.append(doi_copied_notification);
+                    el.find("legend").after(doi_staging_button_container);
+                    if(!doi_staging_button_container.is(":visible")){
+                        doi_staging_button_container.fadeIn("slow");
+                    }
+                }
+
             }
         }else{
             var current_session_contents = JSON.parse(sessionStorage.getItem("staged_releases"));
@@ -349,11 +391,12 @@ var set_release_state_banners = function(release_states, selector){
                     stage_transaction($(event.target));
                 });
             }
+            doi_release_state = release_info.release_state;
         }
-        el.find(".release_state").next("td.metadata_item").text(release_info.release_state);
-        el.find(".release_state_display").next("td.metadata_item").text(release_info.display_state);
-        ribbon_el.removeClass().addClass("ribbon").addClass(release_info.release_state);
-        ribbon_el.find("span").text(release_info.display_state);
+        el.find(".release_state").next("td.metadata_item").text(doi_release_state);
+        el.find(".release_state_display").next("td.metadata_item").text(doi_display_state);
+        ribbon_el.removeClass().addClass("ribbon").addClass(doi_release_state);
+        ribbon_el.find("span").text(doi_display_state);
 
     });
 };
