@@ -1,13 +1,10 @@
-// var doi_ui_base = "https://data-doi.datahub.pnl.gov/";
-// var doi_url_base = "https://demoext2.datahub.pnl.gov/";
-
 /* doi staging setup code */
 var setup_doi_linking_button = function(el) {
     var transaction_id = el.find(".transaction_identifier").val();
     var data_release_link = el.find(".upload_url");
     var doi_linking_button = el.find(".doi_linking_button");
     if(!doi_linking_button.length){
-        doi_linking_button = $("<button>", {
+        var button_options = {
             "class": "doi_linking_button fa fa-clipboard",
             "style": "z-index: 4; margin-right: 6px;padding: 4px 4px 1px 7px;",
             "id": "doi_linking_button_" + transaction_id,
@@ -16,9 +13,30 @@ var setup_doi_linking_button = function(el) {
             "name": "doi_linking_button_" + transaction_id,
             "data-clipboard-text": data_release_link.attr("href"),
             "data-clipboard-action": "copy"
-        });
+        };
+        doi_linking_button = $("<button>", button_options);
     }
     return doi_linking_button;
+};
+
+var setup_doi_reference_copy_button = function(el, doi_reference) {
+    var transaction_id = el.find(".transaction_identifier").val();
+    var doi_link = format_doi_ref(doi_reference);
+    var doi_reference_copy_button = el.find(".doi_reference_button");
+    if(!doi_reference_copy_button.length){
+        doi_reference_copy_button = $("<button>", {
+            "class": "doi_linking_button",
+            "style": "z-index: 4;",
+            "id": "doi_reference_button_" + transaction_id,
+            "alt": "Copy DOI reference link to clipboard",
+            "title": "Copy DOI reference link to clipboard",
+            "name": "doi_reference_button_" + transaction_id,
+            "data-clipboard-text": doi_link,
+            "data-clipboard-action": "copy",
+            "text": "Copy DOI Reference Link"
+        });
+    }
+    return doi_reference_copy_button;
 };
 
 var setup_doi_copied_notification = function(el) {
@@ -307,18 +325,8 @@ var set_release_state_banners = function(release_states, selector){
             el.find(".release_date").val(release_info.release_date);
             // var pub_status_block = el.next(".publication_status_block");
             if(release_info.release_doi_entries && release_info.release_doi_entries.length > 0){
-                // var lb = pub_status_block.find(".publication_left_block");
-                // var rb = pub_status_block.find(".publication_right_block");
-                // lb.empty();
-                // rb.empty();
-                // lb.append($("<div>", {"class": "reference_header", "text": "Pending DOI Requests"}));
-                // rb.append($("<div>", {"class": "reference_header", "text": "Published DOI Entries"}));
-                // var pending_list = $("<ul/>").appendTo(lb);
-                // var completed_list = $("<ul/>").appendTo(rb);
-                // rb.hide();
-                // lb.hide();
                 item = release_info.release_doi_entries[0];
-                // $.each(release_info.release_doi_entries, function(index, item){
+                doi_reference = item.doi_reference;
                 if (item.doi_status == "saved") {
                     doi_release_state = "doi_pending";
                     doi_display_state = "DOI Pending";
@@ -334,26 +342,6 @@ var set_release_state_banners = function(release_states, selector){
                     link = format_doi_ref(item.doi_reference);
                     link_text = item.doi_reference;
                 }
-
-                // list_item = $("<li/>", {"title": link});
-                // list_item.append($("<span/>", {"text": item.metadata.title + " | "}));
-                // list_item.append($("<a/>", {"href": link, "text": link_text}));
-                // list_item.appendTo(list_selection);
-                // });
-                // pub_status_block.show();
-                // if (lb.find("ul > li").length > 0) {
-                //     lb.show();
-                // }else{
-                //     lb.hide();
-                // }
-                // if (rb.find("ul > li").length > 0) {
-                //     rb.show();
-                //     if (lb.find("ul > li").length == 0){
-                //         rb.css("float", "left");
-                //     }
-                // }else{
-                //     rb.hide();
-                // }
             }
 
             if (typeof setup_doi_staging_button === "function") {
@@ -366,7 +354,7 @@ var set_release_state_banners = function(release_states, selector){
                             "class": "staging_buttons buttons"
                         });
                     }
-                    var doi_linking_button = setup_doi_linking_button(el);
+                    var doi_linking_button = setup_doi_reference_copy_button(el, doi_reference);
                     doi_staging_button_container.append(doi_linking_button);
                     var doi_copied_notification = setup_doi_copied_notification(el);
                     doi_staging_button_container.append(doi_copied_notification);
@@ -392,6 +380,7 @@ var set_release_state_banners = function(release_states, selector){
                 });
             }
             doi_release_state = release_info.release_state;
+            doi_display_state = release_info.display_state;
         }
         el.find(".release_state").next("td.metadata_item").text(doi_release_state);
         el.find(".release_state_display").next("td.metadata_item").text(doi_display_state);
