@@ -54,10 +54,12 @@ class Doi_minting_model extends CI_Model
     {
         $md_url = "{$this->metadata_url_base}/transactioninfo/release_state";
         $query = Requests::post(
-            $md_url, array(
+            $md_url,
+            array(
             'Accept' => 'application/json',
             'Content-Type' => 'application/json'
-            ), json_encode($transaction_list)
+            ),
+            json_encode($transaction_list)
         );
         $results = json_decode($query->body, true);
         // $transient_info = [];
