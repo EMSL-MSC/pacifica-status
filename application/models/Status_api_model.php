@@ -242,7 +242,6 @@ class Status_api_model extends CI_Model
                 $path_array = explode('/', $path);
                 build_folder_structure($dirs, $path_array, $item_info);
             }
-
         }
         return array(
             'treelist' => $dirs,
