@@ -109,7 +109,7 @@ class Cart_api extends Baseline_api_controller
     public function check_download_authorization()
     {
         $this->user_id = "";
-        if(!$this->input->cookie($this->eus_cookie_name)) {
+        if (!$this->input->cookie($this->eus_cookie_name)) {
             //no id token cookie found, so let's call the redirect
             $this->output->set_status_header(401, "EUS Login Required");
             $this->output->set_content_type('application/json');
@@ -119,7 +119,7 @@ class Cart_api extends Baseline_api_controller
                     "redirect_url" => $this->eus_login_redirect_url
                 ]
             ));
-        }else{
+        } else {
             $proxied_user_id = eus_decrypt($this->input->cookie($this->eus_cookie_name));
             transmit_array_with_json_header(
                 [
