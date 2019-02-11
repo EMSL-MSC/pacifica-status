@@ -37,7 +37,7 @@ if (!defined('BASEPATH')) {
  *
  * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function encrypt($src)
+function eus_encrypt($src)
 {
     $key = _getkey();
     return base64_encode(openssl_encrypt($src, "aes-128-ecb", OPENSSL_RAW_DATA));
@@ -52,7 +52,7 @@ function encrypt($src)
  *
  * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function decrypt($src)
+function eus_decrypt($src)
 {
     $key = _getkey();
     return openssl_decrypt(base64_decode($src), "aes-128-ecb", $key, OPENSSL_RAW_DATA);
