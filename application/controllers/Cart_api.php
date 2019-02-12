@@ -93,9 +93,9 @@ class Cart_api extends Baseline_api_controller
         // How are we making use of this information? Does it go somewhere in the database?
         $user_block = $this->check_download_authorization(false);
         $user_id = $user_block['eus_id'];
-        if($user_id) {
+        if ($user_id) {
             $user_info = get_user_details_simple($user_id);
-        }else{
+        } else {
             $this->output->set_status_header(401, "Unknown EUS User");
             return;
         }
@@ -117,12 +117,12 @@ class Cart_api extends Baseline_api_controller
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function check_download_authorization($show_output=true)
+    public function check_download_authorization($show_output = true)
     {
         $this->user_id = "";
         if (!$this->input->cookie($this->eus_cookie_name)) {
             //no id token cookie found, so let's call the redirect
-            if($show_output) {
+            if ($show_output) {
                 $this->output->set_status_header(401, "EUS Login Required");
             }
             $eus_id = null;
@@ -133,7 +133,7 @@ class Cart_api extends Baseline_api_controller
             "eus_id" => $eus_id,
             "redirect_url" => $this->eus_login_redirect_url
         ];
-        if($show_output) {
+        if ($show_output) {
             $this->output->set_content_type('application/json');
             print(json_encode($retval));
         }
