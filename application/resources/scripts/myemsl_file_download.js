@@ -71,7 +71,7 @@ $(function(){
 
     });
 
-    // window.setInterval(cart_status, 30000);
+    window.setInterval(cart_status, 30000);
 
     cart_create_form = cart_create_dialog.find("form").on("submit", function(event){
         event.preventDefault();
