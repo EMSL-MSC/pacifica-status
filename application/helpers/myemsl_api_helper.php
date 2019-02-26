@@ -126,7 +126,6 @@ function get_details($object_type, $object_id, $option = false)
     $CI =& get_instance();
     $CI->load->library('PHPRequests');
     $md_url = $CI->metadata_url_base;
-    var_dump($object_id);
     $url_object = array(
         $md_url, $url, $object_id
     );
