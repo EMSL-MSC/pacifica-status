@@ -52,15 +52,13 @@ function get_user()
         $url_args_array = [
             "_id" => $results['eus_id']
         ];
-    }
-    elseif ($remote_user) {
+    } elseif ($remote_user) {
         //check for email address as username
         $selector = filter_var($remote_user, FILTER_VALIDATE_EMAIL) ? 'email_address' : 'network_id';
         $url_args_array = [
             $selector => strtolower($remote_user)
         ];
-    }
-    else{
+    } else {
         return $results;
     }
     $query_url = "{$md_url}/users?";
