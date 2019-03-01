@@ -51,7 +51,7 @@ function get_user()
             $url_args_array = [
                 "_id" => $cookie_results['eus_id']
             ];
-        }else{
+        } else {
             return $results;
         }
     } elseif ($remote_user) {
