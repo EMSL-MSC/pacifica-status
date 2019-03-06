@@ -1,7 +1,3 @@
-$(function(){
-    window.setInterval(get_doi_release_data, 30000);
-});
-
 var set_clipboard_function = function() {
     var clipboard = new ClipboardJS(".doi_linking_button");
     clipboard.off().on("success", function(e) {
@@ -143,9 +139,10 @@ var add_doi_notations = function(metadata_object) {
             md_table
                 .find(".doi_reference")
                 .parents("tr")
-                .remove()
+                .remove();
+            md_table
                 .append(doi_entry_new);
-                
+
             dsbc = doi_staging_button_container.clone().empty();
             dsbc = add_link_copy_info(
                 upload_item_container,
