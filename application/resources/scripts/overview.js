@@ -30,11 +30,13 @@ $(function() {
         current_instrument_id = $("#instrument_selector").val() || initial_instrument_id;
         current_starting_date = $("#timeframe_selector").val() || initial_starting_date;
         current_ending_date = $("#timeframe_selector").val() || initial_ending_date;
+        items_per_page = 20;
     }else{
         current_project_id = $.cookie(cookie_base + "project_selector") || initial_project_id;
         current_instrument_id = $.cookie(cookie_base + "instrument_selector") || initial_instrument_id;
         current_starting_date = $.cookie(cookie_base + "starting_date_selector") || initial_starting_date;
         current_ending_date = $.cookie(cookie_base + "ending_date_selector") || initial_ending_date;
+        items_per_page = $.cookie(cookie_base + "items_per_page") || 20;
     }
     current_project_id = current_project_id != "null" ? current_project_id : -1;
     current_instrument_id = current_instrument_id != "null" ? current_instrument_id : -1;
