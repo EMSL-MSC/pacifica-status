@@ -31,12 +31,14 @@ $(function() {
         current_starting_date = $("#timeframe_selector").val() || initial_starting_date;
         current_ending_date = $("#timeframe_selector").val() || initial_ending_date;
         items_per_page = 20;
+        page_offset = 0;
     }else{
         current_project_id = $.cookie(cookie_base + "project_selector") || initial_project_id;
         current_instrument_id = $.cookie(cookie_base + "instrument_selector") || initial_instrument_id;
         current_starting_date = $.cookie(cookie_base + "starting_date_selector") || initial_starting_date;
         current_ending_date = $.cookie(cookie_base + "ending_date_selector") || initial_ending_date;
         items_per_page = $.cookie(cookie_base + "items_per_page") || 20;
+        page_offset = $.cookie(cookie_base + "page_offset") || 0;
     }
     current_project_id = current_project_id != "null" ? current_project_id : -1;
     current_instrument_id = current_instrument_id != "null" ? current_instrument_id : -1;
@@ -49,6 +51,27 @@ $(function() {
     }
     setup_daterangepicker();
     // cart_status();
+    $("#bottom_pager_block").pagination({
+        items: 100,
+        itemsOnPage: 20,
+        cssStyle: "dark-theme",
+        displayedPages: 3,
+        edges: 3,
+        hrefTextPrefix: "",
+        onPageClick: function(pageNumber, event) {
+            page_offset = items_per_page * (pageNumber - 1);
+            debugger;
+        }
+    });
+
+    $("#items_per_page").val(items_per_page);
+
+    $("#items_per_page").on("change", function(event) {
+        items_per_page = $(event.target).val();
+        $.cookie(cookie_base + "items_per_page", items_per_page);
+        $("#bottom_pager_block").pagination("updateItemsOnPage", items_per_page);
+    });
+
 });
 
 var setup_daterangepicker = function() {

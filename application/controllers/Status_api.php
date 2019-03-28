@@ -56,9 +56,13 @@ class Status_api extends Baseline_user_api_controller
         $this->page_data['view_mode'] = 'multiple';
         $this->page_data['script_uris'][] = "/project_resources/scripts/clipboard.min.js";
         $this->page_data['script_uris'][] = "/project_resources/scripts/js.cookie.js";
+        $this->page_data['script_uris'][] = "/project_resources/scripts/jquery.simplePagination.js";
+        $this->page_data['css_uris'][] = "/project_resources/stylesheets/simplePagination.css";
         $this->page_data['js'] = "";
         $this->overview_template = $this->config->item('main_overview_template') ?: "page_layouts/status_page_view.html";
         $this->config->load('data_release');
+        $this->current_items_per_page = get_cookie('myemsl_status_last_items_per_page') ?: 10;
+        $this->current_page_offset = get_cookie('myemsl_status_last_page_offset') ?: 0;
     }
 
     /**
@@ -144,7 +148,7 @@ class Status_api extends Baseline_user_api_controller
     /**
      * Full page generating version of overview
      *
-     * @param string $project_id   id of the project to display
+     * @param string $project_id    id of the project to display
      * @param string $instrument_id id of the instrument to display
      * @param string $starting_date starting time period
      * @param string $ending_date   ending time period
@@ -236,7 +240,7 @@ class Status_api extends Baseline_user_api_controller
     /**
      * Full page generating version of overview for external consumption
      *
-     * @param string $project_id   id of the project to display
+     * @param string $project_id    id of the project to display
      * @param string $instrument_id id of the instrument to display
      * @param string $starting_date starting time period
      * @param string $ending_date   ending time period
@@ -287,11 +291,10 @@ class Status_api extends Baseline_user_api_controller
         $this->overview($project_id, $instrument_id, $starting_date, $ending_date);
     }
 
-
     /**
      * Primary index page shows overview of status for that user.
      *
-     * @param string $project_id   id of the project to display
+     * @param string $project_id    id of the project to display
      * @param string $instrument_id id of the instrument to display
      * @param string $starting_date starting time period
      * @param string $ending_date   ending time period
@@ -323,11 +326,15 @@ class Status_api extends Baseline_user_api_controller
             $clone_start->modify("-30 days");
             $start = strtotime($starting_date) ? new DateTime($starting_date) : $clone_start;
             $start_time = $start->format('Y-m-d');
+            $record_count = $this->current_items_per_page;
+            $record_offset = $this->current_page_offset;
             $transaction_list = $this->status->get_transactions(
                 $instrument_id,
                 $project_id,
                 $start_time,
-                $end_time
+                $end_time,
+                $record_count,
+                $record_offset
             );
             $transactions = $transaction_list;
             if (in_array($this->referring_page, ['doi_minting', 'released_data'])) {
