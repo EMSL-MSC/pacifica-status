@@ -77,7 +77,7 @@ class Status_api_model extends CI_Model
             'end' => local_time_to_utc($end_time, 'Y-m-d H:i:s'),
             'submitter' => isset($submitter) ? $submitter : -1,
             'requesting_user' => $this->user_id,
-            'offset' => $this->current_page_offset,
+            'page' => $this->current_page_number,
             'item_count' => $this->current_items_per_page
         );
         $transactions_url .= http_build_query($url_args_array, '', '&');

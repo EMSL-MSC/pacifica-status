@@ -15,7 +15,7 @@
     </section>
     <section id="pager" class="pager_section">
         <span>
-            <select id="items_per_page" class="pager_block_selector">
+            <select id="items_per_page" class="pager_block_selector" title="Select the Number of Items to Show per Page">
               <?php $items_per_page = $this->current_items_per_page; ?>
               <?php $items_per_page_defaults = ["5", "10", "20", "30", "50", "100", "250", "500", "All"]; ?>
               <?php foreach($items_per_page_defaults as $item_count): ?>

@@ -63,6 +63,7 @@ class Status_api extends Baseline_user_api_controller
         $this->config->load('data_release');
         $this->current_items_per_page = get_cookie('myemsl_status_last_items_per_page') ?: 10;
         $this->current_page_offset = get_cookie('myemsl_status_last_page_offset') ?: 0;
+        $this->current_page_number = get_cookie('myemsl_status_last_page_number') ?: 1;
     }
 
     /**
