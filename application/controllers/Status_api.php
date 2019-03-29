@@ -326,15 +326,11 @@ class Status_api extends Baseline_user_api_controller
             $clone_start->modify("-30 days");
             $start = strtotime($starting_date) ? new DateTime($starting_date) : $clone_start;
             $start_time = $start->format('Y-m-d');
-            $record_count = $this->current_items_per_page;
-            $record_offset = $this->current_page_offset;
             $transaction_list = $this->status->get_transactions(
                 $instrument_id,
                 $project_id,
                 $start_time,
-                $end_time,
-                $record_count,
-                $record_offset
+                $end_time
             );
             $transactions = $transaction_list;
             if (in_array($this->referring_page, ['doi_minting', 'released_data'])) {

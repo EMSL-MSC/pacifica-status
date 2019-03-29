@@ -58,9 +58,12 @@ $(function() {
         displayedPages: 3,
         edges: 3,
         hrefTextPrefix: "",
+        selectOnClick: false,
         onPageClick: function(pageNumber, event) {
             page_offset = items_per_page * (pageNumber - 1);
-            debugger;
+            $.cookie(cookie_base + "page_offset", page_offset);
+            update_content();
+            return false; //shorts out the new page load since we're using ajax
         }
     });
 
@@ -108,9 +111,14 @@ var setup_daterangepicker = function() {
         current_ending_date = picker.endDate.format("YYYY-MM-DD");
         $.cookie(cookie_base + "starting_date_selector", current_starting_date);
         $.cookie(cookie_base + "ending_date_selector", current_ending_date);
+        reset_page_offset();
         update_content();
     });
     trc.enable();
+};
+
+var reset_page_offset = function() {
+    $.cookie(cookie_base + "page_offset", 0);
 };
 
 var setup_selectors = function(initial_load) {
@@ -155,7 +163,10 @@ var setup_selectors = function(initial_load) {
             templateSelection: formatProjectSelection
         })
         .off("change")
-        .on("change", update_content);
+        .on("change", function() {
+            reset_page_offset();
+            update_content();
+        });
 };
 
 var formatProject = function(item) {
@@ -254,7 +265,12 @@ var get_instrument_list = function(project_id) {
             spinner.stop();
         }
     );
-    $("#instrument_selector").on("change", update_content);
+    $("#instrument_selector")
+        .on("change", function() {
+            reset_page_offset();
+            update_content();
+        });
+
 };
 
 var formatInstrument = function(item) {

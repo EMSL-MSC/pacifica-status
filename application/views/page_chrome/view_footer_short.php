@@ -17,7 +17,7 @@
         <span>
             <select id="items_per_page" class="pager_block_selector">
               <?php $items_per_page = $this->current_items_per_page; ?>
-              <?php $items_per_page_defaults = ["10", "20", "30", "50", "100", "250", "500", "All"]; ?>
+              <?php $items_per_page_defaults = ["5", "10", "20", "30", "50", "100", "250", "500", "All"]; ?>
               <?php foreach($items_per_page_defaults as $item_count): ?>
                 <?php $selected = intval($item_count) == intval($items_per_page) ? " selected=\"selected\"" : ""; ?>
               <option <?= $selected; ?>value="<?= intval($item_count); ?>"><?= $item_count ?></option>
