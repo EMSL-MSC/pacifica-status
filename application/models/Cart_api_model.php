@@ -305,15 +305,14 @@ class Cart_api_model extends CI_Model
         if ($query->status_code / 100 == 2) {
             //looks like it went through ok
             $success = true;
-        } elseif($query->status_code / 100 == 5) {
+        } elseif ($query->status_code / 100 == 5) {
             $status_message = $query->headers('X-Pacifica-Message');
-            if($status_message == 'No cart with uid {$cart_uuid} found') {
+            if ($status_message == 'No cart with uid {$cart_uuid} found') {
                 $success = true;
                 $status_code = 200;
             }
         } else {
             $success = false;
-
         }
         if ($success) {
             //gone in the cartd, now mark it in ours

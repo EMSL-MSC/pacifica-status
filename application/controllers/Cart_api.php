@@ -91,7 +91,7 @@ class Cart_api extends Baseline_api_controller
         }
         // Check to make sure the auth cookie is set, and make sure that the encoded value is opcache_invalidate
         // How are we making use of this information? Does it go somewhere in the database?
-        if($this->config->item('enable_require_credentials_for_cart_download')) {
+        if ($this->config->item('enable_require_credentials_for_cart_download')) {
             $user_block = $this->check_download_authorization(false);
             $user_id = $user_block['eus_id'];
             if ($user_id) {
@@ -136,7 +136,7 @@ class Cart_api extends Baseline_api_controller
             $retval['eus_id'] = 0;
         } else {
             $eus_user_info = get_user_from_cookie();
-            if($eus_user_info) {
+            if ($eus_user_info) {
                 $this->user_info = $eus_user_info;
                 $retval = array_merge($retval, $eus_user_info);
             }
