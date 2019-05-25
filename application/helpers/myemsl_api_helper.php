@@ -125,7 +125,7 @@ function get_details($object_type, $object_id, $option = false)
         'user' => array('url' => 'userinfo/by_id')
     );
     $results_body = "{}";
-    if(empty($object_id)) {
+    if (empty($object_id)) {
         return json_decode($results_body, true);
     }
     $url = $object_map[$object_type]['url'];
