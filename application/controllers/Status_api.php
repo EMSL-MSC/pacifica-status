@@ -568,6 +568,7 @@ var refresh = function(){
      */
     private function _evaluate_data_visibility($transaction_info)
     {
+        $data_visible = false;
         $authenticated = !empty($this->user_info['person_id']);
         $my_project_list = $this->_extract_project_list($this->user_info);
         $project_id = (string)$transaction_info['metadata']['project_id'];
