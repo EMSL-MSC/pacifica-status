@@ -442,7 +442,7 @@ class Status_api extends Baseline_user_api_controller
                 )
             );
             $this->load->view('status_error_page.html', $this->page_data);
-        }else{
+        } else {
             $transaction_info['transactions'][$id]['metadata']['visibility'] = true;
         }
         $this->page_data['script_uris']
