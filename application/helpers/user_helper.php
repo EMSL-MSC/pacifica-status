@@ -40,7 +40,8 @@ function get_user()
     $CI =& get_instance();
     $CI->load->library('PHPRequests');
     $md_url = $CI->metadata_url_base;
-    $remote_user = $this->input->server('REMOTE_USER') || $this->input->server('PHP_AUTH_USER');
+    $remote_user = array_key_exists("REMOTE_USER", $_SERVER) ? $_SERVER["REMOTE_USER"] : false;
+    $remote_user = !$remote_user && array_key_exists("PHP_AUTH_USER", $_SERVER) ? $_SERVER["PHP_AUTH_USER"] : $remote_user;
     $results = false;
     $cookie_results = false;
     if ($CI->config->item('enable_cookie_redirect') && !$remote_user) {
