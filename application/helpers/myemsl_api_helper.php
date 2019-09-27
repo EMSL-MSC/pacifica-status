@@ -201,7 +201,7 @@ function get_relationship_list()
     $relationships = [];
 
     if ($query->status_code == 200) {
-        foreach ($results as $entry){
+        foreach ($results as $entry) {
             $relationships[$entry['name']] = $entry['uuid'];
         }
         return $relationships;

@@ -146,7 +146,7 @@ class Ajax_api extends Baseline_api_controller
         if (!in_array($release_state, array('released', 'not_released'))) {
             $release_state = 'not_released';
         }
-        if(empty($this->user_relationships)) {
+        if (empty($this->user_relationships)) {
             $this->user_relationships = get_relationship_list();
         }
         $transaction_info = $this->status->get_transaction_details($transaction_id);
