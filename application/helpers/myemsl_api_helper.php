@@ -159,7 +159,7 @@ function get_details_nexus($object_type, $object_id, $option = false)
         'user' => ['url' => 'get_nexus_user_id_for_identifier']
     ];
     $results_body = "{}";
-    if(empty($object_id)) {
+    if (empty($object_id)) {
         return json_decode($results_body, true);
     }
     $url = $object_map[$object_type]['url'];

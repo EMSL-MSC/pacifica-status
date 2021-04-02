@@ -137,7 +137,7 @@ class Status_api_model extends CI_Model
         }
         $cleaned_results = [];
         $used_ids = [];
-        foreach($results as $id => $entry) {
+        foreach ($results as $id => $entry) {
             $cleaned_results[$entry["id"]] = $entry;
         }
         return $cleaned_results;
