@@ -105,6 +105,7 @@ class Status_api extends Baseline_user_api_controller
             'page_header' => 'Data Release Interface',
             'title' => 'Data Release'
         ];
+        $project_list = json_encode(array_map('strval', array_keys($this->_extract_project_list($this->user_info))));
         $this->page_data = array_merge($this->page_data, $updated_page_info);
         $this->page_data['transaction_data'] = $this->status->get_formatted_transaction($transaction_id);
         $this->page_data['css_uris']
@@ -130,6 +131,7 @@ class Status_api extends Baseline_user_api_controller
                 var data_identifier = 0;
                 var transaction_id = {$transaction_id};
                 var ingest_complete = false;
+                var project_list = {$project_list};
                 var ui_markup = {
                     \"instrument_selection_desc\": \"{$this->config->item('ui_instrument_desc')}\",
                     \"project_selection_desc\": \"{$this->config->item('ui_project_desc')}\"
@@ -165,10 +167,10 @@ class Status_api extends Baseline_user_api_controller
         $ending_date = ''
     ) {
         $defaults = [
-        'project_id' => $project_id,
-        'instrument_id' => $instrument_id,
-        'starting_date' => $starting_date,
-        'ending_date' => $ending_date
+            'project_id' => $project_id,
+            'instrument_id' => $instrument_id,
+            'starting_date' => $starting_date,
+            'ending_date' => $ending_date
         ];
         $defaults = get_selection_defaults($defaults);
         extract($defaults);
@@ -305,7 +307,12 @@ class Status_api extends Baseline_user_api_controller
         $time_period_empty = true;
         $full_user_info = $this->user_info;
         $project_list = $this->_extract_project_list($this->user_info);
-        $this->page_data['project_list'] = $project_list;
+
+        if (array_key_exists('project_list', $this->page_data)) {
+            $this->page_data['project_list'] = $this->page_data['project_list'] + $project_list;
+        } else {
+            $this->page_data['project_list'] = $project_list;
+        }
         ksort($this->page_data['project_list']);
 
         if (isset($instrument_id) && intval($instrument_id) != 0
@@ -454,7 +461,11 @@ class Status_api extends Baseline_user_api_controller
 
         $project_list = $this->_extract_project_list($this->user_info);
 
-        $this->page_data['project_list'] = $project_list;
+        if (array_key_exists('project_list', $this->page_data)) {
+            $this->page_data['project_list'] = $this->page_data['project_list'] + $project_list;
+        } else {
+            $this->page_data['project_list'] = $project_list;
+        }
         ksort($this->page_data['project_list']);
 
         if (!is_numeric($id) || $id < 0) {
@@ -575,7 +586,6 @@ var cart_access_url_base = \"{$this->config->item('external_cart_url')}\";";
         $released = $transaction_info['metadata']['release_state'] == 'released';
         $emsl_staff = $this->user_info['emsl_employee'];
         $data_visible = ($authenticated && $on_project_team) || $emsl_staff || $released;
-
         return $data_visible;
     }
 

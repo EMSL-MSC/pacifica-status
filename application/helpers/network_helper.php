@@ -34,14 +34,14 @@ if (!defined('BASEPATH')) {
  *  standard JSON with appropriate status headers
  *  and X-JSON messages
  *
- *  @param array   $response            the array to be transmitted
- *  @param string  $statusMessage       optional status message
- *  @param boolean $operationSuccessful Was the calling
- *                                      operation successful?
+ * @param array   $response            the array to be transmitted
+ * @param string  $statusMessage       optional status message
+ * @param boolean $operationSuccessful Was the calling
+ *                                     operation successful?
  *
- *  @return void (sends directly to browser)
+ * @return void (sends directly to browser)
  *
- *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
 function transmit_array_with_json_header($response, $statusMessage = '', $operationSuccessful = true)
 {
@@ -66,11 +66,11 @@ function transmit_array_with_json_header($response, $statusMessage = '', $operat
  *  Similar to transmit_array_with_json_header above,
  *  but with different headers returned
  *
- *  @param array $response_array array to be processed
+ * @param array $response_array array to be processed
  *
- *  @return void (sends directly to browser)
+ * @return void (sends directly to browser)
  *
- *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
 function send_json_array($response_array)
 {
@@ -92,11 +92,11 @@ function send_json_array($response_array)
  *  to be parsed by the Select2 Jquery library for
  *  generating dropdown menu objects
  *
- *  @param array $response array to be formatted
+ * @param array $response array to be formatted
  *
- *  @return void (sends directly to browser)
+ * @return void (sends directly to browser)
  *
- *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
 function format_array_for_select2($response)
 {
@@ -122,16 +122,16 @@ function format_array_for_select2($response)
  *  some content out of the middle to provide
  *  better display formatting
  *
- *  @param string  $string string to be shortened
- *  @param integer $limit  maximum string length allowed
- *  @param string  $break  preferred character at which to split the original string
- *                             to split the original string
- *  @param string  $pad    string to use for replacing the deleted text
- *                             deleted text
+ * @param string  $string string to be shortened
+ * @param integer $limit  maximum string length allowed
+ * @param string  $break  preferred character at which to split the original string
+ *                        to split the original string
+ * @param string  $pad    string to use for replacing the deleted text
+ *                        deleted text
  *
- *  @return string shortened string
+ * @return string shortened string
  *
- *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
 function truncate_text($string, $limit, $break = " ", $pad = "...")
 {

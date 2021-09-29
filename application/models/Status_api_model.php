@@ -76,9 +76,9 @@ class Status_api_model extends CI_Model
             'start' => local_time_to_utc($start_time, 'Y-m-d H:i:s'),
             'end' => local_time_to_utc($end_time, 'Y-m-d H:i:s'),
             'submitter' => isset($submitter) ? $submitter : -1,
-            'requesting_user' => $this->user_id//,
-            //'page' => $this->current_page_number,
-            //'item_count' => $this->current_items_per_page
+            'requesting_user' => $this->user_id,
+            'page' => $this->current_page_number,
+            'item_count' => $this->current_items_per_page
         );
         $transactions_url .= http_build_query($url_args_array, '', '&');
         $query = Requests::get($transactions_url, array('Accept' => 'application/json'));

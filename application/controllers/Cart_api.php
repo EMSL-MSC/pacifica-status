@@ -89,7 +89,7 @@ class Cart_api extends Baseline_api_controller
             echo "That's not how you use this function!!!";
             exit();
         }
-        // Check to make sure the auth cookie is set, and make sure that the encoded value is opcache_invalidate
+        // Check to make sure the auth cookie is set, and make sure that the encoded value is ok
         // How are we making use of this information? Does it go somewhere in the database?
         if ($this->config->item('enable_require_credentials_for_cart_download')) {
             $user_block = $this->check_download_authorization(false);
