@@ -27,6 +27,37 @@ if (!defined('BASEPATH')) {
     exit('No direct script access allowed');
 }
 
+function get_user()
+{
+    $CI =& get_instance();
+    $CI->load->library('PHPRequests');
+    $remote_user = false;
+    $auth_method = false;
+    $remote_user = $_SERVER["OIDC_CLAIM_email"] ?? $_SERVER["REMOTE_USER"] ?? $_SERVER["PHP_AUTH_USER"] ?? false;
+
+    if(!$remote_user) {
+        return $remote_user;
+    }
+
+    $query_url = "{$CI->nexus_backend_url}/get_nexus_user_id_for_identifier/";
+    $query_url .= urlencode($remote_user);
+
+    try {
+        $options = ['verify' => false];
+        $query = Requests::get($query_url, array('Accept' => 'application/json'), $options);
+    } catch (Exception $e) {
+        $results = [];
+        return $results;
+    }
+    $results_body = $query->body;
+    $results_json = json_decode($results_body, true);
+    if ($query->status_code == 200 && !empty($results_json)) {
+        $results = $results_json['message']['user_id'];
+    }
+    var_dump($results);
+    return $results;
+}
+
 /**
  *  Properly formats the user returned in the ['REMOTE_USER']
  *  variable from Apache
@@ -35,7 +66,7 @@ if (!defined('BASEPATH')) {
  *
  * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function get_user()
+function get_user_old()
 {
     $CI =& get_instance();
     $CI->load->library('PHPRequests');

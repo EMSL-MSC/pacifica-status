@@ -123,23 +123,14 @@ class Cart_api extends Baseline_api_controller
     public function check_download_authorization($show_output = true)
     {
         $retval = [
-            "redirect_url" => $this->eus_login_redirect_url,
             "eus_id" => null
         ];
         // $this->user_id = false;
         if (!$this->config->item('enable_require_credentials_for_cart_download')) {
             $retval['eus_id'] = 0;
-        } else if (!$this->config->item('enable_cookie_redirect')) {
+        } else if(array_key_exists('OIDC_access_token', $_SERVER) && $this->user_id) {
             $retval['eus_id'] = $this->user_id;
             $retval = array_merge($retval, $this->user_info);
-        } else if (!$this->config->item('enable_require_credentials_for_cart_download')) {
-            $retval['eus_id'] = 0;
-        } else {
-            $eus_user_info = get_user_from_cookie();
-            if ($eus_user_info) {
-                $this->user_info = $eus_user_info;
-                $retval = array_merge($retval, $eus_user_info);
-            }
         }
         if ($show_output) {
             $this->output->set_content_type('application/json');
