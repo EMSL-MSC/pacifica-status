@@ -126,11 +126,11 @@ class Cart_api extends Baseline_api_controller
             "eus_id" => null
         ];
         // $this->user_id = false;
-        if (!$this->config->item('enable_require_credentials_for_cart_download')) {
-            $retval['eus_id'] = 0;
-        } else if(array_key_exists('OIDC_access_token', $_SERVER) && $this->user_id) {
+        if(array_key_exists('REMOTE_USER', $_SERVER) && $this->user_id) {
             $retval['eus_id'] = $this->user_id;
             $retval = array_merge($retval, $this->user_info);
+        } else {
+            $retval['eus_id'] = 0;
         }
         if ($show_output) {
             $this->output->set_content_type('application/json');

@@ -120,7 +120,7 @@ var check_download_authorization = function(event){
                     .dialog("open");
             }
         } else {
-            alert("Looks like there was a problem with your EUS authentication check. Try again in a few minutes.");
+            alert("Looks like there was a problem with your NEXUS authentication check. Try again in a few minutes.");
         }
     });
     getter.fail(function(jqxhr){
@@ -146,11 +146,25 @@ var generate_cart_identifier = function(){
 
 var cart_download = function(transaction_container){
     var selected_files = get_selected_files(transaction_container);
-    //check for token
     var item_id_list = Object.keys(selected_files.sizes);
+    //check for token
+    var transaction_meta = get_transaction_info(transaction_container);
+    $("#dl_transaction_id").val(transaction_meta.transaction_id);
+    $("#dl_project_id").val(transaction_meta.project_id);
+    $("#dl_instrument_id").val(transaction_meta.instrument_id);
     $("#cart_file_list").val(JSON.stringify(item_id_list));
     $("#current_transaction_container").val(transaction_container.prop("id"));
     cart_create_dialog.dialog("open");
+};
+
+var get_transaction_info = function(transaction_container){
+    var metadata_fields = $(transaction_container).parents(".transaction_container").find(input);
+    var md_json = {
+        transaction_id: metadata_fields.find(".transaction_identifier").val(),
+        project_id: metadata_fields.find(".project_identifier").val(),
+        instrument_id: metadata_fields.find(".instrument_identifier").val()
+    };
+    return md_json;
 };
 
 var create_cart = function(submission_object, transaction_container){
@@ -440,7 +454,7 @@ var myemsl_size_format = function(bytes) {
 
 var cart_url_base = base_url;
 var cart_identifier = generate_cart_identifier();
-var cart_info_url = cart_url_base + "cart/listing/" + cart_identifier;
+var cart_info_url = cart_url_base + "cart_listing/" + cart_identifier;
 var cart_create_url = cart_url_base + "cart/create/" + cart_identifier;
 var cart_delete_url = cart_url_base + "cart/delete/" + cart_identifier;
 var cart_download_auth_url = cart_url_base + "cart/checkauth";

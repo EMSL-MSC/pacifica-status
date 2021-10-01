@@ -42,13 +42,14 @@ class Cart_api_model extends CI_Model
     /**
      *  Class constructor.
      *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
     public function __construct()
     {
         parent::__construct();
         $this->cart_url_base = $this->config->item('internal_cart_url');
         $this->cart_dl_base = $this->config->item('external_cart_url');
+        $this->nexus_api_base = $this->config->item('nexus_backend_url');
         $this->load->database('default');
         $this->load->helper('item');
     }
@@ -57,11 +58,11 @@ class Cart_api_model extends CI_Model
      *  Generates the an ID for the cart, then makes the appropriate entries
      *  in the cart status database.
      *
-     *  @param array $cart_submission_json Cart request JSON, converted to array
+     * @param array $cart_submission_json Cart request JSON, converted to array
      *
-     *  @return string  cart_uuid
+     * @return string  cart_uuid
      *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
     public function cart_create($cart_owner_identifier, $cart_submission_json)
     {
@@ -79,6 +80,7 @@ class Cart_api_model extends CI_Model
             return $return_array;
         }
         $cart_submission_object = $new_submission_info['cleaned_submisson_object'];
+        $project_id = $cart_submission_json
         $cart_uuid = $this->_generate_cart_uuid($cart_submission_object);
 
         try {
@@ -357,11 +359,11 @@ class Cart_api_model extends CI_Model
      *  verifies that all the entries that it needs are present. Returns
      *  the object as an array, or FALSE if invalid.
      *
-     *  @param string $cart_submission_json Originally submitted cart request JSON
+     * @param string $cart_submission_json Originally submitted cart request JSON
      *
-     *  @return array   cleaned up cart submission object
+     * @return array   cleaned up cart submission object
      *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
     private function _clean_cart_submission($cart_owner_identifier, $cart_submission_json)
     {
@@ -384,6 +386,9 @@ class Cart_api_model extends CI_Model
             'files' => $file_info['postable'],
             'submitter' => $cart_owner_identifier,
             'submission_timestamp' => $submission_timestamp->getTimestamp(),
+            'project_id' => $raw_object['dl_project_id'],
+            'instrument_id' => $raw_object['dl_instrument_id'],
+            'transaction_id' => $raw_object['dl_transaction_id']
         );
 
         if (!empty($description)) {
@@ -506,7 +511,30 @@ class Cart_api_model extends CI_Model
             $this->db->trans_commit();
         }
 
+
+
         return true;
+    }
+
+    /**
+     * Submit the cleaned cart object to the cart daemon server for processing.
+     *
+     * @param string $cart_uuid              SHA256 hash from generate_cart_uuid
+     * @param array  $cart_submission_object The cleaned and formatted cart request object
+     *
+     * @return bool TRUE on successful request
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    private function _submit_to_nexus($cart_uuid, $cart_submission_object)
+    {
+        // $cart_uuid = $cart_submission_object['cart_uuid'];
+        $cart_url = "{$this->nexus_api_base}/register_download_cart{$cart_uuid}";
+        $headers_list = array('Content-Type' => 'application/json');
+        unset($cart_submission_object['files']);
+        $query = Requests::post($cart_url, $headers_list, json_encode($cart_submission_object));
+
+        return $query;
     }
 
     /**
