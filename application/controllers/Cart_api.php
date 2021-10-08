@@ -43,7 +43,7 @@ class Cart_api extends Baseline_api_controller
     {
         parent::__construct();
         $this->load->model('Cart_api_model', 'cart');
-        $this->load->helper(array('url', 'network', 'item', 'myemsl_api'));
+        $this->load->helper(array('url', 'network', 'item', 'user'));
         $this->eus_cookie_name = $this->config->item('cookie_name');
         $this->eus_login_redirect_url = $this->config->item('cookie_redirect_url');
         $this->eus_cookie_encryption_key = $this->config->item('cookie_encryption_key');
@@ -95,7 +95,7 @@ class Cart_api extends Baseline_api_controller
             $user_block = $this->check_download_authorization(false);
             $user_id = $user_block['eus_id'];
             if ($user_id) {
-                $user_info = get_user_details_simple($user_id);
+                $user_info = get_user_details_simple();
             } else {
                 $this->output->set_status_header(302, "Unknown EUS User");
                 print("");
@@ -126,7 +126,8 @@ class Cart_api extends Baseline_api_controller
             "eus_id" => null
         ];
         // $this->user_id = false;
-        if(array_key_exists('REMOTE_USER', $_SERVER) && $this->user_id) {
+        if (array_key_exists('OIDC_access_token', $_SERVER) && $this->user_id) {
+            $retval = get_user_details_simple()
             $retval['eus_id'] = $this->user_id;
             $retval = array_merge($retval, $this->user_info);
         } else {

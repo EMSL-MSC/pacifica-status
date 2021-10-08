@@ -61,10 +61,10 @@ class Baseline_api_controller extends CI_Controller
         $this->application_version = $this->config->item('application_version');
         $this->page_address = implode('/', $this->uri->rsegments);
 
-        $this->benchmark->mark('get_user_details_start');
         $user_info = get_user_details($this->user_id);
         $this->username = $user_info['first_name'] ?: 'Anonymous Stranger';
         $this->is_emsl_staff = $user_info['emsl_employee'] == 'Y' ? true : false;
+        $this->project_list = $user_info['projects'];
         $this->email = $user_info['email_address'];
         $this->fullname = "{$this->username} {$user_info['last_name']}";
         $user_info['full_name'] = $this->fullname;
@@ -79,7 +79,6 @@ class Baseline_api_controller extends CI_Controller
 
         $this->nav_info['current_page_info']['logged_in_user'] = "{$this->fullname}";
         $this->nav_info['current_page_info']['logged_in_user_id'] = $user_info['network_id'] ?: "";
-        $this->benchmark->mark('get_user_details_end');
 
         $this->page_data = array();
         $this->page_data['navData'] = $this->nav_info;
@@ -87,6 +86,7 @@ class Baseline_api_controller extends CI_Controller
             'current_credentials' => $this->user_id,
             'full_name' => $this->fullname
         );
+        $this->page_data['project_list'] = $this->project_list;
         $this->page_data['username'] = $this->username;
         $this->page_data['fullname'] = $this->fullname;
         $this->page_data['load_prototype'] = false;

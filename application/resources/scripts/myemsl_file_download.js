@@ -40,37 +40,6 @@ $(function(){
         }
 
     });
-    cart_auth_dialog = $("#cart-download-auth-dialog").dialog({
-        autoOpen: false,
-        width:"25%",
-        classes: {"ui-dialog": "drop_shadow_dialog"},
-        modal:true,
-        buttons: [
-            {
-                "text": "Ok",
-                "click": function(){
-                    var redir_url = $(this).data("redirect_url");
-                    var this_page = window.location.href;
-                    window.location.href = redir_url + "?redirectUrl=" + this_page;
-                }
-            },
-            {
-                "text": "Cancel",
-                "click": function(){
-                    var tree_name = $(this).data("tree_obj");
-                    var tree = $("#" + tree_name).fancytree("getTree");
-                    tree.visit(function(node){
-                        node.setSelected(false);
-                    });
-                    cart_auth_dialog.dialog("close");
-                }
-            }
-        ],
-        close: function() {
-        }
-
-    });
-
     window.setInterval(cart_status, 30000);
 
     cart_create_form = cart_create_dialog.find("form").on("submit", function(event){
@@ -103,35 +72,6 @@ var update_header_user_info = function(user_info){
     $("#login_id_container").html(new_user_string);
 };
 
-var check_download_authorization = function(event){
-    var getter = $.get(cart_download_auth_url);
-    getter.done(function(data){
-        if (data) {
-            proxied_user_id = data.eus_id;
-            if(proxied_user_id && parseInt(proxied_user_id, 10) > 0){
-                update_header_user_info(data);
-                setup_download_cart_button(event);
-            }else if(proxied_user_id === 0){
-                setup_download_cart_button(event);
-            }else{
-                $("#cart-download-auth-dialog")
-                    .data("redirect_url", data.redirect_url)
-                    .data("tree_obj", $(event.target).prop("id"))
-                    .dialog("open");
-            }
-        } else {
-            alert("Looks like there was a problem with your NEXUS authentication check. Try again in a few minutes.");
-        }
-    });
-    getter.fail(function(jqxhr){
-        var response_obj = JSON.parse(jqxhr.responseText);
-        $("#cart-download-auth-dialog")
-            .data("redirect_url", response_obj.redirect_url)
-            .data("tree_obj", $(event.target).prop("id"))
-            .dialog("open");
-    });
-};
-
 var generate_cart_identifier = function(){
     if(!localStorage.getItem("cart_identifier")){
         localStorage.setItem("cart_identifier",
@@ -158,11 +98,11 @@ var cart_download = function(transaction_container){
 };
 
 var get_transaction_info = function(transaction_container){
-    var metadata_fields = $(transaction_container).parents(".transaction_container").find(input);
+    var metadata_fields = $(transaction_container).parents(".transaction_container");
     var md_json = {
-        transaction_id: metadata_fields.find(".transaction_identifier").val(),
-        project_id: metadata_fields.find(".project_identifier").val(),
-        instrument_id: metadata_fields.find(".instrument_identifier").val()
+        transaction_id: $(metadata_fields).find(".transaction_identifier").val(),
+        project_id: $(metadata_fields).find(".project_identifier").val(),
+        instrument_id: $(metadata_fields).find(".instrument_identifier").val()
     };
     return md_json;
 };
@@ -204,7 +144,10 @@ var cart_status = function(){
             $("#cart_listing_container").show();
         }
     });
-    getter.fail(function(jqxhr, status, error){});
+    getter.fail(function(jqxhr){
+        var msg_string = jqxhr.responseJSON.message;
+        console.error("A problem occurred getting status on your cart.\n[" + msg_string + "]");
+    });
 };
 
 

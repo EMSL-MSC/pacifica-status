@@ -39,7 +39,6 @@ class Ajax_api extends Baseline_api_controller
 
         parent::__construct();
         $this->load->model('status_api_model', 'status');
-        $this->load->model('Myemsl_api_model', 'myemsl');
         $this->load->helper('network');
         $this->load->library('PHPRequests');
         $this->user_relationships = [];
@@ -151,7 +150,7 @@ class Ajax_api extends Baseline_api_controller
         }
         $transaction_info = $this->status->get_transaction_details($transaction_id);
         $associated_project_list = [];
-        foreach($this->user_info['projects'] as $project_entry) {
+        foreach ($this->user_info['projects'] as $project_entry) {
             $associated_projects_list[] = $project_entry['id'];
         }
         //$associated_projects_list = array_map('strval', array_keys($this->user_info['projects']));

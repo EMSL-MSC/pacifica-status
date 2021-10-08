@@ -80,7 +80,7 @@ class Cart_api_model extends CI_Model
             return $return_array;
         }
         $cart_submission_object = $new_submission_info['cleaned_submisson_object'];
-        $project_id = $cart_submission_json
+        $project_id = $cart_submission_json;
         $cart_uuid = $this->_generate_cart_uuid($cart_submission_object);
 
         try {
