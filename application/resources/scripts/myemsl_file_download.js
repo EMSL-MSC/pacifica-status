@@ -40,6 +40,32 @@ $(function(){
         }
 
     });
+    cart_auth_dialog = $("#cart-download-auth-dialog").dialog({
+        autoOpen: false,
+        width:"25%",
+        classes: {"ui-dialog": "drop_shadow_dialog"},
+        modal:true,
+        buttons: [
+            {
+                "text": "Ok",
+                "click": function(){
+                    var redir_url = cart_download_auth_url;
+                    var this_page = window.location.href;
+                    window.location.href = redir_url + "?redirectUri=" + this_page;
+                }
+            },
+            {
+                "text": "Cancel",
+                "click": function(){
+                    cart_auth_dialog.dialog("close");
+                }
+            }
+        ],
+        close: function() {
+        }
+
+    });
+
     window.setInterval(cart_status, 30000);
 
     cart_create_form = cart_create_dialog.find("form").on("submit", function(event){
@@ -72,6 +98,29 @@ var update_header_user_info = function(user_info){
     $("#login_id_container").html(new_user_string);
 };
 
+var check_download_authorization = function(event){
+    var getter = $.get(cart_download_check_url);
+    getter.done(function(data){
+        if (data) {
+            proxied_user_id = data.eus_id;
+            if(proxied_user_id && parseInt(proxied_user_id, 10) > 0){
+                update_header_user_info(data);
+                setup_download_cart_button($(event.target));
+            } else {
+                $("#cart-download-auth-dialog")
+                    .dialog("open");
+            }
+        } else {
+            alert("Looks like there was a problem with your NEXUS authentication check. Try again in a few minutes.");
+        }
+    });
+
+    getter.fail(function(){
+        $("#cart-download-auth-dialog")
+            .dialog("open");
+    });
+};
+
 var generate_cart_identifier = function(){
     if(!localStorage.getItem("cart_identifier")){
         localStorage.setItem("cart_identifier",
@@ -85,6 +134,11 @@ var generate_cart_identifier = function(){
 };
 
 var cart_download = function(transaction_container){
+    var user_id_string = check_download_authorization(event);
+    if(!user_id_string){
+        return false;
+    }
+
     var selected_files = get_selected_files(transaction_container);
     var item_id_list = Object.keys(selected_files.sizes);
     //check for token
@@ -317,13 +371,9 @@ var setup_metadata_disclosure = function(){
 
 };
 
-var setup_download_cart_button = function(event){
-    var el = $(event.target);
+var setup_download_cart_button = function(el){
+    // var el = $(event.target);
     var dl_button = el.parent().find(".dl_button_container");
-    var tree = el.fancytree("getTree");
-    // var fileSizes = get_file_sizes($(el));
-    var topNode = tree.getRootNode();
-    var dataNode = topNode.children[0];
     var fileSizes = get_selected_files($(el));
     if(fileSizes != null) {
         var totalSizeText = myemsl_size_format(fileSizes.total_size);
@@ -339,16 +389,18 @@ var setup_tree_data = function(){
                 $(el).fancytree(
                     {
                         checkbox:true,
+                        extensions: ["persist"],
+                        persist: {
+                            expandLazy: true,
+                            store: "auto",
+                            fireActivate: false
+                        },
                         selectMode: 3,
                         select: function(event, data){
-                            if(data.node.selected){
-                                var user_id_string = check_download_authorization(event);
-                                if(!user_id_string){
-                                    return false;
-                                }
-                            }else{
-                                setup_download_cart_button(event);
-                            }
+                            setup_download_cart_button($(event.target));
+                        },
+                        restore: function(event, data){
+                            setup_download_cart_button($(event.target));
                         },
                         keydown: function(event, data){
                             if(event.which === 32) {
@@ -400,5 +452,6 @@ var cart_identifier = generate_cart_identifier();
 var cart_info_url = cart_url_base + "cart_listing/" + cart_identifier;
 var cart_create_url = cart_url_base + "cart/create/" + cart_identifier;
 var cart_delete_url = cart_url_base + "cart/delete/" + cart_identifier;
-var cart_download_auth_url = cart_url_base + "cart/checkauth";
+var cart_download_auth_url = "/cart/checkauth";
+var cart_download_check_url = cart_url_base + "api/checkauth";
 var proxied_user_id = null;

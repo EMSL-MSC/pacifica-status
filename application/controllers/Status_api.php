@@ -304,14 +304,11 @@ class Status_api extends Baseline_user_api_controller
         }
         $this->referring_page = str_replace(base_url(), '', $this->input->server('HTTP_REFERER'));
         $time_period_empty = true;
-        $full_user_info = $this->user_info;
-        $this->page_data['project_list'] = $this->_extract_project_list($this->user_info);
+        $full_user_info = get_user_details($this->user_id);
+        $this->page_data['project_list'] = $this->_extract_project_list($full_user_info);
 
-        // if (array_key_exists('project_list', $this->page_data)) {
-        //     $this->page_data['project_list'] = $this->page_data['project_list'] + $project_list;
-        // } else {
-        //     $this->page_data['project_list'] = $project_list;
-        // }
+        $this->page_data['project_list'] = $project_list;
+
         ksort($this->page_data['project_list']);
 
         if (isset($instrument_id) && intval($instrument_id) != 0
@@ -377,6 +374,7 @@ class Status_api extends Baseline_user_api_controller
                 krsort($results['transaction_list']['times']);
             }
         }
+        $this->page_data['user_info'] = $this->user_info;
         $this->page_data['selected_project_id'] = $project_id;
         $this->page_data['selected_instrument_id'] = $instrument_id;
         $this->page_data['enable_breadcrumbs'] = false;
@@ -460,11 +458,7 @@ class Status_api extends Baseline_user_api_controller
 
         $project_list = $this->_extract_project_list($this->user_info);
 
-        if (array_key_exists('project_list', $this->page_data)) {
-            $this->page_data['project_list'] = $this->page_data['project_list'] + $project_list;
-        } else {
-            $this->page_data['project_list'] = $project_list;
-        }
+        $this->page_data['project_list'] = $project_list;
         ksort($this->page_data['project_list']);
 
         if (!is_numeric($id) || $id < 0) {
@@ -556,7 +550,7 @@ var cart_access_url_base = \"{$this->config->item('external_cart_url')}\";";
         $this->page_data['cart_data'] = array(
         'carts' => array()
         );
-        $this->page_date['user_info'] = $this->user_info;
+        $this->page_data['user_info'] = $this->user_info;
         $this->page_data['request_type'] = 't';
         $this->page_data['enable_breadcrumbs'] = false;
         $this->page_data['js'] .= "var initial_inst_id = '{$inst_id}';

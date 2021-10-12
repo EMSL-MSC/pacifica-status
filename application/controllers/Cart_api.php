@@ -43,7 +43,7 @@ class Cart_api extends Baseline_api_controller
     {
         parent::__construct();
         $this->load->model('Cart_api_model', 'cart');
-        $this->load->helper(array('url', 'network', 'item', 'user'));
+        $this->load->helper(array('url', 'network', 'item', 'user', 'myemsl_api'));
         $this->eus_cookie_name = $this->config->item('cookie_name');
         $this->eus_login_redirect_url = $this->config->item('cookie_redirect_url');
         $this->eus_cookie_encryption_key = $this->config->item('cookie_encryption_key');
@@ -120,20 +120,27 @@ class Cart_api extends Baseline_api_controller
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function check_download_authorization($show_output = true)
+    public function check_download_authorization($show_output = false)
     {
         $retval = [
             "eus_id" => null
         ];
         // $this->user_id = false;
-        if (array_key_exists('OIDC_access_token', $_SERVER) && $this->user_id) {
-            $retval = get_user_details_simple()
+        if (array_key_exists('OIDC_access_token', $_SERVER)) {
+            $retval = get_user_details($_SERVER["REMOTE_USER"]);
             $retval['eus_id'] = $this->user_id;
             $retval = array_merge($retval, $this->user_info);
         } else {
             $retval['eus_id'] = 0;
         }
-        if ($show_output) {
+        if (substr(uri_string(), 0, 5) == 'cart/') {
+            $new_loc = $_SERVER['QUERY_STRING'];
+            $new_loc = str_replace('redirectUri=', "", $new_loc);
+            $new_loc = str_replace($_SERVER["REQUEST_SCHEME"]."://", "", $new_loc);
+            $new_loc = str_replace($_SERVER["SERVER_NAME"]."/", "", $new_loc);
+	    echo "new_loc => ".$new_loc;
+            redirect($new_loc);
+        } else {
             $this->output->set_content_type('application/json');
             $this->output->set_output(json_encode($retval));
         }
@@ -169,3 +176,4 @@ class Cart_api extends Baseline_api_controller
         transmit_array_with_json_header($ret_message, "", $success);
     }
 }
+

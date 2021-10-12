@@ -60,8 +60,8 @@ class Baseline_api_controller extends CI_Controller
         $this->git_hash = get_current_git_hash();
         $this->application_version = $this->config->item('application_version');
         $this->page_address = implode('/', $this->uri->rsegments);
-
-        $user_info = get_user_details($this->user_id);
+        $user_info = get_user_details($this->eus_id);
+        $user_info_simple = get_user_details_simple();
         $this->username = $user_info['first_name'] ?: 'Anonymous Stranger';
         $this->is_emsl_staff = $user_info['emsl_employee'] == 'Y' ? true : false;
         $this->project_list = $user_info['projects'];
@@ -70,7 +70,6 @@ class Baseline_api_controller extends CI_Controller
         $user_info['full_name'] = $this->fullname;
         $user_info['network_id'] = !empty($user_info['network_id']) ? $user_info['network_id'] : '';
         $this->user_info = $user_info;
-
         if (isset($_SERVER['PATH_INFO'])) {
             $current_path_info = ltrim($_SERVER['PATH_INFO'], '/');
         } else {

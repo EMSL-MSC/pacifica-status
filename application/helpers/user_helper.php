@@ -54,7 +54,6 @@ function get_user()
     if ($query->status_code == 200 && !empty($results_json)) {
         $results = $results_json['message']['user_id'];
     }
-    // var_dump($results);
     return $results;
 }
 
@@ -134,7 +133,8 @@ function get_user_details_simple()
         'user_id' => strtolower($_SERVER['REMOTE_USER']) ?? false,
         'first_name' => $_SERVER['OIDC_CLAIM_given_name'] ?? 'Anonymous Stranger',
         'last_name' => $_SERVER['OIDC_CLAIM_family_name'] ?? '',
-        'email' => strtolower($_SERVER['OIDC_CLAIM_email'] ?? false
+        'full_name' => $_SERVER['OIDC_CLAIM_name'] ?? 'Anonymous Stranger',
+        'email' => strtolower($_SERVER['OIDC_CLAIM_email']) ?? false
     ];
     return $user_info;
 }

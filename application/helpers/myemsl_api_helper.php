@@ -37,7 +37,7 @@ if (!defined('BASEPATH')) {
  *
  * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
-function get_user_details_simple($eus_id)
+function get_user_details_simple_old($eus_id)
 {
     return get_details('user', $eus_id, 'simple');
 }
@@ -57,23 +57,14 @@ function get_user_details($eus_id)
     $results = [];
     $results = get_details_nexus('user', $eus_id);
     if (empty($results)) {
-        if (get_user_from_cookie()) {
-            $results = get_user_from_cookie();
-            $results['emsl_employee'] = false;
-            $results['projects'] = [];
-            $results['email_address'] = $results['email'];
-            $results['person_id'] = $results['user_id'];
-            $results['network_id'] = $results['eus_id'];
-        } else {
-            $results = [
-                'first_name' => 'Anonymous Stranger',
-                'last_name' => '',
-                'emsl_employee' => false,
-                'projects' => [],
-                'email_address' => '',
-                'person_id' => false
-            ];
-        }
+        $results = [
+            'first_name' => 'Anonymous Stranger',
+            'last_name' => '',
+            'emsl_employee' => false,
+            'projects' => [],
+            'email_address' => '',
+            'person_id' => false
+        ];
     }
 
     return $results;
