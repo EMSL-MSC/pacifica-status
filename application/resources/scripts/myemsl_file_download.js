@@ -51,7 +51,9 @@ $(function(){
                 "click": function(){
                     var redir_url = cart_download_auth_url;
                     var this_page = window.location.href;
-                    window.location.href = redir_url + "?redirectUri=" + this_page;
+                    Cookies.set("auth_referral_url", this_page, {domain: "pnl.gov"});
+                    Cookies.set("auth_referral_url", this_page, {domain: "pnnl.gov"});
+                    window.location.href = redir_url + "?redirectUri=" + nexus_auth_redirect;
                 }
             },
             {
@@ -80,7 +82,7 @@ var setup_file_download_links = function(parent_item) {
     var dl_button = $("#dl_button_" + tx_id);
     dl_button.off("click").on("click",
         function(){
-            cart_download(parent_item);
+            check_download_authorization(event);
         }
     );
     if(!enable_single_file_download) return false;
@@ -94,7 +96,7 @@ var setup_file_download_links = function(parent_item) {
 };
 
 var update_header_user_info = function(user_info){
-    var new_user_string = "<em>" + user_info.first_name + " " + user_info.last_name + " (" + user_info.eus_id + ")</em>";
+    var new_user_string = "<em>" + user_info.display_name + ")</em>";
     $("#login_id_container").html(new_user_string);
 };
 
@@ -105,7 +107,8 @@ var check_download_authorization = function(event){
             proxied_user_id = data.eus_id;
             if(proxied_user_id && parseInt(proxied_user_id, 10) > 0){
                 update_header_user_info(data);
-                setup_download_cart_button($(event.target));
+                var tree_el = $($(event.target).up(".transaction_container")).find(".tree_holder");
+                cart_download(tree_el);
             } else {
                 $("#cart-download-auth-dialog")
                     .dialog("open");
@@ -134,11 +137,6 @@ var generate_cart_identifier = function(){
 };
 
 var cart_download = function(transaction_container){
-    var user_id_string = check_download_authorization(event);
-    if(!user_id_string){
-        return false;
-    }
-
     var selected_files = get_selected_files(transaction_container);
     var item_id_list = Object.keys(selected_files.sizes);
     //check for token
@@ -147,6 +145,7 @@ var cart_download = function(transaction_container){
     $("#dl_project_id").val(transaction_meta.project_id);
     $("#dl_instrument_id").val(transaction_meta.instrument_id);
     $("#cart_file_list").val(JSON.stringify(item_id_list));
+    $("#dl_total_file_size").val(selected_files.total_size);
     $("#current_transaction_container").val(transaction_container.prop("id"));
     cart_create_dialog.dialog("open");
 };

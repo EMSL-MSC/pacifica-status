@@ -90,11 +90,11 @@ class Cart_api_model extends CI_Model
                 if (preg_match('/(\d+)/i', $e->getMessage(), $matches)) {
                     $curl_error_num = intval($matches[1]);
                     switch ($curl_error_num) {
-                        case 6:
-                            $message = "Cart subsystem unavailable. This usually means that there is a problem with the cart servicing process.";
-                            break;
-                        default:
-                            $message = $e->getMessage();
+                    case 6:
+                        $message = "Cart subsystem unavailable. This usually means that there is a problem with the cart servicing process.";
+                        break;
+                    default:
+                        $message = $e->getMessage();
                     }
                 } else {
                     $message = $e->getMessage();
@@ -510,7 +510,7 @@ class Cart_api_model extends CI_Model
         } else {
             $this->db->trans_commit();
         }
-
+        // $this->_submit_to_nexus($cart_uuid, $cart_submission_object);
 
 
         return true;
@@ -529,11 +529,31 @@ class Cart_api_model extends CI_Model
     private function _submit_to_nexus($cart_uuid, $cart_submission_object)
     {
         // $cart_uuid = $cart_submission_object['cart_uuid'];
-        $cart_url = "{$this->nexus_api_base}/register_download_cart{$cart_uuid}";
+        $cart_url = "{$this->nexus_api_base}/register_download_cart/{$cart_uuid}";
         $headers_list = array('Content-Type' => 'application/json');
+        $cart_submission_object["user_id"] = $this->user_id;
         unset($cart_submission_object['files']);
-        $query = Requests::post($cart_url, $headers_list, json_encode($cart_submission_object));
-
+        try {
+            $query = Requests::post($cart_url, $headers_list, json_encode($cart_submission_object));
+        } catch (Requests_Exception $e) {
+            if ($e->getType() == 'curlerror') {
+                if (preg_match('/(\d+)/i', $e->getMessage(), $matches)) {
+                    $curl_error_num = intval($matches[1]);
+                    switch ($curl_error_num) {
+                    case 6:
+                        $message = "NEXUS subsystem unavailable. This usually means that there is a problem with the NEXUS Backend process.";
+                        break;
+                    default:
+                        $message = $e->getMessage();
+                    }
+                } else {
+                    $message = $e->getMessage();
+                }
+            }
+            $return_array['message'] = $message;
+            $this->output->set_status_header(500);
+            return $return_array;
+        }
         return $query;
     }
 

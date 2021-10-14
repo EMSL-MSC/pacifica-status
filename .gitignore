@@ -5,3 +5,4 @@ php_myemsl.ini
 *.local
 application/config/production/*
 application/config/development/*
+application/third_party/*

@@ -52,7 +52,7 @@ function get_user()
     $results_body = $query->body;
     $results_json = json_decode($results_body, true);
     if ($query->status_code == 200 && !empty($results_json)) {
-        $results = $results_json['message']['user_id'];
+        $results = $results_json['message'];
     }
     return $results;
 }

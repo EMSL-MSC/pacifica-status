@@ -1,7 +1,7 @@
 <?php
   $this->template_version = $this->config->item('template');
   $this->load->view("page_chrome/view_header");
-  $user_id_string = !empty($user_info['user_id']) ? $user_info['full_name']." &lt;".$user_info['user_id']."&gt;" : "";
+  $user_id_string = !empty($user_info['user_id']) ? $user_info['display_name'] : "";
   $js = isset($js) ?
 "<script type='text/javascript'>
 //<![CDATA[
@@ -43,4 +43,3 @@
 </body>
 <?php $this->load->view("cart_create_dialog_view.html"); ?>
 </html>
-

@@ -94,11 +94,12 @@ class Cart_api extends Baseline_api_controller
         if ($this->config->item('enable_require_credentials_for_cart_download')) {
             $user_block = $this->check_download_authorization(false);
             $user_id = $user_block['eus_id'];
-            if ($user_id) {
-                $user_info = get_user_details_simple();
-            } else {
-                $this->output->set_status_header(302, "Unknown EUS User");
-                print("");
+            if (!$this->user_id || $this->user_id == 0) {
+                $this->output->set_status_header(403, "Unknown EUS User");
+                $response = [
+                    'message' => 'No Credentials found for this user'
+                ];
+                transmit_array_with_json_header($response);
                 return;
             }
         }
@@ -109,7 +110,8 @@ class Cart_api extends Baseline_api_controller
             echo "Hey! There's no real data here!";
         }
         // var_dump($this->input->request_headers());
-        $cart_uuid_info = $this->cart->cart_create($cart_owner_identifier, $this->input->raw_input_stream);
+        $cart_local_uuid = guidv4();
+        $cart_uuid_info = $this->cart->cart_create($cart_local_uuid, $this->input->raw_input_stream);
         transmit_array_with_json_header($cart_uuid_info);
     }
 
@@ -133,12 +135,13 @@ class Cart_api extends Baseline_api_controller
         } else {
             $retval['eus_id'] = 0;
         }
-        if (substr(uri_string(), 0, 5) == 'cart/') {
+        // echo strpos(uri_string(), 'cart/checkauth');
+        if (strpos(uri_string(), 'cart/checkauth') !== false) {
+            // if (substr(uri_string(), 0, 5) == 'cart/checkauth') {
             $new_loc = $_SERVER['QUERY_STRING'];
             $new_loc = str_replace('redirectUri=', "", $new_loc);
-            $new_loc = str_replace($_SERVER["REQUEST_SCHEME"]."://", "", $new_loc);
-            $new_loc = str_replace($_SERVER["SERVER_NAME"]."/", "", $new_loc);
-	    echo "new_loc => ".$new_loc;
+            // $new_loc = str_replace($_SERVER["REQUEST_SCHEME"]."://", "", $new_loc);
+            // $new_loc = str_replace($_SERVER["SERVER_NAME"]."/", "", $new_loc);
             redirect($new_loc);
         } else {
             $this->output->set_content_type('application/json');
@@ -176,4 +179,3 @@ class Cart_api extends Baseline_api_controller
         transmit_array_with_json_header($ret_message, "", $success);
     }
 }
-
