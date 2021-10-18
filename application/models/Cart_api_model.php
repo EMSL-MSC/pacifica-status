@@ -81,7 +81,7 @@ class Cart_api_model extends CI_Model
         }
         $cart_submission_object = $new_submission_info['cleaned_submisson_object'];
         $project_id = $cart_submission_json;
-        $cart_uuid = $this->_generate_cart_uuid($cart_submission_object);
+        $cart_uuid = $cart_owner_identifier;
 
         try {
             $cart_submit_response = $this->_submit_to_cartd($cart_uuid, $cart_submission_object);
@@ -384,8 +384,10 @@ class Cart_api_model extends CI_Model
         $cleaned_object = array(
             'name' => "{$name} ({$submission_timestamp->format('d M Y g:ia')})",
             'files' => $file_info['postable'],
-            'submitter' => $cart_owner_identifier,
+            'user_id' => $this->user_id,
+            'cart_uuid' => $cart_owner_identifier,
             'submission_timestamp' => $submission_timestamp->getTimestamp(),
+            'total_cart_size_bytes' => $raw_object['dl_total_file_size'],
             'project_id' => $raw_object['dl_project_id'],
             'instrument_id' => $raw_object['dl_instrument_id'],
             'transaction_id' => $raw_object['dl_transaction_id']
@@ -529,7 +531,7 @@ class Cart_api_model extends CI_Model
     private function _submit_to_nexus($cart_uuid, $cart_submission_object)
     {
         // $cart_uuid = $cart_submission_object['cart_uuid'];
-        $cart_url = "{$this->nexus_api_base}/register_download_cart/{$cart_uuid}";
+        $cart_url = "{$this->nexus_api_base}/add_new_cart_tracking_information";
         $headers_list = array('Content-Type' => 'application/json');
         $cart_submission_object["user_id"] = $this->user_id;
         unset($cart_submission_object['files']);
