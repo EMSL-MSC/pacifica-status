@@ -85,7 +85,10 @@ class Cart_api_model extends CI_Model
 
         try {
             $cart_submit_response = $this->_submit_to_cartd($cart_uuid, $cart_submission_object);
+            log_message('info', json_encode($cart_submit_response));
+            $this->_submit_to_nexus($cart_uuid, $cart_submission_object);
         } catch (Requests_Exception $e) {
+            log_message('error', $e->getMessage());
             if ($e->getType() == 'curlerror') {
                 if (preg_match('/(\d+)/i', $e->getMessage(), $matches)) {
                     $curl_error_num = intval($matches[1]);
@@ -105,23 +108,6 @@ class Cart_api_model extends CI_Model
             return $return_array;
         }
 
-        if (intval($cart_submit_response->status_code / 100) == 2) {
-            $local_cart_success = $this->_create_cart_entry(
-                $cart_uuid,
-                $cart_submission_object,
-                $new_submission_info['file_details']
-            );
-            if (!$local_cart_success) {
-                $return_array['message'] = "An error occurred while saving changes to the local database";
-                $this->output->set_status_header(500);
-                return $return_array;
-            }
-        } else {
-            //return error about not being able to create the cart entry properly
-            $this->output->set_status_header($cart_submit_response->status_code, 'An error occurred while talking to the cart server');
-            $return_array['message'] = 'cart creation was unsuccessful';
-            return $return_array;
-        }
         $return_array['success'] = true;
         $return_array['cart_uuid'] = $cart_uuid;
         $return_array['message'] = "A cart named '{$cart_submission_object['name']}' was successfully created";
@@ -139,7 +125,7 @@ class Cart_api_model extends CI_Model
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _get_cart_info($cart_uuid_list)
+    private function _get_cart_info_prev($cart_uuid_list)
     {
         //get the list of any carts from the database
         $select_array = array(
@@ -160,6 +146,39 @@ class Cart_api_model extends CI_Model
         foreach ($query->result_array() as $row) {
             $cart_uuid = $row['cart_uuid'];
             $return_array[$cart_uuid] = $row;
+        }
+
+        return $return_array;
+    }
+
+    /**
+     * [get_active_carts description].
+     *
+     * @param array $cart_uuid_list list of cart entities to interrogate
+     *
+     * @return array
+     *
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     */
+    private function _get_cart_info($user_id)
+    {
+        //get the list of any carts from nexus
+        $status_url = "{$this->nexus_api_base}/get_cart_info/{$user_id}";
+        $headers_list = array('Content-Type' => 'application/json');
+        $return_array = [];
+
+        try {
+            $options = ['verify' => false];
+            $query => Requests::get($status_url, $headers_list, $options);
+            if ($query->status_code / 100) {
+                == 2)
+                $return_object = json_decode($query->body);
+                foreach ($return_object as $entry) {
+                    $return_array[$entry['cart_uuid']] = $entry;
+                }
+            }
+        } catch (Requests_Exception $e) {
+            log_message('error', $e->getMessage());
         }
 
         return $return_array;
@@ -211,7 +230,7 @@ class Cart_api_model extends CI_Model
             return array();
         }
 
-        $cart_info = $this->_get_cart_info($cart_uuid_list);
+        $cart_info = $this->_get_cart_info($this->user_id);
         $status_lookup = array(
             'waiting' => 'In Preparation',
             'staging' => 'File Retrieval',
@@ -239,7 +258,7 @@ class Cart_api_model extends CI_Model
             if ($status == 'deleted') {
                 continue;
             }
-            $this->update_cart_info($cart_uuid, array('last_known_state' => $status));
+            // $this->update_cart_info($cart_uuid, array('last_known_state' => $status));
             $status_return['lookup'] = $status_lookup;
             $status_return['categories'][$status][] = $cart_uuid;
             $status_return['cart_list'][$cart_uuid] = array(
@@ -368,6 +387,7 @@ class Cart_api_model extends CI_Model
     private function _clean_cart_submission($cart_owner_identifier, $cart_submission_json)
     {
         $submission_timestamp = new DateTime();
+        log_message('info', "cart identifier => ".$cart_owner_identifier);
         $default_cart_name = "Cart for {$this->fullname}";
         $raw_object = json_decode($cart_submission_json, true);
         $description = array_key_exists('description', $raw_object) ? $raw_object['description'] : '';
@@ -388,11 +408,11 @@ class Cart_api_model extends CI_Model
             'cart_uuid' => $cart_owner_identifier,
             'submission_timestamp' => $submission_timestamp->getTimestamp(),
             'total_cart_size_bytes' => $raw_object['dl_total_file_size'],
+            'total_file_count' => count($file_list),
             'project_id' => $raw_object['dl_project_id'],
             'instrument_id' => $raw_object['dl_instrument_id'],
             'transaction_id' => $raw_object['dl_transaction_id']
         );
-
         if (!empty($description)) {
             $cleaned_object['description'] = $description;
         }
@@ -469,54 +489,10 @@ class Cart_api_model extends CI_Model
     }
 
     /**
-     * Add the cart entry and file details to the tracking database.
+     * Check for available carts for this user
      *
-     * @param string $cart_uuid              SHA256 hash from generate_cart_uuid
-     * @param array  $cart_submission_object Cleaned and formatted cart request object
-     * @param array  $file_details           Name, path, and size info for the requested files
-     *
-     * @return bool success value
-     *
-     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     * @return array    object of cart entities
      */
-    private function _create_cart_entry($cart_uuid, $cart_submission_object, $file_details)
-    {
-        $this->db->trans_start();
-        $submit_time = new DateTime("@{$cart_submission_object['submission_timestamp']}");
-        $insert_data = array(
-            'cart_uuid' => strtolower($cart_uuid),
-            'name' => $cart_submission_object['name'],
-            'owner' => $cart_submission_object['submitter'],
-            'json_submission' => json_encode($cart_submission_object),
-            'created' => $submit_time->format('Y-m-d H:i:s'),
-            'updated' => $submit_time->format('Y-m-d H:i:s'),
-        );
-        if (array_key_exists('description', $cart_submission_object) && !empty($cart_submission_object['description'])) {
-            $insert_data['description'] = $cart_submission_object['description'];
-        }
-        $this->db->insert('cart', $insert_data);
-        $file_insert_data = array();
-        foreach ($file_details as $file_entry) {
-            $file_entry['cart_uuid'] = $cart_uuid;
-            $file_insert_data[] = $file_entry;
-        }
-
-        $this->db->insert_batch('cart_items', $file_insert_data);
-        $this->db->trans_complete();
-
-        if ($this->db->trans_status() === false) {
-            $this->db->trans_rollback();
-
-            return false;
-            //error thrown during db insert
-        } else {
-            $this->db->trans_commit();
-        }
-        // $this->_submit_to_nexus($cart_uuid, $cart_submission_object);
-
-
-        return true;
-    }
 
     /**
      * Submit the cleaned cart object to the cart daemon server for processing.
@@ -531,15 +507,23 @@ class Cart_api_model extends CI_Model
     private function _submit_to_nexus($cart_uuid, $cart_submission_object)
     {
         // $cart_uuid = $cart_submission_object['cart_uuid'];
+
         $cart_url = "{$this->nexus_api_base}/add_new_cart_tracking_information";
         $headers_list = array('Content-Type' => 'application/json');
         $cart_submission_object["user_id"] = $this->user_id;
         unset($cart_submission_object['files']);
+        log_message('info', json_encode($cart_submission_object));
         try {
-            $query = Requests::post($cart_url, $headers_list, json_encode($cart_submission_object));
+            log_message('info', 'cart url => '.$cart_url);
+            $options = ['verify' => false];
+            $query = Requests::post($cart_url, $headers_list, json_encode($cart_submission_object), $options);
+            log_message('info', 'completed submit to NEXUS');
+            log_message('info', $query->body);
         } catch (Requests_Exception $e) {
             if ($e->getType() == 'curlerror') {
                 if (preg_match('/(\d+)/i', $e->getMessage(), $matches)) {
+                    log_message('error', "curl_error => ".$e->getMessage());
+                    log_message('error', "status_code => ".$query->status_code);
                     $curl_error_num = intval($matches[1]);
                     switch ($curl_error_num) {
                     case 6:
@@ -575,7 +559,7 @@ class Cart_api_model extends CI_Model
         $cart_url = "{$this->cart_url_base}/{$cart_uuid}";
         $headers_list = array('Content-Type' => 'application/json');
         $query = Requests::post($cart_url, $headers_list, json_encode($cart_submission_object['files']));
-
+        log_message('info', "From CartD => $query->status_code");
         return $query;
     }
 }

@@ -112,6 +112,7 @@ class Cart_api extends Baseline_api_controller
         // var_dump($this->input->request_headers());
         $cart_local_uuid = guidv4();
         $cart_uuid_info = $this->cart->cart_create($cart_local_uuid, $this->input->raw_input_stream);
+        log_message('info', json_encode($cart_uuid_info));
         transmit_array_with_json_header($cart_uuid_info);
     }
 
@@ -143,7 +144,8 @@ class Cart_api extends Baseline_api_controller
             // $new_loc = str_replace($_SERVER["REQUEST_SCHEME"]."://", "", $new_loc);
             // $new_loc = str_replace($_SERVER["SERVER_NAME"]."/", "", $new_loc);
             redirect($new_loc);
-        } else {
+        }
+        if ($show_output) {
             $this->output->set_content_type('application/json');
             $this->output->set_output(json_encode($retval));
         }
