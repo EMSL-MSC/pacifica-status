@@ -19,7 +19,7 @@
  *
  * @link http://github.com/EMSL-MSC/pacifica-upload-status
  */
-require_once 'Baseline_api_controller.php';
+ require_once 'Baseline_api_controller.php';
 
 /**
  * Status API is a CI Controller class that extends Baseline_controller.

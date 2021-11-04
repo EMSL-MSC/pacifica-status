@@ -24,10 +24,6 @@
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
 
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
-
 /**
  * Load JS files as specified
  *

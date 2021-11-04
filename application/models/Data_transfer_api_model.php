@@ -36,7 +36,7 @@ class Data_transfer_api_model extends CI_Model
     /**
      *  Class constructor
      *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
     public function __construct()
     {
@@ -82,7 +82,7 @@ class Data_transfer_api_model extends CI_Model
     /**
      * This is going to need a fairly specific set of data to push this back out to DRHub
      *
-     * @param  [type] $release_info [description]
+     * @param [type] $release_info [description]
      *
      * @return [type] [description]
      *
@@ -166,10 +166,14 @@ class Data_transfer_api_model extends CI_Model
     public function get_release_states($transaction_list, $data_set_id = '')
     {
         $md_url = "{$this->metadata_url_base}/transactioninfo/release_state";
-        $query = Requests::post($md_url, array(
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-        ), json_encode($transaction_list));
+        $query = Requests::post(
+            $md_url,
+            [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            json_encode($transaction_list)
+        );
         $results = json_decode($query->body, true);
         $transient_info = [];
         // foreach ($results as $result_item) {
@@ -214,10 +218,14 @@ class Data_transfer_api_model extends CI_Model
         }
         $dh_url = "{$this->drhub_url_base}/dataset/node";
         $success = false;
-        $query = $this->sess->post($dh_url, [
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-        ], json_encode($formatted_request));
+        $query = $this->sess->post(
+            $dh_url,
+            [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            json_encode($formatted_request)
+        );
         switch ($query->status_code) {
             case 200:
                 $results = json_decode($query->body);
@@ -251,10 +259,14 @@ class Data_transfer_api_model extends CI_Model
     {
         $dh_url = "{$this->drhub_url_base}/dataset/node/{$resource_id}";
         $success = false;
-        $query = $this->sess->put($dh_url, array(
-            'Accept' => 'application/json',
-            'Content-Type' => 'application/json'
-        ), json_encode($update_object));
+        $query = $this->sess->put(
+            $dh_url,
+            [
+                'Accept' => 'application/json',
+                'Content-Type' => 'application/json'
+            ],
+            json_encode($update_object)
+        );
         if ($query->status_code == 200) {
             echo $query->body;
             $results = json_decode($query->body);
@@ -362,7 +374,8 @@ class Data_transfer_api_model extends CI_Model
                         '/https?:\/\/.+\/(\d+)/',
                         $full_resource_info['field_link_api']['und'][0]['url'],
                         $matches
-                    )) {
+                    )
+                    ) {
                         $extracted_txn_id = $matches[1];
                     }
                     $this->store_transient_data_record($full_resource_info, $data_set_id, $extracted_txn_id);
@@ -503,7 +516,9 @@ class Data_transfer_api_model extends CI_Model
                     $data_set_info['linked_transactions'][] = $resource_info['transaction_id'];
                 }
             }
-            if (array_key_exists('field_associated_doi_request', $full_data_set_info) && $full_data_set_info['field_associated_doi_request']) {
+            if (array_key_exists('field_associated_doi_request', $full_data_set_info)
+                && $full_data_set_info['field_associated_doi_request']
+            ) {
                 //if this field is present, then we've sent off the minting request
                 $doi_requests = $full_data_set_info['field_associated_doi_request']['und'];
                 foreach ($doi_requests as $request_object) {
@@ -521,7 +536,8 @@ class Data_transfer_api_model extends CI_Model
         $full_request_info = $this->get_drhub_node($doi_request_id);
         $doi_string = $full_request_info['field_doi'] ? $full_request_info['field_doi']['und'][0]['value'] : '';
         $osti_id = $full_request_info['field_osti_id'] ? $full_request_info['field_osti_id']['und'][0]['value'] : '';
-        $ref_data_set = $full_request_info['field_referenced_dataset'] ? $full_request_info['field_referenced_dataset']['und'][0]['target_id'] : '';
+        $ref_data_set = $full_request_info['field_referenced_dataset'] ?
+            $full_request_info['field_referenced_dataset']['und'][0]['target_id'] : '';
         $results = [
             'data_set_id' => $ref_data_set,
             'doi' => $doi_string,
@@ -594,7 +610,10 @@ class Data_transfer_api_model extends CI_Model
 
     private function insert_doi_transaction_entries($request_info, $data_set_id)
     {
-        $this->db->where('node_id', $data_set_id)->update($this->ds_table, ['doi_reference_string' => $request_info['doi']]);
+        $this->db->where('node_id', $data_set_id)->update(
+            $this->ds_table,
+            ['doi_reference_string' => $request_info['doi']]
+        );
         $transaction_id_query = $this->db->get_where($this->dr_table, ['data_set_node_id' => $data_set_id]);
         $transaction_list = [];
         if ($transaction_id_query && $transaction_id_query->num_rows() > 0) {

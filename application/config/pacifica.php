@@ -67,3 +67,6 @@ $config['enable_single_file_download'] = false;
 $config['enable_require_credentials_for_cart_download'] = false;
 $config['nexus_backend_url'] = "https://nexus-dev-srv.emsl.pnl.gov";
 $config['nexus_portal_url'] = "https://nexus-dev.emsl.pnl.gov/Portal";
+$config['cart_data_url'] = "/get_active_cart_information_by_user_id";
+$config['cart_data_add_url'] = "/add_new_cart_tracking_information";
+$config['cart_deactivate_url'] = "/deactivate_cart_by_cart_uuid";

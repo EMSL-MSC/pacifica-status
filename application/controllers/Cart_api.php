@@ -57,10 +57,11 @@ class Cart_api extends Baseline_api_controller
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function listing($cart_owner_identifier)
+    public function listing()
     {
-        $accept = $this->input->get_request_header('Accept');
-        $cart_list = $this->cart->cart_status($cart_owner_identifier);
+        // $accept = $this->input->get_request_header('Accept');
+        log_message('info', "IN cart_api/listing");
+        $cart_list = $this->cart->cart_status();
         if (stristr(strtolower($accept), 'json')) {
             //looks like a json request
             transmit_array_with_json_header($cart_list);

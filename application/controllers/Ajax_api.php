@@ -36,7 +36,6 @@ class Ajax_api extends Baseline_api_controller
      */
     public function __construct()
     {
-
         parent::__construct();
         $this->load->model('status_api_model', 'status');
         $this->load->helper('network');

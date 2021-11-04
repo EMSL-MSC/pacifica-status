@@ -16,11 +16,12 @@
     			<table style="width:100%;">
     				<thead>
     					<tr>
-    						<th>&nbsp;</th>
+    						<th style='width:6%;'>&nbsp;</th>
     						<th>Name</th>
-    						<th>Size</th>
-    						<th>File Count</th>
-    						<th>&nbsp;</th>
+                <th style='width:7%;'>Project ID</th>
+                <th>Resource Used</th>
+    						<th style='width:15%;'>Size</th>
+    						<th style='width:4%;'>&nbsp;</th>
     					</tr>
     				</thead>
     				<tbody>
@@ -30,11 +31,6 @@
     						<td class="cart_status_center">
     							<?php if($status == 'ready'): ?>
     							<a href="<?= $cart_entry['user_download_url'] ?>">Download</a>
-                                <span
-                                    id="download_info_button_<?= $cart_uuid ?>"
-                                    style="color:blue;"
-                                    class="download_info_button fa fa-info-circle fa-lg"
-                                />
     							<?php else: ?>
     							<div class="lds-ellipsis blue" style="height:40px;"><div></div><div></div><div></div><div></div></div>
                   <div class="cart_status_subtext"><?= $friendly_status ?></div>
@@ -50,15 +46,24 @@
     							</div>
     							<?php endif; ?>
     						</td>
+                <td>
+                  <span title='<?= $cart_entry['associated_project_name'] ?>'><?= $cart_entry['associated_project_id'] ?>
+                    <span
+                        id="download_info_button_<?= $cart_uuid ?>"
+                        style="color:blue;"
+                        class="download_info_button fa fa-info-circle fa-lg"
+                    />
+                  </span>
+                </td>
+                <td class="cart_status_left">
+                  <span>ID: <?= $cart_entry['associated_resource_id'] ?> / <?= $cart_entry['associated_resource_name'] ?></span>
+                </td>
     						<?php
     			        $display_size_text = $cart_entry['total_file_size_bytes'] ? $cart_entry['friendly_file_size'] : "Unknown";
     			      ?>
-    						<td class="cart_status_left">
-    							<?= $display_size_text ?>
-    						</td>
-                <td class="cart_status_left">
+                <td class="cart_status_center">
     							<?php $pluralizer = $cart_entry['total_file_count'] != 1 ? "s" : ""; ?>
-    							<?= $cart_entry['total_file_count'] ?> file<?= $pluralizer ?>
+                  <?= $display_size_text ?> for <?= $cart_entry['total_file_count'] ?> file<?= $pluralizer ?>
     						</td>
     						<td>
 		              <div class="buttons">

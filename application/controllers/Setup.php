@@ -19,10 +19,6 @@
  * @link    http://github.com/EMSL-MSC/pacifica-upload-status
  */
 
-if (!is_cli()) {
-    exit('No URL-based access allowed');
-}
-
 /**
  * System_setup is an access class for managing initial system setup from the CLI
  *

@@ -24,9 +24,6 @@
  *
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
 
 /**
  *  Recursively construct the proper HTML
@@ -58,11 +55,13 @@ function build_folder_structure(&$dirs, $path_array, $item_info)
         $item_info['url'] = $url;
         $item_info_json = json_encode($item_info);
         $fineprint = "[File Size: {$size_string}; Last Modified: {$date_string}]";
+        // phpcs:disable
         if ($CI->config->item('enable_single_file_download')) {
             $dirs['files'][$item_id] = "<a class='item_link' title='{$fineprint}' id='item_{$item_id}' href='{$url}'>{$path_array[0]}</a> <span class='fineprint'>{$fineprint}</span><span class='item_data_json' id='item_id_{$item_id}' style='display:none;'>{$item_info_json}</span>";
         } else {
             $dirs['files'][$item_id] = "{$path_array[0]} <span class='fineprint'>{$fineprint}</span><span class='item_data_json' id='item_id_{$item_id}' style='display:none;'>{$item_info_json}</span>";
         }
+        // phpcs:enable
     }
 }
 

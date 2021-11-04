@@ -29,7 +29,6 @@
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
 
-ini_set("default_socket_timeout", 30);
 
 class Baseline_api_controller extends CI_Controller
 {
@@ -40,6 +39,7 @@ class Baseline_api_controller extends CI_Controller
     {
         parent::__construct();
         //get user info
+        ini_set("default_socket_timeout", 30);
         date_default_timezone_set($this->config->item('local_timezone'));
         $this->load->model('System_setup_model', 'setup');
         $this->load->helper(
@@ -56,7 +56,10 @@ class Baseline_api_controller extends CI_Controller
         $this->file_url_base = $this->config->item('external_file_url');
         $this->cart_url_base = $this->config->item('external_cart_url');
         $user_info = get_user();
-        $this->user_id = $user_info["user_id"];
+        if($user_info) {
+            $this->user_id = $user_info["user_id"];
+
+        }
         $this->ingester_messages = $this->config->item('ingest_status_messages');
         $this->git_hash = get_current_git_hash();
         $this->application_version = $this->config->item('application_version');
@@ -64,10 +67,10 @@ class Baseline_api_controller extends CI_Controller
 
         $this->username = $user_info['first_name'] ?: 'Anonymous Stranger';
         $this->is_emsl_staff = $user_info['emsl_employee'] == 'Y' ? true : false;
-        $this->project_list = $user_info['projects'];
-        $this->email = $user_info['email_address'];
-        $this->fullname = $user_info["simple_display_name"];
-        $user_info['full_name'] = $this->fullname;
+        $this->email = $user_info['email_address'] ?: "";
+        $this->project_list = $user_info['projects'] ?: [];
+        $this->fullname = $user_info["simple_display_name"] ?: 'Anonymous Stranger';
+        $user_info['full_name'] = $this->fullname ;
         $user_info['network_id'] = !empty($user_info['network_id']) ? $user_info['network_id'] : '';
         $this->user_info = $user_info;
         if (isset($_SERVER['PATH_INFO'])) {
@@ -77,7 +80,8 @@ class Baseline_api_controller extends CI_Controller
         }
 
         $this->nav_info['current_page_info']['logged_in_user'] = "{$this->fullname}";
-        $this->nav_info['current_page_info']['logged_in_user_id'] = $user_info['network_id'] ?: $user_info["email_address"] ?: "";
+        $this->nav_info['current_page_info']['logged_in_user_id']
+            = $user_info['network_id'] ?: $user_info["email_address"] ?: "";
 
         $this->page_data = array();
         $this->page_data['nexus_auth_redirect'] = $this->config->item('nexus_portal_url');

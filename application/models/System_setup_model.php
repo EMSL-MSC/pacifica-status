@@ -39,7 +39,7 @@ class System_setup_model extends CI_Model
     /**
      *  Class constructor.
      *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
     public function __construct()
     {
@@ -61,13 +61,13 @@ class System_setup_model extends CI_Model
     /**
      *  Create the initial database entry
      *
-     *  @param string $db_name The name of the db to create
+     * @param string $db_name The name of the db to create
      *
-     *  @return [type]   [description]
+     * @return [type]   [description]
      *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _check_and_create_database($db_name)
+    private function check_and_create_database($db_name)
     {
         if ($this->db->platform() != 'sqlite3') {
             if (!$this->dbutil->database_exists($db_name)) {
@@ -88,9 +88,9 @@ class System_setup_model extends CI_Model
     /**
      *  Configure the table structures in the database
      *
-     *  @return void
+     * @return void
      *
-     *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+     * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
     public function setup_db_structure()
     {
@@ -98,7 +98,7 @@ class System_setup_model extends CI_Model
         $this->load->database('default');
         $this->load->dbforge();
         $this->load->dbutil();
-        $this->_check_and_create_database($this->db->database);
+        $this->check_and_create_database($this->db->database);
 
         //the database should already be in place. Let's make some tables
         $table_list = [
@@ -229,7 +229,9 @@ class System_setup_model extends CI_Model
 
     private function table_exists($table_name)
     {
-        $query = $this->db->query("SELECT table_name FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '{$table_name}';");
+        $sql = "SELECT table_name FROM information_schema.tables ";
+        $sql .= "WHERE table_schema = 'public' AND table_name = '{$table_name}';";
+        $query = $this->db->query($sql);
         return $query && $query->num_rows() > 0;
     }
 

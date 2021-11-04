@@ -306,7 +306,7 @@ class Status_api_model extends CI_Model
         return $last_txn;
     }
 
-    private function _get_fake_ingest_status($transaction_id, $results_obj)
+    private function get_fake_ingest_status($transaction_id, $results_obj)
     {
         $task_percent = "100.0";
         $task = "ingest_files";
@@ -347,7 +347,7 @@ class Status_api_model extends CI_Model
             'upload_present_on_mds' => $upload_present_on_mds,
             'overall_percentage' => "0.0"
         );
-        // return $this->_get_fake_ingest_status($transaction_id, $default_results_obj);
+        // return $this->get_fake_ingest_status($transaction_id, $default_results_obj);
 
         $ingester_url = "{$this->ingester_url_base}/get_state/{$transaction_id}";
 

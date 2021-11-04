@@ -1,7 +1,7 @@
 <?php
   $this->template_version = $this->config->item('template');
   $js = isset($js) ? $js : "";
-  $user_id_string = !empty($user_info['user_id']) ? $user_info['full_name']." &lt;".$user_info['user_id']."&gt;" : "";
+  $user_id_string = !empty($user_info['user_id']) ? $user_info['display_name'] : "";
 ?>
     <?php $this->load->view("page_chrome/view_header"); ?>
       <div id="container">

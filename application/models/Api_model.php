@@ -103,7 +103,7 @@ class Api_model extends CI_Model
         }
 
         //check for valid types
-        $clean_pairs = $this->_clean_up_metadata_pairs($metadata_pairs);
+        $clean_pairs = $this->clean_up_metadata_pairs($metadata_pairs);
         $compiled_info = array('results_count' => 0);
         if (empty($clean_pairs)) {
             return $compiled_info;
@@ -153,8 +153,8 @@ class Api_model extends CI_Model
                         $item_list = array_intersect($item_list, $filter['items']);
                     }
                 }
-                $file_info = $this->_get_transaction_info($item_list);
-                $compiled_info = $this->_get_metadata_entries($file_info);
+                $file_info = $this->get_transaction_info($item_list);
+                $compiled_info = $this->get_metadata_entries($file_info);
             }
         }
 
@@ -205,12 +205,13 @@ class Api_model extends CI_Model
      *
      *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _get_transaction_info($item_list)
+    private function get_transaction_info($item_list)
     {
         $DB_metadata = $this->load->database('default', true);
 
         //get a list of transactions for this list of item_id's
-        $trans_query = $DB_metadata->select('f."transaction"')->distinct()->where_in('f.item_id', $item_list)->get('files f');
+        $trans_query = $DB_metadata->select('f."transaction"')->distinct()
+            ->where_in('f.item_id', $item_list)->get('files f');
         $transaction_list = array();
         if ($trans_query && $trans_query->num_rows() > 0) {
             foreach ($trans_query->result() as $row) {
@@ -221,7 +222,8 @@ class Api_model extends CI_Model
         if (!empty($transaction_list)) {
             //first, get the submission times for each transaction
             $DB_metadata->select(array("t.stime AT TIME ZONE 'US/Pacific' as stime", 't."transaction"'));
-            $stime_query = $DB_metadata->where_in('t."transaction"', array_keys($transaction_list))->get('transactions t');
+            $stime_query = $DB_metadata->where_in('t."transaction"', array_keys($transaction_list))
+                ->get('transactions t');
             if ($stime_query && $stime_query->num_rows() > 0) {
                 foreach ($stime_query->result() as $stime_row) {
                     $stime = new DateTime($stime_row->stime);
@@ -259,7 +261,7 @@ class Api_model extends CI_Model
      *
      *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _get_metadata_entries($file_info)
+    private function get_metadata_entries($file_info)
     {
         $DB_metadata = $this->load->database('default', true);
 
@@ -269,8 +271,10 @@ class Api_model extends CI_Model
         if ($item_query && $item_query->num_rows() > 0) {
             foreach ($item_query->result() as $item_row) {
                 $DB_metadata->where('item_id', $item_row->rep_item_id);
-                $file_info['transactions'][$item_row->transaction]['result_count'] = count($file_info['transactions'][$item_row->transaction]['file_info']);
-                $group_query = $DB_metadata->from('groups g')->join('group_items gi', 'gi.group_id = g.group_id')->get();
+                $file_info['transactions'][$item_row->transaction]['result_count']
+                    = count($file_info['transactions'][$item_row->transaction]['file_info']);
+                $group_query = $DB_metadata->from('groups g')
+                    ->join('group_items gi', 'gi.group_id = g.group_id')->get();
                 if ($group_query && $group_query->num_rows() > 0) {
                     foreach ($group_query->result() as $md_row) {
                         $file_info['transactions'][$item_row->transaction]['metadata'][$md_row->type] = $md_row->name;
@@ -292,7 +296,7 @@ class Api_model extends CI_Model
      *
      *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _clean_up_metadata_pairs($pairs)
+    private function clean_up_metadata_pairs($pairs)
     {
         //check for valid types
         $cleaned_types = array();

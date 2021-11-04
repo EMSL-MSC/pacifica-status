@@ -23,10 +23,6 @@
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
 
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
-
 /**
  *  Directly retrieves simplified user info from the MyEMSL EUS
  *  database clone

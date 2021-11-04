@@ -23,9 +23,6 @@
  *
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
 
 function get_user()
 {
@@ -36,12 +33,11 @@ function get_user()
     $remote_user = $_SERVER["OIDC_CLAIM_email"] ?? $_SERVER["REMOTE_USER"] ?? $_SERVER["PHP_AUTH_USER"] ?? false;
 
     if (!$remote_user) {
-        return $remote_user;
+        return [];
     }
 
     $query_url = "{$CI->nexus_backend_url}/get_nexus_user_id_for_identifier/";
     $query_url .= urlencode($remote_user);
-
     try {
         $options = ['verify' => false];
         $query = Requests::get($query_url, array('Accept' => 'application/json'), $options);
@@ -71,7 +67,8 @@ function get_user_old()
     $CI->load->library('PHPRequests');
     $md_url = $CI->metadata_url_base;
     $remote_user = array_key_exists("REMOTE_USER", $_SERVER) ? $_SERVER["REMOTE_USER"] : false;
-    $remote_user = !$remote_user && array_key_exists("PHP_AUTH_USER", $_SERVER) ? $_SERVER["PHP_AUTH_USER"] : $remote_user;
+    $remote_user = !$remote_user && array_key_exists("PHP_AUTH_USER", $_SERVER)
+        ? $_SERVER["PHP_AUTH_USER"] : $remote_user;
     $results = false;
     $cookie_results = false;
     if ($CI->config->item('enable_cookie_redirect') && !$remote_user) {

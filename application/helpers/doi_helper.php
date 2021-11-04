@@ -24,10 +24,6 @@
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
 
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
-
 /**
  * Generate the DOI infix string for our different types of products
  * NB: local_identifier is the primary key ID of the item in question.
