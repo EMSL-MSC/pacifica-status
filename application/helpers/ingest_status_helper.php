@@ -24,9 +24,6 @@
  *
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
 
 /**
  * Provides a more user friendly version of the status messages from ingest

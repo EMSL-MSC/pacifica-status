@@ -33,12 +33,12 @@ $(function() {
         items_per_page = 20;
         page_offset = 0;
     }else{
-        current_project_id = $.cookie(cookie_base + "project_selector") || initial_project_id;
-        current_instrument_id = $.cookie(cookie_base + "instrument_selector") || initial_instrument_id;
-        current_starting_date = $.cookie(cookie_base + "starting_date_selector") || initial_starting_date;
-        current_ending_date = $.cookie(cookie_base + "ending_date_selector") || initial_ending_date;
-        items_per_page = $.cookie(cookie_base + "items_per_page") || 20;
-        page_offset = $.cookie(cookie_base + "page_offset") || 0;
+        current_project_id = Cookies.get(cookie_base + "project_selector") || initial_project_id;
+        current_instrument_id = Cookies.get(cookie_base + "instrument_selector") || initial_instrument_id;
+        current_starting_date = Cookies.get(cookie_base + "starting_date_selector") || initial_starting_date;
+        current_ending_date = Cookies.get(cookie_base + "ending_date_selector") || initial_ending_date;
+        items_per_page = Cookies.get(cookie_base + "items_per_page") || 20;
+        page_offset = Cookies.get(cookie_base + "page_offset") || 0;
     }
     current_project_id = current_project_id != "null" ? current_project_id : -1;
     current_instrument_id = current_instrument_id != "null" ? current_instrument_id : -1;
@@ -54,7 +54,7 @@ $(function() {
 
     $("#items_per_page").on("change", function(event) {
         items_per_page = $(event.target).val();
-        $.cookie(cookie_base + "items_per_page", items_per_page);
+        Cookies.set(cookie_base + "items_per_page", items_per_page);
         // $("#bottom_pager_block").pagination("updateItemsOnPage", items_per_page);
         update_content(event);
     });
@@ -93,8 +93,8 @@ var setup_daterangepicker = function() {
     trc.on("apply.daterangepicker", function(event, picker){
         current_starting_date = picker.startDate.format("YYYY-MM-DD");
         current_ending_date = picker.endDate.format("YYYY-MM-DD");
-        $.cookie(cookie_base + "starting_date_selector", current_starting_date);
-        $.cookie(cookie_base + "ending_date_selector", current_ending_date);
+        Cookies.set(cookie_base + "starting_date_selector", current_starting_date);
+        Cookies.set(cookie_base + "ending_date_selector", current_ending_date);
         reset_page_offset();
         update_content();
     });
@@ -102,8 +102,8 @@ var setup_daterangepicker = function() {
 };
 
 var reset_page_offset = function() {
-    $.cookie(cookie_base + "page_offset", 0);
-    $.cookie(cookie_base + "page_number", 1);
+    Cookies.set(cookie_base + "page_offset", 0);
+    Cookies.set(cookie_base + "page_number", 1);
 };
 
 var setup_selectors = function(initial_load) {
@@ -329,9 +329,9 @@ var my_matcher = function(params, data) {
 };
 
 var update_pager_display = function(){
-    total_item_count = parseInt($.cookie(cookie_base + "total_item_count"), 10);
-    items_per_page = parseInt($.cookie(cookie_base + "items_per_page"), 10);
-    current_page = parseInt($.cookie(cookie_base + "page_number"), 10);
+    total_item_count = parseInt(Cookies.get(cookie_base + "total_item_count"), 10);
+    items_per_page = parseInt(Cookies.get(cookie_base + "items_per_page"), 10);
+    current_page = parseInt(Cookies.get(cookie_base + "page_number"), 10);
     if(total_item_count > items_per_page){
         // $("#items_per_page").show();
         $("#bottom_pager_block").pagination({
@@ -345,8 +345,8 @@ var update_pager_display = function(){
             selectOnClick: false,
             onPageClick: function(pageNumber, event) {
                 page_offset = items_per_page * (pageNumber - 1);
-                $.cookie(cookie_base + "page_offset", page_offset);
-                $.cookie(cookie_base + "page_number", pageNumber);
+                Cookies.set(cookie_base + "page_offset", page_offset);
+                Cookies.set(cookie_base + "page_number", pageNumber);
                 update_content(event);
                 return false; //shorts out the new page load since we're using ajax
             }
@@ -376,7 +376,7 @@ var update_content = function(event) {
             if (el.prop("id") == "project_selector" && el.val() != null) {
                 get_instrument_list(el.val());
             }
-            $.cookie(cookie_base + el.prop("id"), el.val());
+            Cookies.set(cookie_base + el.prop("id"), el.val());
         }
     }
 

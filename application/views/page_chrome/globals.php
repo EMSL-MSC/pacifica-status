@@ -32,7 +32,8 @@
       <script type="text/javascript" src="/resources/scripts/utility_functions.js"></script>
 
       <!-- jquery plugins -->
-      <script src="/resources/scripts/jquery-cookie/jquery.cookie.js" type="text/javascript"></script>
+      <!-- <script src="/resources/scripts/jquery-cookie/jquery.cookie.js" type="text/javascript"></script> -->
+      <script src="/resources/scripts/js-cookie/src/js.cookie.js" type="text/javascript"></script>
 
       <link rel="stylesheet" type="text/css" href="/resources/fonts/opensans/opensans.css" />
 

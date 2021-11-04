@@ -49,19 +49,16 @@ $(function(){
             {
                 "text": "Ok",
                 "click": function(){
-                    var redir_url = $(this).data("redirect_url");
+                    var redir_url = cart_download_auth_url;
                     var this_page = window.location.href;
-                    window.location.href = redir_url + "?redirectUrl=" + this_page;
+                    Cookies.set("auth_referral_url", this_page, {domain: "pnl.gov"});
+                    Cookies.set("auth_referral_url", this_page, {domain: "pnnl.gov"});
+                    window.location.href = redir_url + "?redirectUri=" + nexus_auth_redirect;
                 }
             },
             {
                 "text": "Cancel",
                 "click": function(){
-                    var tree_name = $(this).data("tree_obj");
-                    var tree = $("#" + tree_name).fancytree("getTree");
-                    tree.visit(function(node){
-                        node.setSelected(false);
-                    });
                     cart_auth_dialog.dialog("close");
                 }
             }
@@ -85,7 +82,7 @@ var setup_file_download_links = function(parent_item) {
     var dl_button = $("#dl_button_" + tx_id);
     dl_button.off("click").on("click",
         function(){
-            cart_download(parent_item);
+            check_download_authorization(event);
         }
     );
     if(!enable_single_file_download) return false;
@@ -99,35 +96,30 @@ var setup_file_download_links = function(parent_item) {
 };
 
 var update_header_user_info = function(user_info){
-    var new_user_string = "<em>" + user_info.first_name + " " + user_info.last_name + " (" + user_info.eus_id + ")</em>";
+    var new_user_string = "<em>" + user_info.display_name + "</em>";
     $("#login_id_container").html(new_user_string);
 };
 
 var check_download_authorization = function(event){
-    var getter = $.get(cart_download_auth_url);
+    var getter = $.get(cart_download_check_url);
     getter.done(function(data){
         if (data) {
             proxied_user_id = data.eus_id;
             if(proxied_user_id && parseInt(proxied_user_id, 10) > 0){
                 update_header_user_info(data);
-                setup_download_cart_button(event);
-            }else if(proxied_user_id === 0){
-                setup_download_cart_button(event);
-            }else{
+                var tree_el = $($(event.target).up(".transaction_container")).find(".tree_holder");
+                cart_download(tree_el);
+            } else {
                 $("#cart-download-auth-dialog")
-                    .data("redirect_url", data.redirect_url)
-                    .data("tree_obj", $(event.target).prop("id"))
                     .dialog("open");
             }
         } else {
-            alert("Looks like there was a problem with your EUS authentication check. Try again in a few minutes.");
+            alert("Looks like there was a problem with your NEXUS authentication check. Try again in a few minutes.");
         }
     });
-    getter.fail(function(jqxhr){
-        var response_obj = JSON.parse(jqxhr.responseText);
+
+    getter.fail(function(){
         $("#cart-download-auth-dialog")
-            .data("redirect_url", response_obj.redirect_url)
-            .data("tree_obj", $(event.target).prop("id"))
             .dialog("open");
     });
 };
@@ -146,11 +138,26 @@ var generate_cart_identifier = function(){
 
 var cart_download = function(transaction_container){
     var selected_files = get_selected_files(transaction_container);
-    //check for token
     var item_id_list = Object.keys(selected_files.sizes);
+    //check for token
+    var transaction_meta = get_transaction_info(transaction_container);
+    $("#dl_transaction_id").val(transaction_meta.transaction_id);
+    $("#dl_project_id").val(transaction_meta.project_id);
+    $("#dl_instrument_id").val(transaction_meta.instrument_id);
     $("#cart_file_list").val(JSON.stringify(item_id_list));
+    $("#dl_total_file_size").val(selected_files.total_size);
     $("#current_transaction_container").val(transaction_container.prop("id"));
     cart_create_dialog.dialog("open");
+};
+
+var get_transaction_info = function(transaction_container){
+    var metadata_fields = $(transaction_container).parents(".transaction_container");
+    var md_json = {
+        transaction_id: $(metadata_fields).find(".transaction_identifier").val(),
+        project_id: $(metadata_fields).find(".project_identifier").val(),
+        instrument_id: $(metadata_fields).find(".instrument_identifier").val()
+    };
+    return md_json;
 };
 
 var create_cart = function(submission_object, transaction_container){
@@ -190,7 +197,10 @@ var cart_status = function(){
             $("#cart_listing_container").show();
         }
     });
-    getter.fail(function(jqxhr, status, error){});
+    getter.fail(function(jqxhr){
+        var msg_string = jqxhr.responseJSON.message;
+        console.error("A problem occurred getting status on your cart.\n[" + msg_string + "]");
+    });
 };
 
 
@@ -360,13 +370,9 @@ var setup_metadata_disclosure = function(){
 
 };
 
-var setup_download_cart_button = function(event){
-    var el = $(event.target);
+var setup_download_cart_button = function(el){
+    // var el = $(event.target);
     var dl_button = el.parent().find(".dl_button_container");
-    var tree = el.fancytree("getTree");
-    // var fileSizes = get_file_sizes($(el));
-    var topNode = tree.getRootNode();
-    var dataNode = topNode.children[0];
     var fileSizes = get_selected_files($(el));
     if(fileSizes != null) {
         var totalSizeText = myemsl_size_format(fileSizes.total_size);
@@ -382,16 +388,18 @@ var setup_tree_data = function(){
                 $(el).fancytree(
                     {
                         checkbox:true,
+                        extensions: ["persist"],
+                        persist: {
+                            expandLazy: true,
+                            store: "auto",
+                            fireActivate: false
+                        },
                         selectMode: 3,
-                        select: function(event, data){
-                            if(data.node.selected){
-                                var user_id_string = check_download_authorization(event);
-                                if(!user_id_string){
-                                    return false;
-                                }
-                            }else{
-                                setup_download_cart_button(event);
-                            }
+                        select: function(event){
+                            setup_download_cart_button($(event.target));
+                        },
+                        restore: function(event){
+                            setup_download_cart_button($(event.target));
                         },
                         keydown: function(event, data){
                             if(event.which === 32) {
@@ -440,8 +448,9 @@ var myemsl_size_format = function(bytes) {
 
 var cart_url_base = base_url;
 var cart_identifier = generate_cart_identifier();
-var cart_info_url = cart_url_base + "cart/listing/" + cart_identifier;
+var cart_info_url = cart_url_base + "cart_listing";
 var cart_create_url = cart_url_base + "cart/create/" + cart_identifier;
 var cart_delete_url = cart_url_base + "cart/delete/" + cart_identifier;
-var cart_download_auth_url = cart_url_base + "cart/checkauth";
+var cart_download_auth_url = "/cart/checkauth";
+var cart_download_check_url = cart_url_base + "api/checkauth";
 var proxied_user_id = null;

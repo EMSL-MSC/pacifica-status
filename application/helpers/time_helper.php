@@ -24,10 +24,6 @@
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
 
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
-
 /**
  *  Formats a time as a loose human readable approximation
  *  for display purposes ('a few minutes ago', 'about a month ago')
@@ -133,7 +129,9 @@ function friendlyElapsedTime($datetime_object, $base_time_obj = false, $use_ago 
     }
     $ago = $use_ago ? " ago" : "";
     //format string
-    $result_string = sizeof($result) > 1 ? "~".array_shift($result)." ".array_shift($result)."{$ago}" : "~".array_shift($result)."{$ago}";
+    $result_string = sizeof($result) > 1
+        ? "~".array_shift($result)." ".array_shift($result)."{$ago}"
+        : "~".array_shift($result)."{$ago}";
     return $result_string;
 }
 

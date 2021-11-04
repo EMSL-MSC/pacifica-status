@@ -19,7 +19,7 @@
  *
  * @link http://github.com/EMSL-MSC/pacifica-upload-status
  */
-require_once 'Baseline_api_controller.php';
+ require_once 'Baseline_api_controller.php';
 
 /**
  * Status API is a CI Controller class that extends Baseline_controller.
@@ -67,6 +67,7 @@ class Baseline_user_api_controller extends Baseline_api_controller
         $this->page_data['script_uris'] = array(
             '/resources/scripts/spinner/spin.min.js',
             '/resources/scripts/fancytree/dist/jquery.fancytree-all.js',
+            '/resources/scripts/fancytree/dist/modules/jquery.fancytree.persist.js',
             '/resources/scripts/jquery-crypt/jquery.crypt.js',
             '/resources/scripts/select2-4/dist/js/select2.js',
             '/resources/scripts/bootstrap-daterangepicker/daterangepicker.js'

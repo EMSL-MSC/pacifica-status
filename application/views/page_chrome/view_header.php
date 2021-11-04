@@ -15,6 +15,7 @@
 <?php $this->load->view("page_chrome/globals"); ?>
     <script type="text/javascript">
     var base_url = "<?= base_url() ?>";
+    var nexus_auth_redirect = "<?= $nexus_auth_redirect ?>";
     </script>
 
 <?= $script_uris ?>

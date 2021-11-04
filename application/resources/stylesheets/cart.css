@@ -32,7 +32,7 @@
 }
 
 .cart_tree .cart_delete_button {
-    right: 1.5em;
+    right: 0.6em;
     top: 4px;
     position: relative;
 }
@@ -44,12 +44,6 @@
 
 .cart_tree .cart_status_center {
     text-align: center;
-}
-
-.cart_tree .cart_delete_button {
-    right: 1.5em;
-    top: 4px;
-    position: relative;
 }
 
 .file_format_message {

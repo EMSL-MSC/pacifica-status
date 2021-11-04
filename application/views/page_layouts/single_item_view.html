@@ -1,9 +1,7 @@
 <?php
   $this->template_version = $this->config->item('template');
   $this->load->view("page_chrome/view_header");
-  $user_id_string = !empty($this->nav_info['current_page_info']['logged_in_user_id']) ?
-    "{$this->nav_info['current_page_info']['logged_in_user']} ({$this->nav_info['current_page_info']['logged_in_user_id']})" :
-    "";
+  $user_id_string = !empty($user_info['user_id']) ? $user_info['display_name'] : "";
   $js = isset($js) ?
 "<script type='text/javascript'>
 //<![CDATA[

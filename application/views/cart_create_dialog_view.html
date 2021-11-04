@@ -1,33 +1,49 @@
 <div id="cart-create-dialog-form" title="Create a New Cart" style="width: 70%;display:none;">
-	<br />
-	<form class="themed">
-		<fieldset>
-			<div>
-				<div class="left_block" style="width:15%;">
-					<label for="name">Name<sup style='color:red;'>*</sup></label>
-				</div>
-				<div class="right_block" style="width:75%;">
-					<input type="text" name="name" id="cart_name" placeholder="Name your cart" style="width:95%" class="required text ui-widget ui-corner-all"/>
-				</div>
-			</div>
-			<div>
-				<div class="left_block" style="width:15%;">
-					<label for="description">Description</label>
-				</div>
-				<div class="right_block" style="width:75%;">
-					<input type="text" name="description" id="cart_description" placeholder="Cart Description (optional)" style="width:95%" class="text ui-widget ui-corner-all"/>
-				</div>
-			</div>
-			<input type="hidden" name="files" id="cart_file_list" value="" />
-            <input type="hidden" name="current_transaction" id="current_transaction_container" value"" />
-
-			<input type="submit" tabindex="-1" style="position:absolute; top:-1000px";
-		</fieldset>
-		<div style="text-align:center;font-weight:bold;">
-			<span style="color:red;font-size:1.2em;">*</span> indicates a required field
-		</div>
-	</form>
+  <br />
+  <form class="themed">
+    <fieldset>
+      <div>
+        <div class="left_block" style="width:15%;">
+          <label for="name">Name<sup style='color:red;'>*</sup></label>
+        </div>
+        <div class="right_block" style="width:75%;">
+          <input type="text" name="name" id="cart_name" placeholder="Name your cart" style="width:95%" class="required text ui-widget ui-corner-all"/>
+        </div>
+      </div>
+      <div>
+        <div class="left_block" style="width:15%;">
+          <label for="description">Description</label>
+        </div>
+        <div class="right_block" style="width:75%;">
+          <input type="text" name="description" id="cart_description" placeholder="Cart Description (optional)" style="width:95%" class="text ui-widget ui-corner-all"/>
+        </div>
+      </div>
+      <input type="hidden" name="files" id="cart_file_list" value="" />
+      <input type="hidden" name="current_transaction" id="current_transaction_container" value="" />
+      <input type="hidden" name="dl_transaction_id" id="dl_transaction_id" value="" />
+      <input type="hidden" name="dl_project_id" id="dl_project_id" value="" />
+      <input type="hidden" name="dl_instrument_id" id="dl_instrument_id" />
+      <input type="hidden" name="dl_total_file_size" id="dl_total_file_size" />
+      <input type="submit" tabindex="-1" style="position:absolute; top:-1000px" />;
+    </fieldset>
+    <div style="text-align:center;font-weight:bold;">
+      <span style="color:red;font-size:1.2em;">*</span> indicates a required field
+    </div>
+  </form>
 </div>
-<div id="cart-download-auth-dialog" title="Download Authorization Required">
-  You need to be logged in as an EUS user to download data
+<div id="cart-download-auth-dialog" title="Download Authorization Required" style="display:none;">
+  <p>
+    Downloading data from this site requires an EMSL User Services account login.
+  </p>
+  <p>
+    This allows us to gather aggregate statistics regarding the number of users who are making use of this data.
+  </p>
+  <p>
+    Clicking <strong>OK</strong> will take you to the login page for the NEXUS User Portal, where
+    you can either sign in to an existing account or create a new one. You will be redirected back to this page after authentication
+  </p>
+  <p>
+    (This process can take a moment, we ask for patience.)
+    </p>
+
 </div>

@@ -24,24 +24,20 @@
  *
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
-
 
 /**
  *  Takes a given array object and formats it as
  *  standard JSON with appropriate status headers
  *  and X-JSON messages
  *
- *  @param array   $response            the array to be transmitted
- *  @param string  $statusMessage       optional status message
- *  @param boolean $operationSuccessful Was the calling
- *                                      operation successful?
+ * @param array   $response            the array to be transmitted
+ * @param string  $statusMessage       optional status message
+ * @param boolean $operationSuccessful Was the calling
+ *                                     operation successful?
  *
- *  @return void (sends directly to browser)
+ * @return void (sends directly to browser)
  *
- *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
 function transmit_array_with_json_header($response, $statusMessage = '', $operationSuccessful = true)
 {
@@ -66,11 +62,11 @@ function transmit_array_with_json_header($response, $statusMessage = '', $operat
  *  Similar to transmit_array_with_json_header above,
  *  but with different headers returned
  *
- *  @param array $response_array array to be processed
+ * @param array $response_array array to be processed
  *
- *  @return void (sends directly to browser)
+ * @return void (sends directly to browser)
  *
- *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
 function send_json_array($response_array)
 {
@@ -92,11 +88,11 @@ function send_json_array($response_array)
  *  to be parsed by the Select2 Jquery library for
  *  generating dropdown menu objects
  *
- *  @param array $response array to be formatted
+ * @param array $response array to be formatted
  *
- *  @return void (sends directly to browser)
+ * @return void (sends directly to browser)
  *
- *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
 function format_array_for_select2($response)
 {
@@ -122,16 +118,16 @@ function format_array_for_select2($response)
  *  some content out of the middle to provide
  *  better display formatting
  *
- *  @param string  $string string to be shortened
- *  @param integer $limit  maximum string length allowed
- *  @param string  $break  preferred character at which to split the original string
- *                             to split the original string
- *  @param string  $pad    string to use for replacing the deleted text
- *                             deleted text
+ * @param string  $string string to be shortened
+ * @param integer $limit  maximum string length allowed
+ * @param string  $break  preferred character at which to split the original string
+ *                        to split the original string
+ * @param string  $pad    string to use for replacing the deleted text
+ *                        deleted text
  *
- *  @return string shortened string
+ * @return string shortened string
  *
- *  @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
  */
 function truncate_text($string, $limit, $break = " ", $pad = "...")
 {
@@ -160,4 +156,26 @@ function get_current_git_hash()
     exec("git rev-list --all --max-count=1 --abbrev-commit -- ". APPPATH . " 2>/dev/null", $last_hash);
     $hash = !empty($last_hash) ? array_pop($last_hash) : "";
     return $hash;
+}
+
+/**
+ * Generate an RFC4122 compliant UUID4
+ *
+ * @return string UUID4
+ *
+ * @author Ken Auberry <kenneth.auberry@pnnl.gov>
+ */
+function guidv4($data = null)
+{
+    // Generate 16 bytes (128 bits) of random data or use the data passed into the function.
+    $data = $data ?? random_bytes(16);
+    assert(strlen($data) == 16);
+
+    // Set version to 0100
+    $data[6] = chr(ord($data[6]) & 0x0f | 0x40);
+    // Set bits 6-7 to 10
+    $data[8] = chr(ord($data[8]) & 0x3f | 0x80);
+
+    // Output the 36 character UUID.
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }

@@ -127,7 +127,7 @@ var update_content = function(event){
                 return false;
             }
             if(["project_selector","instrument_selector","timeframe_selector"].indexOf(el.prop("id")) >= 0) {
-                $.cookie("myemsl_status_last_" + el.prop("id"), el.val(),{ expires: 30, path: "/" });
+                Cookies.set("myemsl_status_last_" + el.prop("id"), el.val(), { expires: 30, path: "/" });
             }
         }else{
             if(initial_instrument_id > 0){

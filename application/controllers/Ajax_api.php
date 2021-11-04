@@ -36,10 +36,8 @@ class Ajax_api extends Baseline_api_controller
      */
     public function __construct()
     {
-
         parent::__construct();
         $this->load->model('status_api_model', 'status');
-        $this->load->model('Myemsl_api_model', 'myemsl');
         $this->load->helper('network');
         $this->load->library('PHPRequests');
         $this->user_relationships = [];
@@ -150,7 +148,11 @@ class Ajax_api extends Baseline_api_controller
             $this->user_relationships = get_relationship_list();
         }
         $transaction_info = $this->status->get_transaction_details($transaction_id);
-        $associated_projects_list = array_map('strval', array_keys($this->user_info['projects']));
+        $associated_project_list = [];
+        foreach ($this->user_info['projects'] as $project_entry) {
+            $associated_projects_list[] = $project_entry['id'];
+        }
+        //$associated_projects_list = array_map('strval', array_keys($this->user_info['projects']));
         if (!in_array($transaction_info['project'], $associated_projects_list)) {
             //user is not authorized to release this transaction
             $this->output->set_status_header(403, "You are not authorized to release transaction {$transaction_id}");

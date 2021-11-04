@@ -42,7 +42,6 @@ class Status_api_model extends CI_Model
     {
         parent::__construct();
         $this->local_timezone = $this->config->item('local_timezone');
-        $this->load->model('Myemsl_api_model', 'myemsl');
         $this->load->helper(array('item', 'network', 'time', 'user'));
 
         $this->status_list = array(
@@ -76,9 +75,9 @@ class Status_api_model extends CI_Model
             'start' => local_time_to_utc($start_time, 'Y-m-d H:i:s'),
             'end' => local_time_to_utc($end_time, 'Y-m-d H:i:s'),
             'submitter' => isset($submitter) ? $submitter : -1,
-            'requesting_user' => $this->user_id//,
-            //'page' => $this->current_page_number,
-            //'item_count' => $this->current_items_per_page
+            'requesting_user' => $this->user_id,
+            'page' => $this->current_page_number,
+            'item_count' => $this->current_items_per_page
         );
         $transactions_url .= http_build_query($url_args_array, '', '&');
         $query = Requests::get($transactions_url, array('Accept' => 'application/json'));
@@ -307,7 +306,7 @@ class Status_api_model extends CI_Model
         return $last_txn;
     }
 
-    private function _get_fake_ingest_status($transaction_id, $results_obj)
+    private function get_fake_ingest_status($transaction_id, $results_obj)
     {
         $task_percent = "100.0";
         $task = "ingest_files";
@@ -348,7 +347,7 @@ class Status_api_model extends CI_Model
             'upload_present_on_mds' => $upload_present_on_mds,
             'overall_percentage' => "0.0"
         );
-        // return $this->_get_fake_ingest_status($transaction_id, $default_results_obj);
+        // return $this->get_fake_ingest_status($transaction_id, $default_results_obj);
 
         $ingester_url = "{$this->ingester_url_base}/get_state/{$transaction_id}";
 

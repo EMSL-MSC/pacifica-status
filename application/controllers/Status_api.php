@@ -48,7 +48,6 @@ class Status_api extends Baseline_user_api_controller
     {
         parent::__construct();
         $this->load->model('Status_api_model', 'status');
-        $this->load->model('Myemsl_api_model', 'myemsl');
         $this->page_data['page_header'] = 'Status Reporting';
         $this->page_data['title'] = 'Status Overview';
         $this->page_data['external_release_base_url'] = $this->config->item('external_release_base_url');
@@ -59,7 +58,8 @@ class Status_api extends Baseline_user_api_controller
         $this->page_data['script_uris'][] = "/project_resources/scripts/jquery.simplePagination.js";
         $this->page_data['css_uris'][] = "/project_resources/stylesheets/simplePagination.css";
         $this->page_data['js'] = "";
-        $this->overview_template = $this->config->item('main_overview_template') ?: "page_layouts/status_page_view.html";
+        $this->overview_template = $this->config->item('main_overview_template')
+            ?: "page_layouts/status_page_view.html";
         $this->config->load('data_release');
         $this->current_items_per_page = get_cookie('myemsl_status_last_items_per_page') ?: 10;
         $this->current_page_offset = get_cookie('myemsl_status_last_page_offset') ?: 0;
@@ -105,6 +105,7 @@ class Status_api extends Baseline_user_api_controller
             'page_header' => 'Data Release Interface',
             'title' => 'Data Release'
         ];
+        $project_list = json_encode(array_map('strval', array_keys($this->extract_project_list($this->user_info))));
         $this->page_data = array_merge($this->page_data, $updated_page_info);
         $this->page_data['transaction_data'] = $this->status->get_formatted_transaction($transaction_id);
         $this->page_data['css_uris']
@@ -130,6 +131,7 @@ class Status_api extends Baseline_user_api_controller
                 var data_identifier = 0;
                 var transaction_id = {$transaction_id};
                 var ingest_complete = false;
+                var project_list = {$project_list};
                 var ui_markup = {
                     \"instrument_selection_desc\": \"{$this->config->item('ui_instrument_desc')}\",
                     \"project_selection_desc\": \"{$this->config->item('ui_project_desc')}\"
@@ -165,10 +167,10 @@ class Status_api extends Baseline_user_api_controller
         $ending_date = ''
     ) {
         $defaults = [
-        'project_id' => $project_id,
-        'instrument_id' => $instrument_id,
-        'starting_date' => $starting_date,
-        'ending_date' => $ending_date
+            'project_id' => $project_id,
+            'instrument_id' => $instrument_id,
+            'starting_date' => $starting_date,
+            'ending_date' => $ending_date
         ];
         $defaults = get_selection_defaults($defaults);
         extract($defaults);
@@ -194,7 +196,6 @@ class Status_api extends Baseline_user_api_controller
         );
 
         $full_user_info = $this->user_info;
-
         $js = "var initial_project_id = \"{$project_id}\";
                 var external_release_base_url = \"{$this->config->item('external_release_base_url')}\";
                 var initial_instrument_id = \"{$instrument_id}\";
@@ -303,9 +304,11 @@ class Status_api extends Baseline_user_api_controller
         }
         $this->referring_page = str_replace(base_url(), '', $this->input->server('HTTP_REFERER'));
         $time_period_empty = true;
-        $full_user_info = $this->user_info;
-        $project_list = $this->_extract_project_list($this->user_info);
+        $full_user_info = get_user_details($this->user_id);
+        $this->page_data['project_list'] = $this->extract_project_list($full_user_info);
+
         $this->page_data['project_list'] = $project_list;
+
         ksort($this->page_data['project_list']);
 
         if (isset($instrument_id) && intval($instrument_id) != 0
@@ -340,7 +343,7 @@ class Status_api extends Baseline_user_api_controller
                 $transactions['transactions'][$transaction_id]['metadata']['transaction_id'] =
                 "<a href=\"/view/{$transaction_id}\" title=\"Transaction #{$transaction_id}\">{$transaction_id}</a>";
                 $transactions['transactions'][$transaction_id]['metadata']['visibility'] =
-                    $this->_evaluate_data_visibility($transaction_info);
+                    $this->evaluate_data_visibility($transaction_info);
             }
 
             $file_size_totals = array();
@@ -371,6 +374,7 @@ class Status_api extends Baseline_user_api_controller
                 krsort($results['transaction_list']['times']);
             }
         }
+        $this->page_data['user_info'] = $this->user_info;
         $this->page_data['selected_project_id'] = $project_id;
         $this->page_data['selected_instrument_id'] = $instrument_id;
         $this->page_data['enable_breadcrumbs'] = false;
@@ -419,9 +423,9 @@ class Status_api extends Baseline_user_api_controller
             )
         );
         $this->page_data['view_mode'] = 'single';
-        $this->page_data['js'] .= "var transaction_id = '{$id}';
-        ";
-        if (!empty($transaction_info['transactions']) && !$this->_evaluate_data_visibility($transaction_info['transactions'][$id])) {
+        $this->page_data['js'] .= "var transaction_id = '{$id}'; ";
+        if (!empty($transaction_info['transactions'])
+            && !$this->evaluate_data_visibility($transaction_info['transactions'][$id])) {
             $transaction_info['transactions'][$id]['metadata']['visibility'] = false;
             $err_msg = 'This data resource has not been made publicly available.';
             $this->page_data['page_header'] = "Data Unavailable";
@@ -452,7 +456,7 @@ class Status_api extends Baseline_user_api_controller
             ]
         );
 
-        $project_list = $this->_extract_project_list($this->user_info);
+        $project_list = $this->extract_project_list($this->user_info);
 
         $this->page_data['project_list'] = $project_list;
         ksort($this->page_data['project_list']);
@@ -505,13 +509,13 @@ var cart_access_url_base = \"{$this->config->item('external_cart_url')}\";";
                 } else {
                     $this->page_data['page_header'] = 'Transaction Still In Progress';
                     $this->page_data['title'] = 'Upload is still being processed';
-
+                    // phpcs:disable
                     $err_msg = "<p style=\"font-size: 1.2em\">Data for Upload {$id} has been received by the data repository and is currently being processed.</p>";
                     $err_msg .= "<p>Once this process has completed, the data will be available on this page</p>";
                     $err_msg .= "<p>This page should continue to refresh on its own,<br />";
                     $err_msg .= "but it you're still seeing it after an unreasonable amount of time, <br />please contact ";
                     $err_msg .= "<a href=\"mailto:nexus-support@emsl.pnl.gov?Subject=Question%20about%20MyEMSL%20upload%20of%20transaction%20{$id}\" target=\"_top\">NEXUS Support</a>";
-
+                    // phpcs:enable
                     $this->page_data['force_refresh'] = true;
                     $this->page_data['error_message'] = $err_msg;
                     $this->page_data['js'] .= "
@@ -546,6 +550,7 @@ var cart_access_url_base = \"{$this->config->item('external_cart_url')}\";";
         $this->page_data['cart_data'] = array(
         'carts' => array()
         );
+        $this->page_data['user_info'] = $this->user_info;
         $this->page_data['request_type'] = 't';
         $this->page_data['enable_breadcrumbs'] = false;
         $this->page_data['js'] .= "var initial_inst_id = '{$inst_id}';
@@ -566,16 +571,15 @@ var cart_access_url_base = \"{$this->config->item('external_cart_url')}\";";
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _evaluate_data_visibility($transaction_info)
+    private function evaluate_data_visibility($transaction_info)
     {
         $authenticated = !empty($this->user_info['person_id']);
-        $my_project_list = $this->_extract_project_list($this->user_info);
+        $my_project_list = $this->extract_project_list($this->user_info);
         $project_id = (string)$transaction_info['metadata']['project_id'];
         $on_project_team = in_array($project_id, array_map('strval', array_keys($my_project_list)));
         $released = $transaction_info['metadata']['release_state'] == 'released';
         $emsl_staff = $this->user_info['emsl_employee'];
         $data_visible = ($authenticated && $on_project_team) || $emsl_staff || $released;
-
         return $data_visible;
     }
 
@@ -588,7 +592,7 @@ var cart_access_url_base = \"{$this->config->item('external_cart_url')}\";";
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _decide_redirect_status($transaction_info)
+    private function decide_redirect_status($transaction_info)
     {
         $redirect_switch_enabled = $this->config->item('enable_cookie_redirect');
         $cookie_status = ($redirect_switch_enabled && get_user_from_cookie()) || !$redirect_switch_enabled;
@@ -597,7 +601,7 @@ var cart_access_url_base = \"{$this->config->item('external_cart_url')}\";";
     }
 
     /**
-     * [_extract_project_list description]
+     * [extract_project_list description]
      *
      * @param [type] $user_info [description]
      *
@@ -605,7 +609,7 @@ var cart_access_url_base = \"{$this->config->item('external_cart_url')}\";";
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    private function _extract_project_list($user_info)
+    private function extract_project_list($user_info)
     {
         $project_list = [];
         if (array_key_exists('projects', $user_info)) {

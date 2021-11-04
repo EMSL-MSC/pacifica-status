@@ -29,7 +29,6 @@
  * @link     http://github.com/EMSL-MSC/pacifica-upload-status
  */
 
-ini_set("default_socket_timeout", 30);
 
 class Baseline_api_controller extends CI_Controller
 {
@@ -40,6 +39,7 @@ class Baseline_api_controller extends CI_Controller
     {
         parent::__construct();
         //get user info
+        ini_set("default_socket_timeout", 30);
         date_default_timezone_set($this->config->item('local_timezone'));
         $this->load->model('System_setup_model', 'setup');
         $this->load->helper(
@@ -55,23 +55,23 @@ class Baseline_api_controller extends CI_Controller
         $this->ingester_url_base = str_replace('tcp:', 'http:', getenv('INGESTER_PORT') ?: 'http://127.0.0.1:8066');
         $this->file_url_base = $this->config->item('external_file_url');
         $this->cart_url_base = $this->config->item('external_cart_url');
-        $this->drhub_url_base = $this->config->item('drhub_url_base');
-        $this->user_id = get_user();
+        $user_info = get_user();
+        if ($user_info) {
+            $this->user_id = $user_info["user_id"];
+        }
         $this->ingester_messages = $this->config->item('ingest_status_messages');
         $this->git_hash = get_current_git_hash();
         $this->application_version = $this->config->item('application_version');
         $this->page_address = implode('/', $this->uri->rsegments);
 
-        $this->benchmark->mark('get_user_details_start');
-        $user_info = get_user_details($this->user_id);
         $this->username = $user_info['first_name'] ?: 'Anonymous Stranger';
         $this->is_emsl_staff = $user_info['emsl_employee'] == 'Y' ? true : false;
-        $this->email = $user_info['email_address'];
-        $this->fullname = "{$this->username} {$user_info['last_name']}";
-        $user_info['full_name'] = $this->fullname;
+        $this->email = $user_info['email_address'] ?: "";
+        $this->project_list = $user_info['projects'] ?: [];
+        $this->fullname = $user_info["simple_display_name"] ?: 'Anonymous Stranger';
+        $user_info['full_name'] = $this->fullname ;
         $user_info['network_id'] = !empty($user_info['network_id']) ? $user_info['network_id'] : '';
         $this->user_info = $user_info;
-
         if (isset($_SERVER['PATH_INFO'])) {
             $current_path_info = ltrim($_SERVER['PATH_INFO'], '/');
         } else {
@@ -79,15 +79,17 @@ class Baseline_api_controller extends CI_Controller
         }
 
         $this->nav_info['current_page_info']['logged_in_user'] = "{$this->fullname}";
-        $this->nav_info['current_page_info']['logged_in_user_id'] = $user_info['network_id'] ?: "";
-        $this->benchmark->mark('get_user_details_end');
+        $this->nav_info['current_page_info']['logged_in_user_id']
+            = $user_info['network_id'] ?: $user_info["email_address"] ?: "";
 
         $this->page_data = array();
+        $this->page_data['nexus_auth_redirect'] = $this->config->item('nexus_portal_url');
         $this->page_data['navData'] = $this->nav_info;
         $this->page_data['infoData'] = array(
             'current_credentials' => $this->user_id,
             'full_name' => $this->fullname
         );
+        $this->page_data['project_list'] = $this->project_list;
         $this->page_data['username'] = $this->username;
         $this->page_data['fullname'] = $this->fullname;
         $this->page_data['load_prototype'] = false;

@@ -24,10 +24,6 @@
  * @link http://github.com/EMSL-MSC/Pacifica-reporting
  */
 
-if (!defined('BASEPATH')) {
-    exit('No direct script access allowed');
-}
-
 /**
  *  Converts a numeric year quarter into starting/ending month
  *
@@ -120,12 +116,12 @@ function get_last_update()
     $accepted_subdirs = array('controllers','models','views','helpers');
     foreach ($dirs as $dir) {
         foreach ($accepted_subdirs as $subdir) {
-            {
-            // $directory = new RecursiveDirectoryIterator($dir);
             $fulldir = $dir . $subdir;
-            $objects = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($fulldir), RecursiveIteratorIterator::LEAVES_ONLY);
+            $objects = new RecursiveIteratorIterator(
+                new RecursiveDirectoryIterator($fulldir),
+                RecursiveIteratorIterator::LEAVES_ONLY
+            );
             $files = array_merge($files, array_keys(iterator_to_array($objects, true)));
-            }
         }
     }
     $maxtimestamp = 0;

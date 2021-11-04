@@ -43,7 +43,7 @@ class Cart_api extends Baseline_api_controller
     {
         parent::__construct();
         $this->load->model('Cart_api_model', 'cart');
-        $this->load->helper(array('url', 'network', 'item', 'myemsl_api'));
+        $this->load->helper(array('url', 'network', 'item', 'user', 'myemsl_api'));
         $this->eus_cookie_name = $this->config->item('cookie_name');
         $this->eus_login_redirect_url = $this->config->item('cookie_redirect_url');
         $this->eus_cookie_encryption_key = $this->config->item('cookie_encryption_key');
@@ -57,10 +57,11 @@ class Cart_api extends Baseline_api_controller
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function listing($cart_owner_identifier)
+    public function listing()
     {
-        $accept = $this->input->get_request_header('Accept');
-        $cart_list = $this->cart->cart_status($cart_owner_identifier);
+        // $accept = $this->input->get_request_header('Accept');
+        log_message('info', "IN cart_api/listing");
+        $cart_list = $this->cart->cart_status();
         if (stristr(strtolower($accept), 'json')) {
             //looks like a json request
             transmit_array_with_json_header($cart_list);
@@ -89,16 +90,17 @@ class Cart_api extends Baseline_api_controller
             echo "That's not how you use this function!!!";
             exit();
         }
-        // Check to make sure the auth cookie is set, and make sure that the encoded value is opcache_invalidate
+        // Check to make sure the auth cookie is set, and make sure that the encoded value is ok
         // How are we making use of this information? Does it go somewhere in the database?
         if ($this->config->item('enable_require_credentials_for_cart_download')) {
             $user_block = $this->check_download_authorization(false);
             $user_id = $user_block['eus_id'];
-            if ($user_id) {
-                $user_info = get_user_details_simple($user_id);
-            } else {
-                $this->output->set_status_header(302, "Unknown EUS User");
-                print("");
+            if (!$this->user_id || $this->user_id == 0) {
+                $this->output->set_status_header(403, "Unknown EUS User");
+                $response = [
+                    'message' => 'No Credentials found for this user'
+                ];
+                transmit_array_with_json_header($response);
                 return;
             }
         }
@@ -109,7 +111,9 @@ class Cart_api extends Baseline_api_controller
             echo "Hey! There's no real data here!";
         }
         // var_dump($this->input->request_headers());
-        $cart_uuid_info = $this->cart->cart_create($cart_owner_identifier, $this->input->raw_input_stream);
+        $cart_local_uuid = guidv4();
+        $cart_uuid_info = $this->cart->cart_create($cart_local_uuid, $this->input->raw_input_stream);
+        log_message('info', json_encode($cart_uuid_info));
         transmit_array_with_json_header($cart_uuid_info);
     }
 
@@ -120,26 +124,27 @@ class Cart_api extends Baseline_api_controller
      *
      * @author Ken Auberry <kenneth.auberry@pnnl.gov>
      */
-    public function check_download_authorization($show_output = true)
+    public function check_download_authorization($show_output = false)
     {
         $retval = [
-            "redirect_url" => $this->eus_login_redirect_url,
             "eus_id" => null
         ];
         // $this->user_id = false;
-        if (!$this->config->item('enable_require_credentials_for_cart_download')) {
-            $retval['eus_id'] = 0;
-        } else if (!$this->config->item('enable_cookie_redirect')) {
+        if (array_key_exists('OIDC_access_token', $_SERVER)) {
+            $retval = get_user_details($_SERVER["REMOTE_USER"]);
             $retval['eus_id'] = $this->user_id;
             $retval = array_merge($retval, $this->user_info);
-        } else if (!$this->config->item('enable_require_credentials_for_cart_download')) {
-            $retval['eus_id'] = 0;
         } else {
-            $eus_user_info = get_user_from_cookie();
-            if ($eus_user_info) {
-                $this->user_info = $eus_user_info;
-                $retval = array_merge($retval, $eus_user_info);
-            }
+            $retval['eus_id'] = 0;
+        }
+        // echo strpos(uri_string(), 'cart/checkauth');
+        if (strpos(uri_string(), 'cart/checkauth') !== false) {
+            // if (substr(uri_string(), 0, 5) == 'cart/checkauth') {
+            $new_loc = $_SERVER['QUERY_STRING'];
+            $new_loc = str_replace('redirectUri=', "", $new_loc);
+            // $new_loc = str_replace($_SERVER["REQUEST_SCHEME"]."://", "", $new_loc);
+            // $new_loc = str_replace($_SERVER["SERVER_NAME"]."/", "", $new_loc);
+            redirect($new_loc);
         }
         if ($show_output) {
             $this->output->set_content_type('application/json');
