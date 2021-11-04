@@ -96,7 +96,7 @@ var setup_file_download_links = function(parent_item) {
 };
 
 var update_header_user_info = function(user_info){
-    var new_user_string = "<em>" + user_info.simple_display_name + "</em>";
+    var new_user_string = "<em>" + user_info.display_name + "</em>";
     $("#login_id_container").html(new_user_string);
 };
 
