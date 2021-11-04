@@ -56,9 +56,8 @@ class Baseline_api_controller extends CI_Controller
         $this->file_url_base = $this->config->item('external_file_url');
         $this->cart_url_base = $this->config->item('external_cart_url');
         $user_info = get_user();
-        if($user_info) {
+        if ($user_info) {
             $this->user_id = $user_info["user_id"];
-
         }
         $this->ingester_messages = $this->config->item('ingest_status_messages');
         $this->git_hash = get_current_git_hash();

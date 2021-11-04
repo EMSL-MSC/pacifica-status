@@ -388,7 +388,6 @@ class Cart_api_model extends CI_Model
             $headers_list = ['Content-Type' => 'application/json'];
             $options = ['verify' => false];
             $deactivate_query = Requests::get($deactivate_url, $headers_list, $options);
-
         }
         return $status_code;
     }
